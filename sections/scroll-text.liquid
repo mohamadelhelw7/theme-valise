@@ -1,0 +1,166 @@
+{%- liquid
+  assign words = section.settings.text | escape | strip_newlines | split: ' '
+  assign word_count = words.size
+  assign in_accent = false
+-%}
+
+<scroll-progress
+  class="scroll-text scroll-text--{{ section.settings.length }} scroll-text--{{ section.settings.alignment }} color-{{ section.settings.color_scheme }}"
+  data-static-progress="1"
+  style="--n: {{ word_count }};"
+  data-no-reveal
+>
+  <div class="scroll-text__sticky page-width">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="eyebrow scroll-text__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+    <p class="scroll-text__body scroll-text__body--{{ section.settings.size }}">
+      {%- for word in words -%}
+        {%- liquid
+          if word == blank
+            continue
+          endif
+          assign first_char = word | slice: 0
+          assign last_char = word | slice: -1
+          assign accent = in_accent
+          if first_char == '*'
+            assign accent = true
+            assign in_accent = true
+          endif
+          if last_char == '*'
+            assign accent = true
+            assign in_accent = false
+          endif
+          assign clean = word | remove: '*'
+        -%}
+        <span class="scroll-text__word{% if accent %} is-accent{% endif %}" style="--i: {{ forloop.index0 }};">{{ clean }}</span>
+        {{ ' ' }}
+      {%- endfor -%}
+    </p>
+    {%- if section.settings.button_label != blank -%}
+      <a class="button button--secondary scroll-text__button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">{{ section.settings.button_label | escape }}</a>
+    {%- endif -%}
+  </div>
+</scroll-progress>
+
+{% stylesheet %}
+  .scroll-text {
+    --p: 0;
+    display: block;
+    position: relative;
+    height: calc(100vh + var(--st-scroll, 110vh));
+  }
+  .scroll-text--short {
+    --st-scroll: 60vh;
+  }
+  .scroll-text--long {
+    --st-scroll: 170vh;
+  }
+  .scroll-text.is-static {
+    height: auto;
+  }
+  .scroll-text__sticky {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 26px;
+    padding-block: 10vh;
+  }
+  .scroll-text--center .scroll-text__sticky {
+    align-items: center;
+    text-align: center;
+  }
+  .scroll-text.is-static .scroll-text__sticky {
+    position: static;
+    min-height: 0;
+    padding-block: var(--space-large);
+  }
+  .scroll-text__body {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: var(--heading-ls);
+    line-height: 1.2;
+    max-width: 24ch;
+    text-wrap: pretty;
+  }
+  .scroll-text__body--medium {
+    font-size: calc(clamp(1.75rem, 3.6vw, 3.25rem) * var(--heading-scale));
+    max-width: 26ch;
+  }
+  .scroll-text__body--large {
+    font-size: calc(clamp(2.1rem, 4.6vw, 4.25rem) * var(--heading-scale));
+  }
+  .scroll-text__word {
+    opacity: clamp(0.14, calc(var(--p) * var(--n) * 1.35 - var(--i)), 1);
+  }
+  .scroll-text__word.is-accent {
+    color: var(--color-accent);
+  }
+  .heading-accent-italic .scroll-text__word.is-accent {
+    font-style: italic;
+  }
+  .scroll-text__button {
+    opacity: clamp(0, calc(var(--p) * 3 - 1.6), 1);
+  }
+  [dir='rtl'] .scroll-text__body {
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Words light up",
+  "tag": "section",
+  "class": "scroll-text-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "The text stays in view while each word lights up as shoppers scroll. Wrap words in *asterisks* to show them in the accent style." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our promise" },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text",
+      "default": "Made to be *carried* to work, to dinner and on every trip in between."
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Text size",
+      "options": [
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "length",
+      "label": "Scroll length",
+      "options": [
+        { "value": "short", "label": "Short" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "long", "label": "Long" }
+      ],
+      "default": "medium"
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "info": "Appears once every word is lit" },
+    { "type": "url", "id": "button_link", "label": "Button link" }
+  ],
+  "presets": [{ "name": "Words light up" }]
+}
+{% endschema %}

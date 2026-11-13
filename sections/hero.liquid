@@ -1,0 +1,607 @@
+{%- liquid
+  assign layout = section.settings.layout
+  assign featured = section.settings.featured_product
+  if featured == blank and section.settings.auto_fill
+    assign featured = collections.all.products.first
+  endif
+  assign image_main = section.settings.image_main
+  if image_main == blank and section.settings.auto_fill
+    assign image_main = featured.featured_media.preview_image
+  endif
+  assign image_small = section.settings.image_small
+  if image_small == blank and section.settings.auto_fill
+    assign image_small = collections.all.products[1].featured_media.preview_image | default: featured.media[1].preview_image
+  endif
+
+  assign auto_text = false
+  if settings.placeholder_text_heroes and layout != 'content' and image_main == blank
+    assign layout = 'content'
+    assign auto_text = true
+  endif
+
+  assign hero_classes = 'page-width hero__grid hero__grid--' | append: layout | append: ' hero--align-' | append: section.settings.content_alignment
+  if auto_text
+    assign hero_classes = hero_classes | append: ' hero__grid--auto-text'
+  endif
+  if section.settings.image_position == 'start'
+    assign hero_classes = hero_classes | append: ' hero__grid--reverse'
+  endif
+  if section.settings.mobile_order == 'image_first'
+    assign hero_classes = hero_classes | append: ' hero__grid--mobile-image-first'
+  endif
+-%}
+{%- capture section_scheme -%}{{ section.settings.color_scheme }}{%- endcapture -%}
+{%- capture panel_scheme -%}{{ section.settings.panel_scheme }}{%- endcapture -%}
+
+<section
+  class="section hero color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }}); --hero-min: {{ section.settings.min_height }}px; --hero-overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
+>
+  <div class="{{ hero_classes }}">
+    <div class="hero__content color-{{ section.settings.panel_scheme }}{% if section_scheme == panel_scheme %} hero__content--flush{% endif %}">
+      {% content_for 'blocks' %}
+      {%- if auto_text and request.design_mode -%}
+        <p class="text-only-hint">{{ 'general.placeholder.text_only' | t }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- unless layout == 'content' -%}
+      <div class="hero__media">
+        <div class="media-tile hero__tile hero__tile--main" style="--tile-bg: var(--tint-3);">
+          {%- if image_main -%}
+            {{
+              image_main
+              | image_url: width: 2000
+              | image_tag:
+                loading: 'eager',
+                fetchpriority: 'high',
+                widths: '600, 900, 1200, 1600, 2000',
+                sizes: '(min-width: 990px) 50vw, 100vw'
+            }}
+          {%- else -%}
+            {% render 'media-placeholder', kind: 'hero' %}
+          {%- endif -%}
+
+          {%- if featured != blank and section.settings.show_product_tag and layout != 'overlay' -%}
+            <a href="{{ featured.url }}" class="hero__chip color-{{ section.settings.panel_scheme }}">
+              <span class="hero__chip-media">
+                {%- if featured.featured_media -%}
+                  {{ featured.featured_media | image_url: width: 120, height: 120, crop: 'center' | image_tag: loading: 'eager', alt: '' }}
+                {%- endif -%}
+              </span>
+              <span class="hero__chip-text">
+                <span class="hero__chip-title">{{ featured.title | escape }}</span>
+                <span class="hero__chip-price">{% render 'format-money', amount: featured.price %}</span>
+              </span>
+            </a>
+          {%- endif -%}
+        </div>
+
+        {%- if layout == 'grid' -%}
+          <div class="hero__row{% unless section.settings.show_stat %} hero__row--single{% endunless %}">
+            <div class="media-tile hero__tile" style="--tile-bg: var(--tint-2);">
+              {%- if image_small -%}
+                {{
+                  image_small
+                  | image_url: width: 800
+                  | image_tag: loading: 'eager', widths: '300, 500, 800', sizes: '(min-width: 990px) 25vw, 50vw'
+                }}
+              {%- else -%}
+                {% render 'media-placeholder', kind: 'product', index: 2 %}
+              {%- endif -%}
+            </div>
+
+            {%- if section.settings.show_stat -%}
+              <div class="hero__stat color-{{ section.settings.stat_scheme }}">
+                <span class="hero__stat-label">{{ section.settings.stat_label | escape }}</span>
+                <div>
+                  <div class="hero__stat-value">{{ section.settings.stat_value | escape }}</div>
+                  <div class="hero__stat-caption">{{ section.settings.stat_caption | escape }}</div>
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .hero__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+  }
+  .hero__grid--content {
+    grid-template-columns: 1fr;
+  }
+  .hero__grid--auto-text .hero__content {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-inline: clamp(24px, 4vw, 48px);
+    border-radius: var(--radius-lg);
+  }
+  .hero__grid--auto-text .hero__content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: var(
+      --text-only-texture,
+      radial-gradient(circle, color-mix(in srgb, var(--color-ph-ink, var(--color-accent)) 30%, transparent) 0 1.2px, transparent 1.9px),
+      radial-gradient(55% 60% at 100% 100%, color-mix(in srgb, var(--color-ph-ink, var(--color-accent)) 16%, transparent), transparent 70%)
+    );
+    background-size: var(--text-only-texture-size, 8px 8px, auto);
+    -webkit-mask-image: var(--text-only-mask, linear-gradient(120deg, transparent 35%, #000 100%));
+    mask-image: var(--text-only-mask, linear-gradient(120deg, transparent 35%, #000 100%));
+  }
+  [dir='rtl'] .hero__grid--auto-text .hero__content::before {
+    -webkit-mask-image: var(--text-only-mask, linear-gradient(-120deg, transparent 35%, #000 100%));
+    mask-image: var(--text-only-mask, linear-gradient(-120deg, transparent 35%, #000 100%));
+  }
+  .hero__grid--reverse .hero__content {
+    order: 2;
+  }
+  .hero__content {
+    border-radius: var(--radius-lg);
+    padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 48px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    min-height: var(--hero-min);
+  }
+  .hero__content--flush {
+    padding-inline: 0;
+    border-radius: 0;
+  }
+  .hero__grid--overlay .hero__content--flush {
+    padding-inline: clamp(24px, 4vw, 48px);
+  }
+  .hero--align-center .hero__content {
+    align-items: center;
+    text-align: center;
+  }
+  .hero--align-center .hero__content .group-block--row {
+    justify-content: center;
+  }
+  .hero__media {
+    display: grid;
+    grid-template-rows: 1fr;
+    gap: var(--grid-gap);
+    min-height: var(--hero-min);
+  }
+  .hero__grid--grid .hero__media {
+    grid-template-rows: 1fr 1fr;
+  }
+  .hero__tile--main {
+    display: flex;
+    align-items: flex-end;
+    padding: 24px;
+  }
+  .hero__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--grid-gap);
+  }
+  .hero__row--single {
+    grid-template-columns: 1fr;
+  }
+  .hero__grid--overlay {
+    grid-template-columns: 1fr;
+    position: relative;
+    min-height: var(--hero-min);
+  }
+  .hero__grid--overlay .hero__media {
+    position: absolute;
+    inset: 0;
+    inset-inline: var(--gutter);
+    min-height: 0;
+  }
+  .hero__grid--overlay .hero__tile--main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: var(--hero-overlay);
+  }
+  .hero__grid--overlay .hero__content {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    color: #fff;
+    --color-text: #fff;
+    --color-body: rgba(255, 255, 255, 0.88);
+    --color-accent: #fff;
+    max-width: 720px;
+  }
+  .hero__grid--overlay.hero--align-center .hero__content {
+    margin-inline: auto;
+  }
+  .hero__chip {
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px 12px 12px;
+    padding-inline: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: transform 0.2s;
+  }
+  .hero__chip:hover {
+    transform: translateY(-2px);
+    color: var(--color-text);
+  }
+  .hero__chip-media {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-surface);
+    flex: none;
+  }
+  .hero__chip-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__chip-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero__chip-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .hero__chip-price {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .hero__stat {
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .hero__stat-label,
+  .hero__stat-caption {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .hero__stat-value {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 3.4vw, 2.75rem);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: var(--heading-ls);
+    line-height: 1.1;
+  }
+  @media (max-width: 989px) {
+    .hero__grid {
+      grid-template-columns: 1fr;
+    }
+    .hero__grid--reverse .hero__content {
+      order: 0;
+    }
+    .hero__grid--mobile-image-first .hero__media {
+      order: -1;
+    }
+    .hero__content {
+      min-height: 0;
+    }
+    .hero__grid--overlay .hero__content {
+      min-height: var(--hero-min);
+    }
+    .hero__media {
+      min-height: 0;
+      grid-template-rows: minmax(320px, auto);
+    }
+    .hero__grid--grid .hero__media {
+      grid-template-rows: minmax(320px, auto) minmax(180px, auto);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "div",
+  "class": "hero-section",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Section color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "panel_scheme",
+      "label": "Text panel color scheme",
+      "default": "scheme-4"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Text and image grid"
+        },
+        {
+          "value": "image",
+          "label": "Text and one image"
+        },
+        {
+          "value": "overlay",
+          "label": "Text over image"
+        },
+        {
+          "value": "content",
+          "label": "Text only"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position on desktop",
+      "options": [
+        {
+          "value": "end",
+          "label": "End"
+        },
+        {
+          "value": "start",
+          "label": "Start"
+        }
+      ],
+      "default": "end"
+    },
+    {
+      "type": "select",
+      "id": "mobile_order",
+      "label": "Order on mobile",
+      "options": [
+        {
+          "value": "content_first",
+          "label": "Text first"
+        },
+        {
+          "value": "image_first",
+          "label": "Image first"
+        }
+      ],
+      "default": "content_first"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "start",
+          "label": "Start"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 320,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image darkening",
+      "info": "Used with Text over image",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_fill",
+      "label": "Fill empty spots from your products",
+      "info": "Uses your first products and their photos until you pick images and a product below.",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "image_main",
+      "label": "Large image"
+    },
+    {
+      "type": "product",
+      "id": "featured_product",
+      "label": "Product tag on large image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_tag",
+      "label": "Show product tag",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "image_small",
+      "label": "Small image",
+      "info": "Used with Text and image grid"
+    },
+    {
+      "type": "header",
+      "content": "Highlight card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stat",
+      "label": "Show highlight card",
+      "default": false,
+      "info": "Only add real figures, such as your actual rating from a review app"
+    },
+    {
+      "type": "color_scheme",
+      "id": "stat_scheme",
+      "label": "Highlight card color scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "text",
+      "id": "stat_label",
+      "label": "Label",
+      "default": "Rated by customers"
+    },
+    {
+      "type": "text",
+      "id": "stat_value",
+      "label": "Value",
+      "placeholder": "4.8 / 5"
+    },
+    {
+      "type": "text",
+      "id": "stat_caption",
+      "label": "Caption",
+      "placeholder": "from 230 reviews"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "New season"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Made to be\ncarried",
+            "size": "h0",
+            "tag": "h2",
+            "max_width": 20
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "<p>Bags for every day and every evening, in shapes that stay useful for years.</p>"
+          }
+        },
+        {
+          "type": "group",
+          "settings": {
+            "direction": "group-block--row",
+            "gap": 12
+          },
+          "blocks": [
+            {
+              "type": "button",
+              "settings": {
+                "label": "Shop new in",
+                "style": "button--primary"
+              }
+            },
+            {
+              "type": "button",
+              "settings": {
+                "label": "Find your bag",
+                "style": "button--secondary"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

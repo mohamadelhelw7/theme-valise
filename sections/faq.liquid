@@ -1,0 +1,254 @@
+<section class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width faq faq--{{ section.settings.layout }}">
+    <div class="faq__intro">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="h2">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <div class="faq__text rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+        <a href="{{ section.settings.button_link }}" class="button button--accent" target="_blank" rel="noopener">
+          {%- if section.settings.show_whatsapp_icon -%}{% render 'icon', icon: 'whatsapp' %}{%- endif -%}
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+    <div class="faq__list faq__list--{{ section.settings.style }}">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .faq {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 48px;
+    align-items: start;
+  }
+  .faq__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .faq__text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+    max-width: 420px;
+    margin-bottom: 8px;
+  }
+  .faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  @media (max-width: 989px) {
+    .faq {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+  .faq__list--lines {
+    gap: 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .faq__list--lines .faq-item {
+    background: transparent;
+    border-radius: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .faq__list--lines .faq-item__question,
+  .faq__list--lines .faq-item__answer {
+    padding-inline: 0;
+  }
+  .faq--centered {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 920px;
+    gap: 40px;
+  }
+  .faq--centered .faq__intro {
+    align-items: center;
+    text-align: center;
+  }
+  .faq--centered .faq__text {
+    max-width: 560px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ",
+  "tag": "div",
+  "class": "faq-section",
+  "blocks": [
+    {
+      "type": "_faq-item"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "split",
+          "label": "Heading beside questions"
+        },
+        {
+          "value": "centered",
+          "label": "Centered"
+        }
+      ],
+      "default": "split"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Question style",
+      "options": [
+        {
+          "value": "lines",
+          "label": "Thin dividers"
+        },
+        {
+          "value": "cards",
+          "label": "Cards"
+        }
+      ],
+      "default": "lines"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Questions and answers"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Can't find your answer? Message us on WhatsApp.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Label",
+      "default": "Chat on WhatsApp"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link",
+      "info": "For WhatsApp use https://wa.me/ followed by your number with country code"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_whatsapp_icon",
+      "label": "Show WhatsApp icon",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "blocks": [
+        {
+          "type": "_faq-item",
+          "settings": {
+            "question": "How long does delivery take?",
+            "answer": "<p>Add your delivery times and the areas you ship to.</p>",
+            "open": true
+          }
+        },
+        {
+          "type": "_faq-item",
+          "settings": {
+            "question": "Which payment methods do you accept?",
+            "answer": "<p>List the payment options you accept.</p>"
+          }
+        },
+        {
+          "type": "_faq-item",
+          "settings": {
+            "question": "How do I care for my bag?",
+            "answer": "<p>Share simple care tips for your materials, such as leather or canvas.</p>"
+          }
+        },
+        {
+          "type": "_faq-item",
+          "settings": {
+            "question": "What is your return policy?",
+            "answer": "<p>Summarize your return policy and link to the full page.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

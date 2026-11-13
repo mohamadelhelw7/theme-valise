@@ -1,0 +1,54 @@
+{% doc %}
+  Renders the selected variant price and updates when the variant changes.
+
+  @example
+  {% content_for 'block', type: 'product-price', id: 'price' %}
+{% enddoc %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+<div class="product-price" {{ block.shopify_attributes }}>
+  <div data-update="price">
+    {% render 'price', variant: current_variant, class: 'product-price__value' %}
+  </div>
+  {%- if block.settings.show_tax_note -%}
+    <p class="product-price__note">
+      {%- if cart.taxes_included -%}
+        {{ 'products.product.taxes_included' | t }}
+      {%- else -%}
+        {{ 'products.product.taxes_excluded' | t }}
+      {%- endif -%}
+    </p>
+  {%- endif -%}
+  {%- if block.settings.show_installments -%}
+    {%- form 'product', product, id: 'InstallmentsForm' -%}
+      <input type="hidden" name="id" value="{{ current_variant.id }}">
+      {{ form | payment_terms }}
+    {%- endform -%}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .product-price__value {
+    font-size: 1.375rem;
+  }
+  .product-price__value .price__compare {
+    font-size: 1rem;
+  }
+  .product-price__note {
+    margin-top: 4px;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product price",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_tax_note", "label": "Show tax note", "default": false },
+    { "type": "checkbox", "id": "show_installments", "label": "Show Shop Pay installments", "default": false }
+  ],
+  "presets": [{ "name": "Product price", "category": "Product" }]
+}
+{% endschema %}

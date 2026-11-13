@@ -1,0 +1,107 @@
+{% doc %}
+  Renders one step of the set builder: a row of products from a collection,
+  each with an option picker and an Add to set button.
+{% enddoc %}
+
+{%- liquid
+  assign step_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign step_index = forloop.index0
+      break
+    endif
+  endfor
+  assign step_collection = block.settings.collection | default: collections.all
+  assign limit = section.settings.products_per_step
+-%}
+
+<div
+  id="SetPanel-{{ block.id }}"
+  class="set-step"
+  role="tabpanel"
+  aria-labelledby="SetTab-{{ block.id }}"
+  data-set-step="{{ step_index }}"
+  {% if step_index > 0 %}
+    hidden
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <card-slider class="set-step__slider">
+    <ul class="slider-track slider-track--products" role="list" data-slider-track style="--slider-cols: {{ section.settings.columns }};">
+      {%- for product in step_collection.products limit: limit -%}
+        {%- liquid
+          assign variant = product.selected_or_first_available_variant
+          assign thumb = product.featured_image | image_url: width: 240
+          assign item_alt = product.featured_image.alt | default: product.title | escape
+        -%}
+        <li
+          class="set-item"
+          data-set-item
+          data-variant-id="{{ variant.id }}"
+          data-price="{{ variant.price }}"
+          data-title="{{ product.title | escape }}"
+          data-image="{{ thumb }}"
+        >
+          <a class="set-item__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+            {%- if product.featured_image -%}
+              {{
+                product.featured_image
+                | image_url: width: 600
+                | image_tag: widths: '300, 450, 600', sizes: '(min-width: 990px) 20vw, 46vw', loading: 'lazy', alt: item_alt
+              }}
+            {%- else -%}
+              {% render 'media-placeholder', kind: 'product', index: forloop.index %}
+            {%- endif -%}
+          </a>
+          <a class="set-item__title" href="{{ product.url }}">{{ product.title | escape }}</a>
+          <span class="set-item__price" data-set-price>{% render 'format-money', amount: variant.price %}</span>
+          {%- unless product.has_only_default_variant -%}
+            <label class="visually-hidden" for="SetVariant-{{ block.id }}-{{ product.id }}">{{ 'products.product.choose_options' | t }}</label>
+            <select id="SetVariant-{{ block.id }}-{{ product.id }}" class="select set-item__select" data-set-variant>
+              {%- for v in product.variants -%}
+                <option
+                  value="{{ v.id }}"
+                  data-price="{{ v.price }}"
+                  {% if v.id == variant.id %}
+                    selected
+                  {% endif %}
+                  {% unless v.available %}
+                    disabled
+                  {% endunless %}
+                >
+                  {{- v.title | escape -}}
+                </option>
+              {%- endfor -%}
+            </select>
+          {%- endunless -%}
+          <button type="button" class="button button--secondary button--small button--full set-item__add" data-set-pick {% unless product.available %}disabled{% endunless %}>
+            <span class="set-item__add-label">
+              {%- if product.available -%}{{ 'sections.set_builder.add' | t }}{%- else -%}{{ 'products.product.sold_out' | t }}{%- endif -%}
+            </span>
+            <span class="set-item__added-label">{% render 'icon', icon: 'check' %}{{ 'sections.set_builder.added' | t }}</span>
+          </button>
+        </li>
+      {%- else -%}
+        {%- for i in (1..4) -%}
+          <li class="set-item">
+            <span class="set-item__media">{% render 'media-placeholder', kind: 'product', index: i %}</span>
+            <span class="set-item__title">{{ 'products.product.placeholder_title' | t }}</span>
+          </li>
+        {%- endfor -%}
+      {%- endfor -%}
+    </ul>
+    <div class="set-step__arrows">{% render 'slider-buttons' %}</div>
+  </card-slider>
+</div>
+
+{% schema %}
+{
+  "name": "Step",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Step name", "default": "Bag" },
+    { "type": "collection", "id": "collection", "label": "Collection", "info": "Leave empty to use all products" }
+  ],
+  "presets": [{ "name": "Step" }]
+}
+{% endschema %}

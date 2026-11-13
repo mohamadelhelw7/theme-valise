@@ -1,0 +1,17 @@
+{% doc %}
+  Renders a run of words inside the statement line.
+
+  @example
+  {% content_for 'block', type: '_statement-text', id: 'words' %}
+{% enddoc %}
+
+<span class="statement__text" {{ block.shopify_attributes }}>{{ block.settings.text }}</span>
+
+{% schema %}
+{
+  "name": "Words",
+  "tag": null,
+  "settings": [{ "type": "inline_richtext", "id": "text", "label": "Text", "default": "Fewer bags," }],
+  "presets": [{ "name": "Words" }]
+}
+{% endschema %}

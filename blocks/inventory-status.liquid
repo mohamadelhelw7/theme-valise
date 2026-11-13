@@ -1,0 +1,84 @@
+{% doc %}
+  Renders a stock status line for the selected variant and updates on variant change.
+
+  @example
+  {% content_for 'block', type: 'inventory-status', id: 'inventory' %}
+{% enddoc %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+<div class="inventory-status" data-update="inventory-{{ block.id }}" {{ block.shopify_attributes }}>
+  {%- if current_variant.inventory_management == 'shopify' -%}
+    {%- liquid
+      assign qty = current_variant.inventory_quantity
+      assign state = 'in'
+      if qty <= 0
+        if current_variant.available
+          assign state = 'backorder'
+        else
+          assign state = 'out'
+        endif
+      elsif qty <= block.settings.low_threshold
+        assign state = 'low'
+      endif
+    -%}
+    <p class="inventory-status__line inventory-status--{{ state }}">
+      <span class="inventory-status__dot" aria-hidden="true"></span>
+      {%- case state -%}
+        {%- when 'low' -%}
+          {%- if block.settings.show_count -%}
+            {{ 'products.inventory.low_count' | t: count: qty }}
+          {%- else -%}
+            {{ 'products.inventory.low' | t }}
+          {%- endif -%}
+        {%- when 'out' -%}
+          {{ 'products.inventory.out' | t }}
+        {%- when 'backorder' -%}
+          {{ 'products.inventory.backorder' | t }}
+        {%- else -%}
+          {{ 'products.inventory.in' | t }}
+      {%- endcase -%}
+    </p>
+  {%- elsif current_variant.available -%}
+    <p class="inventory-status__line inventory-status--in">
+      <span class="inventory-status__dot" aria-hidden="true"></span>
+      {{ 'products.inventory.in' | t }}
+    </p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .inventory-status__line {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+  .inventory-status__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+  .inventory-status--low .inventory-status__dot {
+    background: #c98a2b;
+    box-shadow: 0 0 0 4px rgba(201, 138, 43, 0.18);
+  }
+  .inventory-status--out .inventory-status__dot {
+    background: var(--color-sale);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-sale) 18%, transparent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Stock status",
+  "tag": null,
+  "settings": [
+    { "type": "range", "id": "low_threshold", "label": "Low stock below", "min": 1, "max": 30, "step": 1, "default": 10 },
+    { "type": "checkbox", "id": "show_count", "label": "Show exact count when low", "default": true }
+  ],
+  "presets": [{ "name": "Stock status", "category": "Product" }]
+}
+{% endschema %}

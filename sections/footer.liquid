@@ -1,0 +1,223 @@
+<footer class="site-footer color-{{ section.settings.color_scheme }}" style="--footer-mt: var(--space-{{ section.settings.margin_top }});">
+  <div class="page-width site-footer__inner">
+    <div class="site-footer__top">
+      {% content_for 'blocks' %}
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__copyright">
+        &copy; {{ 'now' | date: '%Y' }}
+        {{ shop.name | link_to: routes.root_url }}
+        {%- if section.settings.show_powered_by %} · {{ powered_by_link }}{% endif -%}
+      </p>
+
+      {%- if section.settings.show_localization -%}
+        {% render 'localization-form', id_prefix: 'Footer', show_language: true, show_country: true %}
+      {%- endif -%}
+
+      {%- if section.settings.show_social -%}
+        {% render 'social-icons' %}
+      {%- endif -%}
+
+      {%- if section.settings.payment_text != blank -%}
+        <p class="site-footer__payments-text">{{ section.settings.payment_text | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+        <ul class="site-footer__payments" role="list">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- if section.settings.closing_image != blank or section.settings.closing_text != blank or section.settings.show_closing_logo -%}
+    <div class="site-footer__closing site-footer__closing--{{ section.settings.closing_height }}" style="--closing-overlay: {{ section.settings.closing_overlay | divided_by: 100.0 }};">
+      {%- if section.settings.closing_image != blank -%}
+        {{
+          section.settings.closing_image
+          | image_url: width: 2400
+          | image_tag: widths: '750, 1100, 1500, 1920, 2400', sizes: '100vw', loading: 'lazy', alt: '', class: 'site-footer__closing-image'
+        }}
+      {%- endif -%}
+      <div class="site-footer__closing-content page-width">
+        {%- if section.settings.show_closing_logo -%}
+          {%- if section.settings.closing_logo != blank -%}
+            {{
+              section.settings.closing_logo
+              | image_url: width: 800
+              | image_tag: widths: '400, 800', sizes: '320px', loading: 'lazy', alt: shop.name, class: 'site-footer__closing-logo'
+            }}
+          {%- else -%}
+            <p class="site-footer__closing-wordmark">{{ shop.name | escape }}</p>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if section.settings.closing_text != blank -%}
+          <p class="site-footer__closing-text">{{ section.settings.closing_text | escape }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+</footer>
+
+{% stylesheet %}
+  .site-footer {
+    margin-top: var(--footer-mt);
+  }
+  .site-footer a:hover {
+    color: var(--color-text);
+  }
+  .site-footer__inner {
+    padding-top: 72px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+  .site-footer__top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .site-footer__bottom {
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .site-footer__copyright a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .site-footer__payments {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+  .site-footer__payment-icon {
+    width: 38px;
+    height: 24px;
+  }
+  .site-footer__closing {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    text-align: center;
+  }
+  .site-footer__closing--small {
+    min-height: 280px;
+  }
+  .site-footer__closing--medium {
+    min-height: 440px;
+  }
+  .site-footer__closing--large {
+    min-height: 620px;
+  }
+  .site-footer__closing:has(.site-footer__closing-image) {
+    color: #fff;
+  }
+  .site-footer__closing-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .site-footer__closing:has(.site-footer__closing-image)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgb(0 0 0 / var(--closing-overlay));
+  }
+  .site-footer__closing-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding-block: 48px;
+  }
+  .site-footer__closing-wordmark {
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 11vw, 9rem);
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-inline-end: -0.12em;
+  }
+  [dir='rtl'] .site-footer__closing-wordmark {
+    letter-spacing: 0;
+    margin-inline-end: 0;
+  }
+  .site-footer__closing-logo {
+    width: min(320px, 70vw);
+    height: auto;
+  }
+  .site-footer__closing-text {
+    max-width: 640px;
+    font-size: 0.8125rem;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    line-height: 1.8;
+  }
+  @media (max-width: 749px) {
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+    .site-footer__inner {
+      padding-top: 48px;
+    }
+    .site-footer__top {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "div",
+  "class": "footer-section",
+  "enabled_on": { "groups": ["footer"] },
+  "blocks": [{ "type": "_footer-brand" }, { "type": "_footer-newsletter" }, { "type": "_footer-menu" }, { "type": "_footer-text" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-3" },
+    { "type": "select", "id": "margin_top", "label": "Space above footer", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "header", "content": "Bottom bar" },
+    { "type": "checkbox", "id": "show_localization", "label": "Show language and country selectors", "info": "Appears when your store has more than one", "default": true },
+    { "type": "checkbox", "id": "show_social", "label": "Show social icons", "default": true },
+    { "type": "text", "id": "payment_text", "label": "Payment methods text", "info": "Optional, for example the cards you accept" },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": false },
+    { "type": "checkbox", "id": "show_powered_by", "label": "Show Powered by Shopify", "default": false },
+    { "type": "header", "content": "Closing image" },
+    { "type": "paragraph", "content": "A full-width photo at the very bottom with your logo and a short line." },
+    { "type": "image_picker", "id": "closing_image", "label": "Image" },
+    { "type": "checkbox", "id": "show_closing_logo", "label": "Show logo", "default": false },
+    { "type": "image_picker", "id": "closing_logo", "label": "Logo", "info": "Defaults to your store name in large letters" },
+    { "type": "text", "id": "closing_text", "label": "Text" },
+    { "type": "select", "id": "closing_height", "label": "Height", "options": [{ "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "medium" },
+    { "type": "range", "id": "closing_overlay", "label": "Image darkening", "min": 0, "max": 80, "step": 5, "unit": "%", "default": 35 }
+  ],
+  "presets": [
+    {
+      "name": "Footer",
+      "blocks": [
+        { "type": "_footer-newsletter" },
+        { "type": "_footer-menu", "settings": { "heading": "Shop", "menu": "main-menu" } },
+        { "type": "_footer-menu", "settings": { "heading": "Help", "menu": "footer" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

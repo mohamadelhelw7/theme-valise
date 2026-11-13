@@ -1,0 +1,24 @@
+{% doc %}
+  Renders a pill-shaped image or color swatch inline with the statement text.
+
+  @example
+  {% content_for 'block', type: '_statement-pill', id: 'pill' %}
+{% enddoc %}
+
+<span class="statement__pill" style="--pill-bg: {{ block.settings.color }};" {{ block.shopify_attributes }}>
+  {%- if block.settings.image -%}
+    {{ block.settings.image | image_url: width: 300 | image_tag: loading: 'lazy', alt: '' }}
+  {%- endif -%}
+</span>
+
+{% schema %}
+{
+  "name": "Pill image",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "color", "id": "color", "label": "Color", "default": "#EAD9CF" }
+  ],
+  "presets": [{ "name": "Pill image" }]
+}
+{% endschema %}

@@ -1,0 +1,41 @@
+{% doc %}
+  Renders a round badge with text running around a circle that slowly spins.
+
+  @param {string} id - Unique id for the circle path, such as the section or block id
+  @param {string} text - Text that runs around the circle
+  @param {string} [center] - Short text or symbol in the middle
+  @param {string} [style] - outline or accent
+  @param {number} [size] - Badge size in pixels
+  @param {string} [class] - Extra classes
+
+  @example
+  {% render 'spin-badge', id: section.id, text: 'New season • New bags •', center: '01', style: 'accent' %}
+{% enddoc %}
+
+{%- liquid
+  assign badge_size = size | default: 116
+  assign path_id = 'SpinBadgePath-' | append: id
+  assign badge_classes = 'spin-badge'
+  if style == 'accent'
+    assign badge_classes = badge_classes | append: ' spin-badge--accent'
+  elsif style == 'outline'
+    assign badge_classes = badge_classes | append: ' spin-badge--outline'
+  endif
+  if class != blank
+    assign badge_classes = badge_classes | append: ' ' | append: class
+  endif
+-%}
+
+<span class="{{ badge_classes }}" style="--badge-size: {{ badge_size }}px;" role="img" aria-label="{{ text | strip | escape }}">
+  <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <defs>
+      <path id="{{ path_id }}" d="M 50,50 m -39,0 a 39,39 0 1,1 78,0 a 39,39 0 1,1 -78,0"></path>
+    </defs>
+    <text>
+      <textPath href="#{{ path_id }}" textLength="244" lengthAdjust="spacing">{{ text | strip | escape }}</textPath>
+    </text>
+  </svg>
+  {%- if center != blank -%}
+    <span class="spin-badge__center" aria-hidden="true">{{ center | escape }}</span>
+  {%- endif -%}
+</span>

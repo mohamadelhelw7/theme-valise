@@ -1,0 +1,64 @@
+{% doc %}
+  Renders a spinning round badge with text around the edge.
+
+  @example
+  {% content_for 'block', type: 'spin-badge', id: 'badge' %}
+{% enddoc %}
+
+<div class="spin-badge-block spin-badge-block--{{ block.settings.alignment }}" {{ block.shopify_attributes }}>
+  {% render 'spin-badge',
+    id: block.id,
+    text: block.settings.text,
+    center: block.settings.center,
+    style: block.settings.style,
+    size: block.settings.size
+  %}
+</div>
+
+{% stylesheet %}
+  .spin-badge-block {
+    display: flex;
+    width: 100%;
+  }
+  .spin-badge-block--center {
+    justify-content: center;
+  }
+  .spin-badge-block--end {
+    justify-content: flex-end;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Spinning badge",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "Text around the circle", "info": "About 20 to 30 characters fits best. End with a dot or star so it loops cleanly.", "default": "New season • New bags • " },
+    { "type": "text", "id": "center", "label": "Center text", "info": "One short word, number or symbol", "default": "★" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "plain", "label": "Text only" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "accent", "label": "Accent fill" }
+      ],
+      "default": "accent"
+    },
+    { "type": "range", "id": "size", "label": "Size", "min": 72, "max": 200, "step": 4, "unit": "px", "default": 116 },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "end", "label": "End" }
+      ],
+      "default": "start"
+    }
+  ],
+  "presets": [{ "name": "Spinning badge" }]
+}
+{% endschema %}

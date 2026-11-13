@@ -1,0 +1,66 @@
+{% doc %}
+  Renders the quantity selector, add to cart button and dynamic checkout buttons.
+
+  @example
+  {% content_for 'block', type: 'buy-buttons', id: 'buy-buttons' %}
+{% enddoc %}
+
+{%- assign form_id = 'ProductForm-' | append: section.id -%}
+
+<div class="buy-buttons" {{ block.shopify_attributes }}>
+  {% render 'buy-form',
+    product: product,
+    form_id: form_id,
+    show_quantity: block.settings.show_quantity,
+    show_dynamic_checkout: block.settings.show_dynamic_checkout
+  %}
+
+  {%- if block.settings.note != blank -%}
+    <p class="buy-buttons__note">
+      {% render 'icon', icon: block.settings.note_icon %}
+      {{ block.settings.note | escape }}
+    </p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .buy-buttons__note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+  .buy-buttons__note .icon {
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Buy buttons",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_quantity", "label": "Show quantity selector", "default": true },
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show Buy it now button", "default": true },
+    { "type": "text", "id": "note", "label": "Note under button", "info": "Optional, for example a delivery or returns message" },
+    {
+      "type": "select",
+      "id": "note_icon",
+      "label": "Note icon",
+      "options": [
+        { "value": "truck", "label": "Delivery" },
+        { "value": "return", "label": "Return" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "lock", "label": "Secure" },
+        { "value": "clock", "label": "Clock" },
+        { "value": "cash", "label": "Cash" },
+        { "value": "check", "label": "Check" }
+      ],
+      "default": "truck"
+    }
+  ],
+  "presets": [{ "name": "Buy buttons", "category": "Product" }]
+}
+{% endschema %}

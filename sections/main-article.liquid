@@ -1,0 +1,84 @@
+<article class="section color-{{ section.settings.color_scheme }}" style="--pt: 0px; --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width main-article">
+    <header class="page-title-block">
+      <a href="{{ blog.url }}" class="eyebrow main-article__back">{{ blog.title | escape }}</a>
+      <h1 class="h1">{{ article.title | escape }}</h1>
+      <p class="page-title-block__desc">
+        <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'date' }}</time>
+        {%- if section.settings.show_author %} · {{ article.author }}{% endif -%}
+      </p>
+    </header>
+    {%- if article.image -%}
+      <div class="main-article__media media-tile">
+        {{ article.image | image_url: width: 2000 | image_tag: loading: 'eager', widths: '600, 1000, 1400, 2000', sizes: '(min-width: 1100px) 1000px, 100vw', alt: article.image.alt | escape }}
+      </div>
+    {%- endif -%}
+    <div class="main-article__content rte">{{ article.content }}</div>
+  </div>
+</article>
+
+{% stylesheet %}
+  .main-article {
+    max-width: 1048px;
+  }
+  .main-article__back {
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+  .main-article__media {
+    aspect-ratio: 16 / 9;
+    margin-bottom: 40px;
+  }
+  .main-article__content {
+    max-width: 720px;
+    margin-inline: auto;
+    color: var(--color-body);
+    line-height: 1.75;
+    font-size: 1.0625rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Blog post",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show author",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    }
+  ]
+}
+{% endschema %}

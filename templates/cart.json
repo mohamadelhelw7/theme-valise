@@ -1,0 +1,39 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-cart",
+      "settings": {}
+    },
+    "recent": {
+      "type": "recently-viewed",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "Recently viewed",
+        "header_alignment": "start",
+        "limit": 6,
+        "columns": 4,
+        "padding_top": "large",
+        "padding_bottom": "large"
+      }
+    },
+    "more": {
+      "type": "more-products",
+      "settings": {
+        "color_scheme": "scheme-2",
+        "heading": "Complete the fit",
+        "header_alignment": "start",
+        "layout": "slider",
+        "columns": 4,
+        "limit": 8,
+        "show_link": false,
+        "padding_top": "large",
+        "padding_bottom": "large"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "more",
+    "recent"
+  ]
+}

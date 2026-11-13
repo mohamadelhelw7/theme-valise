@@ -1,0 +1,45 @@
+{% doc %}
+  Renders the product vendor or type label and the product title.
+
+  @example
+  {% content_for 'block', type: 'product-title', id: 'title' %}
+{% enddoc %}
+
+<div class="product-title" {{ block.shopify_attributes }}>
+  {%- case block.settings.label -%}
+    {%- when 'type' -%}
+      {%- if product.type != blank -%}<span class="eyebrow">{{ product.type | escape }}</span>{%- endif -%}
+    {%- when 'vendor' -%}
+      {%- if product.vendor != blank -%}<span class="eyebrow">{{ product.vendor | escape }}</span>{%- endif -%}
+  {%- endcase -%}
+  <h1 class="h1">{{ product.title | escape }}</h1>
+</div>
+
+{% stylesheet %}
+  .product-title {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product title",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "label",
+      "label": "Label above title",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "type", "label": "Product type" },
+        { "value": "vendor", "label": "Vendor" }
+      ],
+      "default": "type"
+    }
+  ],
+  "presets": [{ "name": "Product title", "category": "Product" }]
+}
+{% endschema %}

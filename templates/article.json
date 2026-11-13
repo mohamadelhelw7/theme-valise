@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "settings": {}
+    },
+    "more": {
+      "type": "more-products",
+      "settings": {
+        "color_scheme": "scheme-2",
+        "heading": "Shop the story",
+        "header_alignment": "start",
+        "layout": "slider",
+        "columns": 4,
+        "limit": 8,
+        "show_link": false,
+        "padding_top": "large",
+        "padding_bottom": "large"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "more"
+  ]
+}

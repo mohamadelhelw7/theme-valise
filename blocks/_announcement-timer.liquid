@@ -1,0 +1,124 @@
+{% doc %}
+  Renders an announcement with a live countdown, for example to the next drop.
+{% enddoc %}
+
+{%- liquid
+  assign end_date = block.settings.end_date | strip
+  assign end_time = block.settings.end_time | strip | default: '20:00'
+  assign end_iso = end_date | append: 'T' | append: end_time | append: ':00' | append: block.settings.timezone
+  assign timer_label = block.settings.text
+  if timer_label == blank
+    assign timer_label = 'sections.countdown.label' | t
+  endif
+-%}
+
+{%- if end_date != blank -%}
+  <span class="announcement announcement--timer" {{ block.shopify_attributes }}>
+    {%- if block.settings.text != blank -%}
+      <span class="announcement-timer__text">{{ block.settings.text | escape }}</span>
+    {%- endif -%}
+    <countdown-timer class="announcement-timer" data-end="{{ end_iso }}" data-expired="message">
+      {%- if block.settings.clock_style == 'stacked' -%}
+        <span class="announcement-timer__clock announcement-timer__clock--stacked" data-countdown-clock role="timer" aria-label="{{ timer_label | escape }}" hidden>
+          <span class="announcement-timer__unit"><span data-unit="days">00</span><small>{{ 'sections.countdown.days' | t }}</small></span>
+          <span class="announcement-timer__unit"><span data-unit="hours">00</span><small>{{ 'sections.countdown.hours' | t }}</small></span>
+          <span class="announcement-timer__unit"><span data-unit="minutes">00</span><small>{{ 'sections.countdown.minutes' | t }}</small></span>
+          <span class="announcement-timer__unit"><span data-unit="seconds">00</span><small>{{ 'sections.countdown.seconds' | t }}</small></span>
+        </span>
+      {%- else -%}
+        <span class="announcement-timer__clock" data-countdown-clock role="timer" aria-label="{{ timer_label | escape }}" hidden>
+          <span><span data-unit="days">00</span>{{ 'sections.countdown.days_short' | t }}</span>
+          <span><span data-unit="hours">00</span>{{ 'sections.countdown.hours_short' | t }}</span>
+          <span><span data-unit="minutes">00</span>{{ 'sections.countdown.minutes_short' | t }}</span>
+          <span><span data-unit="seconds">00</span>{{ 'sections.countdown.seconds_short' | t }}</span>
+        </span>
+      {%- endif -%}
+      <span data-countdown-done hidden>{{ block.settings.expired_message | escape }}</span>
+      <span data-countdown-invalid hidden>{{ 'sections.countdown.invalid' | t }}</span>
+    </countdown-timer>
+    {%- if block.settings.link != blank -%}
+      <a class="announcement-timer__link" href="{{ block.settings.link }}">{{ block.settings.link_label | default: block.settings.text | escape }}</a>
+    {%- endif -%}
+  </span>
+{%- endif -%}
+
+{% stylesheet %}
+  .announcement--timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .announcement-timer__clock {
+    display: inline-flex;
+    gap: 6px;
+    font-family: var(--font-label);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+  .announcement-timer__clock[hidden] {
+    display: none;
+  }
+  .announcement-timer__link {
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+  .announcement-timer__clock--stacked {
+    gap: 0;
+    font-weight: 500;
+  }
+  .announcement-timer__unit {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 40px;
+    padding-inline: 10px;
+    line-height: 1.15;
+  }
+  .announcement-timer__unit + .announcement-timer__unit {
+    border-inline-start: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  }
+  .announcement-timer__unit small {
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Countdown message",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "Text", "default": "Sale ends in" },
+    { "type": "text", "id": "end_date", "label": "Date", "info": "Format YYYY-MM-DD, for example 2026-12-31", "default": "2026-12-31" },
+    { "type": "text", "id": "end_time", "label": "Time", "info": "24 hour format HH:MM, for example 20:00", "default": "20:00" },
+    {
+      "type": "select",
+      "id": "timezone",
+      "label": "Time zone",
+      "options": [
+        { "value": "+02:00", "label": "Egypt winter time (UTC+2)" },
+        { "value": "+03:00", "label": "Egypt summer time, Saudi Arabia (UTC+3)" },
+        { "value": "+04:00", "label": "UAE (UTC+4)" },
+        { "value": "+01:00", "label": "UTC+1" },
+        { "value": "Z", "label": "UTC" }
+      ],
+      "default": "+02:00"
+    },
+    { "type": "text", "id": "expired_message", "label": "Message when it ends", "default": "The sale has ended" },
+    {
+      "type": "select",
+      "id": "clock_style",
+      "label": "Clock style",
+      "options": [
+        { "value": "inline", "label": "In one line" },
+        { "value": "stacked", "label": "Labels under the numbers" }
+      ],
+      "default": "stacked"
+    },
+    { "type": "text", "id": "link_label", "label": "Link label" },
+    { "type": "url", "id": "link", "label": "Link" }
+  ]
+}
+{% endschema %}

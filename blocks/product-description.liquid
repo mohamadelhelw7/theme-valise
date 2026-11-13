@@ -1,0 +1,28 @@
+{% doc %}
+  Renders the product description.
+
+  @example
+  {% content_for 'block', type: 'product-description', id: 'description' %}
+{% enddoc %}
+
+{%- if product.description != blank -%}
+  <div class="product-description rte" {{ block.shopify_attributes }}>
+    {{ product.description }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-description {
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Description",
+  "tag": null,
+  "settings": [],
+  "presets": [{ "name": "Description", "category": "Product" }]
+}
+{% endschema %}

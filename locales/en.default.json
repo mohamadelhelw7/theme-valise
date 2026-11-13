@@ -1,0 +1,364 @@
+{
+  "general": {
+    "meta": {
+      "tags": "Tagged \"{{ tags }}\"",
+      "page": "Page {{ page }}"
+    },
+    "accessibility": {
+      "skip_to_content": "Skip to content",
+      "close": "Close",
+      "loading": "Loading",
+      "back_to_top": "Back to top"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    },
+    "header": {
+      "menu": "Menu",
+      "main_nav": "Main",
+      "account": "Account",
+      "cart": "Cart",
+      "view_all": "Shop all {{ title }}",
+      "bag": "Bag"
+    },
+    "search": {
+      "title": "Search",
+      "label": "Search our store",
+      "placeholder": "Search products",
+      "submit": "Search",
+      "no_results": "No results found. Try a different search term.",
+      "no_results_for": "No results for \"{{ terms }}\"",
+      "search_for": "Search for \"{{ terms }}\"",
+      "products": "Products",
+      "collections_pages": "Collections and pages",
+      "articles": "Articles",
+      "results_count": {
+        "one": "{{ count }} result for \"{{ terms }}\"",
+        "other": "{{ count }} results for \"{{ terms }}\""
+      }
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{ number }}"
+    },
+    "breadcrumbs": {
+      "label": "Breadcrumbs",
+      "home": "Home"
+    },
+    "localization": {
+      "language": "Language",
+      "country": "Country or region",
+      "update": "Update"
+    },
+    "whatsapp": {
+      "chat": "Chat with us on WhatsApp",
+      "missing_number": "Add a WhatsApp number in Theme settings > WhatsApp or in this block."
+    },
+    "placeholder": {
+      "image": "Add an image",
+      "text_only": "No photo yet, so this section shows as text. Add a photo in its settings."
+    },
+    "slider": {
+      "previous": "Previous",
+      "next": "Next",
+      "play": "Play slideshow",
+      "pause": "Pause slideshow"
+    },
+    "cursor": {
+      "view": "View",
+      "drag": "Drag"
+    },
+    "tab_bar": {
+      "label": "Shortcuts",
+      "home": "Home",
+      "shop": "Shop"
+    }
+  },
+  "newsletter": {
+    "label": "Email address",
+    "placeholder": "Your email",
+    "button": "Subscribe",
+    "success": "Thanks for subscribing!"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "add_title_to_cart": "Add {{ title }} to cart",
+      "choose_options": "Choose options",
+      "choose_options_for": "Choose options for {{ title }}",
+      "added": "Added to cart",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "new": "New",
+      "save_amount": "Save {{ amount }}",
+      "gallery": "Product images",
+      "view_media": "Show image {{ number }}",
+      "zoom": "Open image {{ number }} full screen",
+      "previous_image": "Previous image",
+      "next_image": "Next image",
+      "quantity": "Quantity",
+      "quantity_decrease": "Decrease quantity",
+      "quantity_increase": "Increase quantity",
+      "taxes_included": "Taxes included.",
+      "taxes_excluded": "Taxes calculated at checkout.",
+      "placeholder_title": "Your product",
+      "placeholder_type": "Category",
+      "price": {
+        "regular_price": "Regular price",
+        "sale_price": "Sale price",
+        "from_price": "From {{ price }}"
+      },
+      "fit_note_hint": "Add a fit note, for example: Model is 175 cm and wears S.",
+      "size_added": "Size [size] added to cart",
+      "quick_sizes": "Quick add sizes for {{ title }}",
+      "add_size": "Add size {{ size }} to cart"
+    },
+    "quick_view": {
+      "title": "Quick view",
+      "open": "Quick view {{ title }}",
+      "full_details": "View full details"
+    },
+    "inventory": {
+      "in": "In stock",
+      "low": "Low stock",
+      "low_count": {
+        "one": "Only {{ count }} left",
+        "other": "Only {{ count }} left"
+      },
+      "out": "Out of stock",
+      "backorder": "Available to order, ships soon"
+    },
+    "delivery": {
+      "estimate": "Order now and get it between [start] and [end]",
+      "deliver_to": "Deliver to",
+      "choose_area": "Choose your governorate",
+      "add_details": "Add delivery time and fee"
+    },
+    "size_finder": {
+      "height": "Height (cm)",
+      "weight": "Weight (kg)",
+      "fit": "How do you like it to fit?",
+      "true_to_size": "True to size",
+      "oversized": "Oversized",
+      "submit": "Show my size",
+      "result": "Your size: {{ size }}",
+      "pick": "Pick {{ size }}",
+      "no_match": "Enter your height and weight to see your size.",
+      "editor_empty": "Size finder: add your size table in this block's settings to turn it on."
+    },
+    "bag_size": {
+      "heading": "Dimensions",
+      "cm": "cm",
+      "in": "in",
+      "diagram": "Drawing of the bag with its measurements",
+      "width": "Width",
+      "height": "Height",
+      "depth": "Depth",
+      "strap_drop": "Strap drop",
+      "capacity": "Capacity",
+      "weight": "Weight",
+      "fits": "Fits inside",
+      "fit_phone": "Phone",
+      "fit_wallet": "Wallet",
+      "fit_keys": "Keys",
+      "fit_sunglasses": "Sunglasses",
+      "fit_bottle": "Water bottle",
+      "fit_tablet": "Tablet",
+      "fit_a4": "A4 documents",
+      "fit_laptop_13": "13 inch laptop",
+      "fit_laptop_15": "15 to 16 inch laptop",
+      "carry": "Ways to carry",
+      "carry_hand": "By the handle",
+      "carry_shoulder": "On the shoulder",
+      "carry_crossbody": "Crossbody",
+      "carry_backpack": "As a backpack",
+      "carry_waist": "Around the waist",
+      "carry_clutch": "As a clutch",
+      "hint": "Add the bag's measurements, or connect metafields, to show them here."
+    },
+    "personalize": {
+      "add": "Add initials",
+      "field": "Your initials",
+      "hint": {
+        "one": "Up to {{ count }} letter",
+        "other": "Up to {{ count }} letters"
+      }
+    }
+  },
+  "collections": {
+    "eyebrow": "Collection",
+    "empty": "No products match these filters.",
+    "sort_by": "Sort by",
+    "product_count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    },
+    "filters": {
+      "title": "Filters",
+      "from": "From",
+      "to": "To",
+      "clear": "Clear all",
+      "apply": "Show results"
+    },
+    "grid": {
+      "label": "Columns",
+      "columns": {
+        "one": "{{ count }} column",
+        "other": "{{ count }} columns"
+      }
+    },
+    "load_more": {
+      "button": "Load more",
+      "showing": "Showing {{ shown }} of {{ total }}"
+    }
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "continue_shopping": "Continue shopping",
+    "checkout": "Check out",
+    "view_cart": "View cart",
+    "update": "Update cart",
+    "subtotal": "Subtotal",
+    "taxes_and_shipping": "Taxes and shipping calculated at checkout.",
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "decrease": "Decrease quantity for {{ title }}",
+    "increase": "Increase quantity for {{ title }}",
+    "note": "Order note",
+    "upsell_add": "Add",
+    "free_shipping_remaining": "You're {{ amount }} away from free shipping",
+    "free_shipping_unlocked": "You've unlocked free shipping",
+    "free_shipping_progress": "Free shipping progress"
+  },
+  "sections": {
+    "bundle": {
+      "total": "Bundle price",
+      "save": "Save {{ percent }}%",
+      "unavailable": "Bundle unavailable",
+      "placeholder_step": "Step {{ number }} product",
+      "placeholder_hint": "Pick products in the theme editor"
+    },
+    "reviews": {
+      "verified": "Verified buyer",
+      "rating": "{{ rating }} out of 5 stars",
+      "count": {
+        "one": "{{ count }} review",
+        "other": "{{ count }} reviews"
+      },
+      "no_rating": "Star rating appears here once this product has reviews."
+    },
+    "fbt": {
+      "this_item": "This item",
+      "total": "Total price",
+      "add": "Add selected to cart",
+      "add_count": "Add {{ count }} to cart",
+      "empty": "Set complementary products in the Search & Discovery app, or choose Pick products."
+    },
+    "countdown": {
+      "label": "Time left",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Min",
+      "seconds": "Sec",
+      "invalid": "Check the end date format: YYYY-MM-DD and HH:MM.",
+      "days_short": "d",
+      "hours_short": "h",
+      "minutes_short": "m",
+      "seconds_short": "s"
+    },
+    "more_products": {
+      "view_all": "View all"
+    },
+    "slideshow": {
+      "slide": "Slide",
+      "slide_of": "Slide {{ number }} of {{ total }}",
+      "carousel": "Slideshow",
+      "go_to": "Go to slide {{ number }}",
+      "next": "Next slide"
+    },
+    "set_builder": {
+      "add": "Add to set",
+      "added": "Added",
+      "remove": "Remove from set",
+      "total": "Total"
+    },
+    "finder": {
+      "restart": "Start again",
+      "previous": "Previous question",
+      "next": "Next question",
+      "closest": "No exact match yet. Here are the closest pieces to your answers."
+    },
+    "shop_the_look": {
+      "show": "Show product: {{ title }}"
+    },
+    "blog_posts": {
+      "placeholder_title": "Your blog post title",
+      "placeholder_excerpt": "Write a post in your blog and it will show here."
+    },
+    "social_gallery": {
+      "open": "Open our Instagram"
+    },
+    "logo_strip": {
+      "add_logo": "Add a logo"
+    },
+    "video": {
+      "play": "Play video",
+      "pause": "Pause video"
+    },
+    "popup": {
+      "code_label": "Your code",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "photo_trail": {
+      "hint_mouse": "Move your mouse around",
+      "hint_touch": "Tap anywhere"
+    }
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "message": "Message",
+    "send": "Send",
+    "success": "Thanks for reaching out. We'll get back to you soon."
+  },
+  "blogs": {
+    "empty": "No posts yet."
+  },
+  "templates": {
+    "404": {
+      "title": "Page not found",
+      "subtext": "The page you're looking for doesn't exist or has moved."
+    },
+    "password": {
+      "login": "Enter using password",
+      "password": "Password",
+      "enter": "Enter"
+    }
+  },
+  "gift_card": {
+    "title": "Your {{ value }} gift card",
+    "heading": "Your {{ value }} gift card",
+    "balance": "Remaining balance: {{ value }}",
+    "code": "Gift card code",
+    "expired": "Expired",
+    "apple_wallet": "Add to Apple Wallet",
+    "shop_link": "Start shopping",
+    "print": "Print"
+  },
+  "saved": {
+    "title": "Saved",
+    "save": "Save {{ title }}",
+    "unsave": "Remove {{ title }} from saved",
+    "save_label": "Save",
+    "saved_label": "Saved",
+    "added": "Saved",
+    "removed": "Removed from saved",
+    "empty": "Nothing saved yet. Tap the heart on any piece to keep it here.",
+    "browse": "Start browsing"
+  }
+}

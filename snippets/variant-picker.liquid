@@ -1,0 +1,140 @@
+{% doc %}
+  Renders product option selectors as pills, swatches or dropdowns.
+  Must sit inside a product-info element so variant changes update price and buttons.
+
+  @param {product} product - The product
+  @param {string} id_prefix - Unique prefix for input ids
+  @param {string} [style] - pills or dropdown, defaults to pills
+  @param {boolean} [swatches] - Show color swatches when available
+  @param {string} [attributes] - Extra attributes for the root element
+
+  @example
+  {% render 'variant-picker', product: product, id_prefix: block.id %}
+{% enddoc %}
+
+{%- assign picker_style = style | default: 'pills' -%}
+{%- unless product.has_only_default_variant -%}
+  <variant-picker class="variant-picker variant-picker--{{ picker_style }}" {{ attributes }}>
+    {%- for option in product.options_with_values -%}
+      {%- assign option_id = id_prefix | append: '-' | append: option.position -%}
+      {%- if picker_style == 'dropdown' -%}
+        <div class="variant-picker__option field" data-option data-option-name="{{ option.name | downcase | escape }}">
+          <label class="variant-picker__legend" for="{{ option_id }}">{{ option.name | escape }}</label>
+          <select id="{{ option_id }}" class="select" name="{{ option_id }}">
+            {%- for value in option.values -%}
+              <option value="{{ value | escape }}" {% if value.selected %}selected{% endif %}>
+                {{- value | escape -}}
+                {%- unless value.available %} — {{ 'products.product.sold_out' | t }}{% endunless -%}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      {%- else -%}
+        <fieldset class="variant-picker__option" data-option data-option-name="{{ option.name | downcase | escape }}">
+          <legend class="variant-picker__legend">
+            {{ option.name | escape }}:
+            <span class="variant-picker__selected" data-selected-value>{{ option.selected_value | escape }}</span>
+          </legend>
+          <div class="variant-picker__values">
+            {%- for value in option.values -%}
+              {%- assign input_id = option_id | append: '-' | append: forloop.index0 -%}
+              <input
+                type="radio"
+                class="visually-hidden"
+                id="{{ input_id }}"
+                name="{{ option_id }}"
+                value="{{ value | escape }}"
+                {% if value.selected %}
+                  checked
+                {% endif %}
+              >
+              <label
+                for="{{ input_id }}"
+                class="variant-picker__pill{% unless value.available %} variant-picker__pill--unavailable{% endunless %}"
+              >
+                {%- if swatches and value.swatch -%}
+                  <span
+                    class="variant-picker__swatch"
+                    style="background: {% if value.swatch.image %}url({{ value.swatch.image | image_url: width: 60 }}) center / cover{% else %}{{ value.swatch.color }}{% endif %};"
+                    aria-hidden="true"
+                  ></span>
+                {%- endif -%}
+                {{- value | escape -}}
+              </label>
+            {%- endfor -%}
+          </div>
+        </fieldset>
+      {%- endif -%}
+    {%- endfor -%}
+  </variant-picker>
+{%- endunless -%}
+
+{% stylesheet %}
+  .variant-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .variant-picker__option {
+    border: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .variant-picker__legend {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 0;
+  }
+  .variant-picker--dropdown .variant-picker__legend {
+    margin-bottom: 0;
+  }
+  .variant-picker__selected {
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .variant-picker__values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .variant-picker__pill {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 18px;
+    border-radius: var(--button-radius);
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  }
+  .variant-picker__pill:hover {
+    border-color: var(--color-text);
+  }
+  .variant-picker__pill--unavailable {
+    color: var(--color-muted);
+    text-decoration: line-through;
+  }
+  input:checked + .variant-picker__pill {
+    background: var(--color-button);
+    border-color: var(--color-button);
+    color: var(--color-button-text);
+  }
+  input:focus-visible + .variant-picker__pill {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .variant-picker__swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+{% endstylesheet %}

@@ -1,0 +1,13 @@
+{% comment %}
+  Rendering-only section. Fetched with ?section_id=card-render on a product URL
+  to get that product's card, for example by the Recently viewed section.
+{% endcomment %}
+{% render 'product-card', product: product %}
+
+{% schema %}
+{
+  "name": "Product card",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

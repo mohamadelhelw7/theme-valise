@@ -1,0 +1,224 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width trust-bar trust-bar--{{ section.settings.style }}">
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .trust-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--grid-gap);
+  }
+  @media (max-width: 749px) {
+    .trust-bar {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--grid-gap);
+    }
+    .trust-bar .feature {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px;
+      gap: 10px;
+    }
+  }
+  .trust-bar--lines {
+    gap: 0;
+  }
+  .trust-bar--lines > * {
+    padding-block: 22px;
+    padding-inline: 24px;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .trust-bar--lines .feature {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+  }
+  .trust-bar--lines > * + * {
+    border-inline-start: 1px solid var(--color-border);
+  }
+  @media (max-width: 749px) {
+    .trust-bar--lines > * {
+      padding: 16px 12px;
+    }
+    .trust-bar--lines > *:nth-child(odd) {
+      border-inline-start: none;
+    }
+    .trust-bar--lines > *:nth-child(n + 3) {
+      border-top: none;
+    }
+  }
+  .trust-bar--columns {
+    gap: clamp(24px, 4vw, 48px);
+  }
+  .trust-bar--columns .feature {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+  }
+  .trust-bar--columns .feature__icon {
+    color: var(--color-text);
+  }
+  .trust-bar--columns .feature__icon .icon,
+  .trust-bar--columns .feature__img {
+    width: 52px;
+    height: 52px;
+    stroke-width: 1.1;
+  }
+  .trust-bar--columns .feature__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 1.3125rem;
+    letter-spacing: var(--heading-ls);
+  }
+  .trust-bar--columns .feature__text {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    max-width: 30ch;
+    margin-inline: auto;
+    line-height: 1.6;
+  }
+  @media (max-width: 749px) {
+    .trust-bar--columns {
+      gap: 32px 16px;
+    }
+    .trust-bar--columns .feature {
+      align-items: center;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Trust bar",
+  "tag": "section",
+  "class": "trust-bar-section",
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "_feature"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        {
+          "value": "lines",
+          "label": "Thin dividers"
+        },
+        {
+          "value": "cards",
+          "label": "Cards"
+        },
+        {
+          "value": "columns",
+          "label": "Large centered icons"
+        }
+      ],
+      "default": "lines"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust bar",
+      "blocks": [
+        {
+          "type": "_feature",
+          "settings": {
+            "icon": "drop",
+            "title": "Chosen materials",
+            "text": "Made to be carried"
+          }
+        },
+        {
+          "type": "_feature",
+          "settings": {
+            "icon": "truck",
+            "title": "Delivery",
+            "text": "Add your delivery times"
+          }
+        },
+        {
+          "type": "_feature",
+          "settings": {
+            "icon": "heart",
+            "title": "Secure checkout",
+            "text": "Pay safely online"
+          }
+        },
+        {
+          "type": "_feature",
+          "settings": {
+            "icon": "return",
+            "title": "Returns",
+            "text": "See our return policy"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,44 @@
+{% doc %}
+  Renders social media links from the Social media theme settings.
+
+  @example
+  {% render 'social-icons' %}
+{% enddoc %}
+
+{%- liquid
+  assign has_social = false
+  if settings.social_instagram != blank or settings.social_tiktok != blank
+    assign has_social = true
+  endif
+  if settings.social_facebook != blank or settings.social_youtube != blank
+    assign has_social = true
+  endif
+-%}
+
+{%- if has_social -%}
+  <ul class="social-icons" role="list">
+    {%- if settings.social_instagram != blank -%}
+      <li><a href="{{ settings.social_instagram }}" class="icon-button" target="_blank" rel="noopener" aria-label="Instagram">{% render 'icon', icon: 'instagram' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_tiktok != blank -%}
+      <li><a href="{{ settings.social_tiktok }}" class="icon-button" target="_blank" rel="noopener" aria-label="TikTok">{% render 'icon', icon: 'tiktok' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_facebook != blank -%}
+      <li><a href="{{ settings.social_facebook }}" class="icon-button" target="_blank" rel="noopener" aria-label="Facebook">{% render 'icon', icon: 'facebook' %}</a></li>
+    {%- endif -%}
+    {%- if settings.social_youtube != blank -%}
+      <li><a href="{{ settings.social_youtube }}" class="icon-button" target="_blank" rel="noopener" aria-label="YouTube">{% render 'icon', icon: 'youtube' %}</a></li>
+    {%- endif -%}
+  </ul>
+{%- endif -%}
+
+{% stylesheet %}
+  .social-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+{% endstylesheet %}

@@ -1,0 +1,298 @@
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <marquee-band
+    class="marquee marquee--{{ section.settings.size }} marquee--font-{{ section.settings.font }} marquee--sep-{{ section.settings.separator }}{% if section.settings.uppercase %} marquee--upper{% endif %}{% if section.settings.borders %} marquee--borders{% endif %}{% if section.settings.tilt %} marquee--tilt{% endif %}"
+    data-speed="{{ section.settings.speed }}"
+    data-direction="{{ section.settings.direction }}"
+    data-velocity="{{ section.settings.react_to_scroll }}"
+  >
+    <div class="marquee__viewport">
+      <div class="marquee__track">
+        <div class="marquee__group">
+          {% content_for 'blocks' %}
+        </div>
+      </div>
+    </div>
+  </marquee-band>
+</div>
+
+{% javascript %}
+  class MarqueeBand extends HTMLElement {
+    connectedCallback() {
+      this.group = this.querySelector('.marquee__group');
+      this.track = this.querySelector('.marquee__track');
+      this.viewport = this.querySelector('.marquee__viewport');
+      if (!this.group || this.hasAttribute('data-static') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      this.originals = Array.from(this.group.children);
+      if (!this.originals.length) return;
+      this.build();
+      if ('ResizeObserver' in window) {
+        let lastWidth = this.viewport.clientWidth;
+        this.observer = new ResizeObserver(() => {
+          const width = this.viewport.clientWidth;
+          if (Math.abs(width - lastWidth) < 40) return;
+          lastWidth = width;
+          this.build();
+        });
+        this.observer.observe(this.viewport);
+      }
+    }
+
+    disconnectedCallback() {
+      if (this.observer) this.observer.disconnect();
+      if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
+    }
+
+    hide(node) {
+      node.setAttribute('aria-hidden', 'true');
+      node.removeAttribute('data-shopify-editor-block');
+      node.querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '-1'));
+      return node;
+    }
+
+    build() {
+      this.classList.remove('is-ready');
+      this.track.querySelectorAll('.marquee__group[aria-hidden]').forEach((clone) => clone.remove());
+      this.group.replaceChildren(...this.originals);
+      let guard = 0;
+      while (this.group.scrollWidth < this.viewport.clientWidth && guard < 16) {
+        this.originals.forEach((item) => this.group.appendChild(this.hide(item.cloneNode(true))));
+        guard += 1;
+      }
+      this.track.appendChild(this.hide(this.group.cloneNode(true)));
+      const distance = this.group.getBoundingClientRect().width;
+      const speed = Math.max(10, Number(this.dataset.speed) || 60);
+      this.style.setProperty('--marquee-duration', (distance / speed).toFixed(2) + 's');
+      const rtl = document.documentElement.dir === 'rtl';
+      const reverse = this.dataset.direction === 'reverse';
+      this.style.setProperty('--marquee-shift', rtl !== reverse ? '50%' : '-50%');
+      this.classList.add('is-ready');
+      if (this.dataset.velocity === 'true' && !this.onScroll) this.followScroll();
+    }
+
+    followScroll() {
+      this.rate = 1;
+      this.boost = 0;
+      this.direction = 1;
+      this.lastY = window.scrollY;
+      this.tickRate = () => {
+        this.raf = null;
+        const animation = this.track.getAnimations()[0];
+        if (!animation) return;
+        const target = (1 + this.boost) * this.direction;
+        this.rate += (target - this.rate) * 0.12;
+        animation.playbackRate = this.rate;
+        this.boost *= 0.9;
+        if (Math.abs(target - this.rate) > 0.01 || this.boost > 0.02) this.raf = requestAnimationFrame(this.tickRate);
+      };
+      this.onScroll = () => {
+        const y = window.scrollY;
+        const delta = y - this.lastY;
+        this.lastY = y;
+        if (delta === 0) return;
+        this.direction = delta > 0 ? 1 : -1;
+        this.boost = Math.min(5, Math.abs(delta) / 8);
+        if (!this.raf) this.raf = requestAnimationFrame(this.tickRate);
+      };
+      window.addEventListener('scroll', this.onScroll, { passive: true });
+    }
+  }
+  if (!customElements.get('marquee-band')) customElements.define('marquee-band', MarqueeBand);
+{% endjavascript %}
+
+{% stylesheet %}
+  .marquee-section {
+    overflow-x: clip;
+  }
+  .marquee {
+    display: block;
+    overflow: hidden;
+  }
+  .marquee--borders {
+    border-block: 1px solid var(--color-border);
+  }
+  .marquee--tilt {
+    rotate: -2deg;
+    margin-block: 24px;
+    margin-inline: -2%;
+  }
+  .marquee__viewport {
+    overflow: hidden;
+    padding-block: var(--marquee-pad, 18px);
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+  }
+  .marquee.is-ready .marquee__track {
+    animation: marquee-move var(--marquee-duration, 30s) linear infinite;
+  }
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+  .marquee__group {
+    display: flex;
+    flex: none;
+    align-items: center;
+  }
+  .marquee:not(.is-ready) .marquee__group {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100vw;
+    row-gap: 8px;
+  }
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    white-space: nowrap;
+    padding-inline: 0.6em;
+    font-size: var(--marquee-size, 1.25rem);
+    line-height: 1.1;
+  }
+  .marquee__item::after {
+    content: var(--marquee-sep, '');
+    margin-inline-start: 1.2em;
+    font-size: 0.6em;
+    opacity: 0.55;
+  }
+  .marquee--sep-star {
+    --marquee-sep: '\2726';
+  }
+  .marquee--sep-dot {
+    --marquee-sep: '\25CF';
+  }
+  .marquee--sep-slash {
+    --marquee-sep: '/';
+  }
+  .marquee--font-heading .marquee__item {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    letter-spacing: var(--heading-ls);
+  }
+  .marquee--upper .marquee__item {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .marquee--small {
+    --marquee-size: 0.9375rem;
+    --marquee-pad: 12px;
+  }
+  .marquee--medium {
+    --marquee-size: 1.5rem;
+  }
+  .marquee--large {
+    --marquee-size: clamp(2rem, 4vw, 3rem);
+    --marquee-pad: 22px;
+  }
+  .marquee--huge {
+    --marquee-size: clamp(3rem, 8vw, 6.5rem);
+    --marquee-pad: 28px;
+  }
+  .marquee__image {
+    display: inline-block;
+    height: 1em;
+    aspect-ratio: 1.6;
+    border-radius: 999px;
+    overflow: hidden;
+    flex: none;
+  }
+  .marquee__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .marquee__text {
+    text-decoration: none;
+    color: inherit;
+  }
+  @keyframes marquee-move {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(var(--marquee-shift, -50%));
+    }
+  }
+  [dir='rtl'] .marquee--upper .marquee__item,
+  [dir='rtl'] .marquee--font-heading .marquee__item {
+    letter-spacing: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Marquee",
+  "tag": "section",
+  "class": "marquee-section",
+  "max_blocks": 12,
+  "blocks": [{ "type": "_marquee-item" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Text size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "huge", "label": "Huge" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "font",
+      "label": "Font",
+      "options": [
+        { "value": "heading", "label": "Heading font" },
+        { "value": "body", "label": "Body font" }
+      ],
+      "default": "heading"
+    },
+    { "type": "checkbox", "id": "uppercase", "label": "Capital letters", "default": false },
+    {
+      "type": "select",
+      "id": "separator",
+      "label": "Separator",
+      "options": [
+        { "value": "star", "label": "Star" },
+        { "value": "dot", "label": "Dot" },
+        { "value": "slash", "label": "Slash" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "star"
+    },
+    { "type": "range", "id": "speed", "label": "Speed", "info": "Pixels per second", "min": 20, "max": 200, "step": 10, "default": 60 },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Direction",
+      "options": [
+        { "value": "forward", "label": "With reading direction" },
+        { "value": "reverse", "label": "Against reading direction" }
+      ],
+      "default": "forward"
+    },
+    { "type": "checkbox", "id": "react_to_scroll", "label": "Speed up while scrolling", "info": "Moves faster when shoppers scroll quickly and turns around when they scroll up", "default": false },
+    { "type": "checkbox", "id": "borders", "label": "Lines above and below", "default": true },
+    { "type": "checkbox", "id": "tilt", "label": "Tilt slightly", "default": false },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Marquee",
+      "blocks": [
+        { "type": "_marquee-item", "settings": { "text": "Totes" } },
+        { "type": "_marquee-item", "settings": { "text": "Crossbody" } },
+        { "type": "_marquee-item", "settings": { "text": "Backpacks" } },
+        { "type": "_marquee-item", "settings": { "text": "New season" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

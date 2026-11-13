@@ -1,0 +1,107 @@
+{% doc %}
+  Renders the footer newsletter signup using the customer form.
+
+  @example
+  {% content_for 'block', type: '_footer-newsletter', id: 'newsletter' %}
+{% enddoc %}
+
+<div class="footer-newsletter" {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h2 class="footer-newsletter__heading">{{ block.settings.heading | escape }}</h2>
+  {%- endif -%}
+  {%- if block.settings.text != blank -%}
+    <div class="footer-newsletter__text rte">{{ block.settings.text }}</div>
+  {%- endif -%}
+
+  {%- form 'customer', id: 'FooterNewsletter', class: 'footer-newsletter__form' -%}
+    <input type="hidden" name="contact[tags]" value="newsletter">
+    {%- if form.posted_successfully? -%}
+      <p class="footer-newsletter__message" role="status">{{ 'newsletter.success' | t }}</p>
+    {%- else -%}
+      {%- if form.errors -%}
+        <p class="footer-newsletter__message footer-newsletter__message--error" role="alert">
+          {{ form.errors.translated_fields.email | capitalize }}
+          {{ form.errors.messages.email }}
+        </p>
+      {%- endif -%}
+      <div class="footer-newsletter__row">
+        <label for="FooterNewsletter-email-{{ block.id }}" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+        <input
+          id="FooterNewsletter-email-{{ block.id }}"
+          type="email"
+          name="contact[email]"
+          class="footer-newsletter__input"
+          value="{{ form.email }}"
+          placeholder="{{ 'newsletter.placeholder' | t }}"
+          autocomplete="email"
+          autocorrect="off"
+          autocapitalize="off"
+          required
+        >
+        <button type="submit" class="button button--primary">{{ 'newsletter.button' | t }}</button>
+      </div>
+    {%- endif -%}
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  .footer-newsletter {
+    grid-column: span 2;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .footer-newsletter__heading {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    color: var(--color-text);
+  }
+  .footer-newsletter__text {
+    color: var(--color-muted);
+    max-width: 440px;
+  }
+  .footer-newsletter__row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    max-width: 480px;
+  }
+  .footer-newsletter__input {
+    flex: 1 1 240px;
+    min-height: 52px;
+    padding: 0 20px;
+    border-radius: var(--input-radius);
+    border: 1px solid color-mix(in srgb, var(--color-text) 30%, transparent);
+    background: transparent;
+    color: var(--color-text);
+  }
+  .footer-newsletter__input::placeholder {
+    color: var(--color-muted);
+  }
+  .footer-newsletter__message {
+    color: var(--color-text);
+  }
+  .footer-newsletter__message--error {
+    color: var(--color-accent);
+  }
+  @media (max-width: 749px) {
+    .footer-newsletter {
+      grid-column: 1 / -1;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Join our list" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    {
+      "type": "paragraph",
+      "content": "Subscribers are added to your customer list with accepts marketing. Create a welcome discount in Shopify admin."
+    }
+  ]
+}
+{% endschema %}

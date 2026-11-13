@@ -1,0 +1,515 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media | default: product.featured_media
+  assign gallery = section.settings.gallery_layout
+  assign zoom_id = 'Zoom-' | append: section.id
+  assign form_id = 'ProductForm-' | append: section.id
+  assign media_count = product.media.size
+-%}
+
+{% render 'breadcrumbs' %}
+
+<product-info
+  class="section color-{{ section.settings.color_scheme }} main-product"
+  data-section="{{ section.id }}"
+  data-url="{{ product.url }}"
+  data-update-url="true"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }}); --media-ratio: {{ section.settings.media_ratio }};"
+>
+  <div class="page-width main-product__grid main-product__grid--{{ section.settings.media_width }} main-product__grid--media-{{ section.settings.media_position }}">
+    <media-gallery
+      class="main-product__gallery gallery--{{ gallery }} gallery--fit-{{ section.settings.media_fit }}{% if section.settings.media_ratio == 'natural' %} gallery--natural{% endif %}"
+      data-zoom-target="{{ zoom_id }}"
+      aria-label="{{ 'products.product.gallery' | t }}"
+    >
+      <div class="gallery__viewport">
+        <ul class="gallery__track" data-gallery-track role="list">
+          {%- for media in product.media -%}
+            <li
+              class="gallery__slide{% if media.id == featured_media.id %} is-featured{% endif %}"
+              data-media-id="{{ media.id }}"
+            >
+              {%- case media.media_type -%}
+                {%- when 'image' -%}
+                  {%- liquid
+                    if forloop.first
+                      assign media_loading = 'eager'
+                    else
+                      assign media_loading = 'lazy'
+                    endif
+                    assign media_alt = media.alt | default: product.title | escape
+                  -%}
+                  {%- if section.settings.enable_zoom -%}
+                    <button type="button" class="gallery__zoom" data-zoom="{{ media.id }}" aria-label="{{ 'products.product.zoom' | t: number: forloop.index }}">
+                      {{
+                        media
+                        | image_url: width: 1800
+                        | image_tag:
+                          loading: media_loading,
+                          widths: '500, 800, 1100, 1400, 1800',
+                          sizes: '(min-width: 990px) 55vw, 100vw',
+                          alt: media_alt
+                      }}
+                    </button>
+                  {%- else -%}
+                    {{
+                      media
+                      | image_url: width: 1800
+                      | image_tag:
+                        loading: media_loading,
+                        widths: '500, 800, 1100, 1400, 1800',
+                        sizes: '(min-width: 990px) 55vw, 100vw',
+                        alt: media_alt
+                    }}
+                  {%- endif -%}
+                {%- when 'video', 'external_video' -%}
+                  {{ media | media_tag: image_size: '1400x', autoplay: false, loop: false, controls: true }}
+                {%- when 'model' -%}
+                  {{ media | media_tag: image_size: '1400x' }}
+              {%- endcase -%}
+            </li>
+          {%- else -%}
+            <li class="gallery__slide">
+              {% render 'media-placeholder', kind: 'product', index: 2 %}
+            </li>
+          {%- endfor -%}
+        </ul>
+        <span id="ProductMediaParsed" hidden></span>
+
+        {%- if media_count > 1 -%}
+          <button type="button" class="gallery__arrow gallery__arrow--prev" data-gallery-prev aria-label="{{ 'products.product.previous_image' | t }}">
+            {% render 'icon', icon: 'chevron-left' %}
+          </button>
+          <button type="button" class="gallery__arrow gallery__arrow--next" data-gallery-next aria-label="{{ 'products.product.next_image' | t }}">
+            {% render 'icon', icon: 'chevron-right' %}
+          </button>
+        {%- endif -%}
+      </div>
+
+      {%- if media_count > 1 -%}
+        <ul class="gallery__thumbs" role="list">
+          {%- for media in product.media -%}
+            <li>
+              <button
+                type="button"
+                class="gallery__thumb"
+                data-thumb="{{ media.id }}"
+                aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-label="{{ 'products.product.view_media' | t: number: forloop.index }}"
+              >
+                {{ media.preview_image | image_url: width: 160, height: 160, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+        <div class="gallery__dots" aria-hidden="true">
+          {%- for media in product.media -%}
+            <button type="button" class="gallery__dot" data-dot="{{ media.id }}" tabindex="-1" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </media-gallery>
+
+    <div class="main-product__info{% if section.settings.sticky_info %} main-product__info--sticky{% endif %}">
+      <div class="main-product__info-inner">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+
+  {%- if section.settings.sticky_atc != 'off' -%}
+    <sticky-atc class="sticky-atc sticky-atc--{{ section.settings.sticky_atc }} color-{{ section.settings.color_scheme }}" data-target="{{ form_id }}">
+      <div class="sticky-atc__inner page-width">
+        <div class="sticky-atc__media">
+          {%- if product.featured_media -%}
+            {{ product.featured_media | image_url: width: 120, height: 120, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+          {%- endif -%}
+        </div>
+        <div class="sticky-atc__info">
+          <span class="sticky-atc__title">{{ product.title | escape }}</span>
+          <div data-update="sticky-price">{% render 'price', variant: current_variant %}</div>
+        </div>
+        <div class="sticky-atc__button" data-update="sticky-button">
+          <button
+            type="submit"
+            form="{{ form_id }}"
+            class="button button--primary"
+            {% unless current_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            {%- if current_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </button>
+        </div>
+      </div>
+    </sticky-atc>
+  {%- endif -%}
+
+  <script type="application/json" data-product-variants>
+    {{ product.variants | json }}
+  </script>
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+</product-info>
+
+{%- if section.settings.enable_zoom and media_count > 0 -%}
+  <dialog id="{{ zoom_id }}" class="modal zoom-modal" aria-label="{{ 'products.product.gallery' | t }}">
+    <button type="button" class="icon-button modal__close" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+      {% render 'icon', icon: 'close' %}
+    </button>
+    <ul class="zoom-modal__list" role="list">
+      {%- for media in product.media -%}
+        {%- if media.media_type == 'image' -%}
+          <li data-zoom-media="{{ media.id }}">
+            {{ media | image_url: width: 2400 | image_tag: loading: 'lazy', widths: '1000, 1600, 2400', sizes: '100vw', alt: media.alt }}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </dialog>
+{%- endif -%}
+
+{% stylesheet %}
+  .main-product__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+  .main-product__grid--narrow {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .main-product__grid--wide {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  @media (min-width: 990px) {
+    .main-product__grid--media-end {
+      grid-template-columns: minmax(0, 9fr) minmax(0, 11fr);
+    }
+    .main-product__grid--media-end.main-product__grid--narrow {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .main-product__grid--media-end.main-product__grid--wide {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+    .main-product__grid--media-end .main-product__gallery {
+      order: 2;
+    }
+  }
+  .main-product__gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+  .gallery__viewport {
+    position: relative;
+  }
+  .gallery__track {
+    display: flex;
+    gap: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border-radius: var(--radius-lg);
+  }
+  .gallery__track::-webkit-scrollbar {
+    display: none;
+  }
+  .gallery__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    aspect-ratio: var(--media-ratio);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--tint-1);
+    position: relative;
+  }
+  .gallery--natural .gallery__slide {
+    aspect-ratio: auto;
+  }
+  .gallery__slide img,
+  .gallery__slide video,
+  .gallery__slide iframe,
+  .gallery__slide model-viewer,
+  .gallery__slide .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 0;
+  }
+  .gallery--fit-contain .gallery__slide img {
+    object-fit: contain;
+  }
+  .gallery--natural .gallery__slide img {
+    height: auto;
+  }
+  .gallery__zoom {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .gallery__arrow {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-surface);
+    color: var(--color-text);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.4);
+  }
+  .gallery__arrow--prev {
+    inset-inline-start: 12px;
+  }
+  .gallery__arrow--next {
+    inset-inline-end: 12px;
+  }
+  .gallery__arrow .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .gallery__thumbs {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .gallery__thumb {
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--color-surface);
+  }
+  .gallery__thumb[aria-current='true'] {
+    border-color: var(--color-text);
+  }
+  .gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gallery__dots {
+    display: none;
+    justify-content: center;
+    gap: 6px;
+  }
+  .gallery__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: color-mix(in srgb, var(--color-text) 25%, transparent);
+    transition: width 0.2s, background-color 0.2s;
+  }
+  .gallery__dot[aria-current='true'] {
+    width: 22px;
+    border-radius: 4px;
+    background: var(--color-text);
+  }
+  @media (min-width: 990px) {
+    .gallery--stacked .gallery__track,
+    .gallery--grid .gallery__track {
+      flex-direction: column;
+      overflow: visible;
+      border-radius: 0;
+    }
+    .gallery--grid .gallery__track {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .gallery--grid .gallery__slide:first-child {
+      grid-column: 1 / -1;
+    }
+    .gallery--stacked .gallery__thumbs,
+    .gallery--grid .gallery__thumbs,
+    .gallery--stacked .gallery__arrow,
+    .gallery--grid .gallery__arrow {
+      display: none;
+    }
+    .gallery--carousel .gallery__arrow,
+    .gallery--thumbnails .gallery__arrow {
+      display: inline-flex;
+    }
+    .gallery--carousel .gallery__thumbs {
+      display: none;
+    }
+    .gallery--carousel .gallery__dots {
+      display: flex;
+    }
+    .main-product__info--sticky {
+      position: sticky;
+      top: calc(var(--header-height) + 24px);
+    }
+  }
+  .main-product__info-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .zoom-modal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+  .zoom-modal__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .zoom-modal__list img {
+    width: 100%;
+    max-width: 1600px;
+    margin-inline: auto;
+  }
+  @media (max-width: 989px) {
+    .main-product__grid,
+    .main-product__grid--narrow,
+    .main-product__grid--wide {
+      grid-template-columns: 1fr;
+    }
+    .main-product__gallery {
+      margin-inline: calc(var(--gutter) * -1);
+    }
+    .gallery__track {
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      border-radius: 0;
+    }
+    .gallery__slide {
+      flex-basis: calc(100% - 24px);
+      border-radius: var(--radius-md);
+    }
+    .gallery__thumbs {
+      padding-inline: var(--gutter);
+    }
+    .main-product__gallery.gallery--carousel .gallery__thumbs,
+    .main-product__gallery.gallery--stacked .gallery__thumbs,
+    .main-product__gallery.gallery--grid .gallery__thumbs {
+      display: none;
+    }
+    .main-product__gallery.gallery--carousel .gallery__dots,
+    .main-product__gallery.gallery--stacked .gallery__dots,
+    .main-product__gallery.gallery--grid .gallery__dots {
+      display: flex;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product information",
+  "tag": "section",
+  "class": "main-product-section",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "header", "content": "Media" },
+    {
+      "type": "select",
+      "id": "gallery_layout",
+      "label": "Gallery layout on desktop",
+      "options": [
+        { "value": "stacked", "label": "Stacked" },
+        { "value": "grid", "label": "Two column grid" },
+        { "value": "thumbnails", "label": "Slider with thumbnails" },
+        { "value": "carousel", "label": "Slider with dots" }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Photos position on desktop",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "end", "label": "End" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "media_width",
+      "label": "Media width",
+      "options": [
+        { "value": "narrow", "label": "Half" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "wide", "label": "Wide" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "media_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "1", "label": "Square" },
+        { "value": "0.8", "label": "Portrait" },
+        { "value": "0.75", "label": "Tall portrait" },
+        { "value": "natural", "label": "Original" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "media_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Fill the frame" },
+        { "value": "contain", "label": "Show the whole photo" }
+      ],
+      "default": "cover"
+    },
+    { "type": "checkbox", "id": "enable_zoom", "label": "Open photos full screen on click", "default": true },
+    { "type": "header", "content": "Product details" },
+    { "type": "checkbox", "id": "sticky_info", "label": "Keep details in view while scrolling", "default": true },
+    {
+      "type": "select",
+      "id": "sticky_atc",
+      "label": "Sticky add to cart bar",
+      "options": [
+        { "value": "mobile", "label": "Mobile only" },
+        { "value": "always", "label": "Mobile and desktop" },
+        { "value": "off", "label": "Off" }
+      ],
+      "default": "mobile",
+      "info": "Appears after shoppers scroll past the main add to cart button"
+    },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "medium" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "small" }
+  ]
+}
+{% endschema %}

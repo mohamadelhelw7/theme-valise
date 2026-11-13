@@ -1,0 +1,23 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: 80px; --pb: 40px;">
+  <div class="page-width empty-state">
+    <span class="eyebrow">404</span>
+    <h1 class="h1">{{ 'templates.404.title' | t }}</h1>
+    <p>{{ 'templates.404.subtext' | t }}</p>
+    <a href="{{ routes.all_products_collection_url }}" class="button button--primary">{{ 'cart.continue_shopping' | t }}</a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "404 page",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

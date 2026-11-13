@@ -1,0 +1,383 @@
+{% doc %}
+  Lets shoppers add initials (or a short name) to the product, with a live
+  preview on a leather tag. The text is saved on the order as a line item
+  property. Optional foil choices are saved the same way.
+{% enddoc %}
+
+{%- liquid
+  assign form_id = 'ProductForm-' | append: section.id
+  assign toggle_label = block.settings.toggle_label
+  if toggle_label == blank
+    assign toggle_label = 'products.personalize.add' | t
+  endif
+  assign field_label = block.settings.field_label
+  if field_label == blank
+    assign field_label = 'products.personalize.field' | t
+  endif
+  assign property_name = block.settings.property_name | default: 'Initials' | strip
+  assign foil_property = block.settings.foil_property | default: 'Foil' | strip
+  assign foils = block.settings.foil_options | split: ','
+  assign preview_text = block.settings.preview_text | default: 'A.B.'
+-%}
+
+<personalize-field class="personalize" style="--tag-color: {{ block.settings.tag_color }};" {{ block.shopify_attributes }}>
+  <label class="personalize__toggle">
+    <input type="checkbox" class="personalize__checkbox" data-personalize-toggle>
+    <span class="personalize__toggle-text">
+      {% render 'icon', icon: 'pen' %}
+      {{ toggle_label | escape }}
+    </span>
+    {%- if block.settings.price_note != blank -%}
+      <span class="personalize__price">{{ block.settings.price_note | escape }}</span>
+    {%- endif -%}
+  </label>
+
+  <div class="personalize__panel" data-personalize-panel hidden>
+    <div class="personalize__preview" aria-hidden="true">
+      <span class="personalize__tag">
+        <span class="personalize__hole"></span>
+        <span class="personalize__letters is-placeholder" data-personalize-preview>{{ preview_text | escape }}</span>
+      </span>
+    </div>
+
+    <div class="personalize__fields">
+      <div class="field">
+        <label class="field__label" for="Personalize-{{ block.id }}">{{ field_label | escape }}</label>
+        <input
+          id="Personalize-{{ block.id }}"
+          class="field__input personalize__input"
+          type="text"
+          name="properties[{{ property_name | escape }}]"
+          form="{{ form_id }}"
+          maxlength="{{ block.settings.max_length }}"
+          autocomplete="off"
+          spellcheck="false"
+          disabled
+          data-required-property
+          data-personalize-input
+        >
+        <p class="personalize__hint">{{ 'products.personalize.hint' | t: count: block.settings.max_length }}</p>
+      </div>
+
+      {%- if foils.size > 0 -%}
+        <fieldset class="personalize__foils">
+          <legend class="field__label">{{ block.settings.foil_label | default: foil_property | escape }}</legend>
+          <div class="personalize__foil-list">
+            {%- for foil in foils -%}
+              {%- liquid
+                assign foil_name = foil | strip
+                assign foil_down = foil_name | downcase
+                assign foil_key = 'ink'
+                if foil_down contains 'gold' or foil_down contains 'ذهب'
+                  assign foil_key = 'gold'
+                elsif foil_down contains 'rose' or foil_down contains 'روز'
+                  assign foil_key = 'rose'
+                elsif foil_down contains 'silver' or foil_down contains 'فض'
+                  assign foil_key = 'silver'
+                elsif foil_down contains 'blind' or foil_down contains 'deboss' or foil_down contains 'emboss' or foil_down contains 'بارز' or foil_down contains 'غائر'
+                  assign foil_key = 'blind'
+                elsif foil_down contains 'white' or foil_down contains 'أبيض'
+                  assign foil_key = 'white'
+                endif
+              -%}
+              {%- if foil_name != blank -%}
+                <label class="personalize__foil">
+                  <input
+                    type="radio"
+                    name="properties[{{ foil_property | escape }}]"
+                    value="{{ foil_name | escape }}"
+                    form="{{ form_id }}"
+                    data-personalize-foil
+                    data-foil-key="{{ foil_key }}"
+                    disabled
+                    {% if forloop.first %}
+                      checked
+                    {% endif %}
+                  >
+                  <span class="personalize__foil-swatch personalize__foil-swatch--{{ foil_key }}"></span>
+                  <span>{{ foil_name | escape }}</span>
+                </label>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </fieldset>
+      {%- endif -%}
+
+      {%- if block.settings.note != blank -%}
+        <p class="personalize__note">{{ block.settings.note | escape }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+</personalize-field>
+
+{% javascript %}
+  class PersonalizeField extends HTMLElement {
+    connectedCallback() {
+      this.toggle = this.querySelector('[data-personalize-toggle]');
+      this.panel = this.querySelector('[data-personalize-panel]');
+      this.input = this.querySelector('[data-personalize-input]');
+      this.preview = this.querySelector('[data-personalize-preview]');
+      this.foils = Array.from(this.querySelectorAll('[data-personalize-foil]'));
+      if (!this.toggle || !this.input) return;
+      this.placeholder = this.preview ? this.preview.textContent : '';
+      this.toggle.addEventListener('change', () => {
+        this.update();
+        if (this.toggle.checked) this.input.focus();
+      });
+      this.input.addEventListener('input', () => this.render());
+      this.foils.forEach((foil) => foil.addEventListener('change', () => this.render()));
+      this.update();
+    }
+
+    update() {
+      const on = this.toggle.checked;
+      this.panel.hidden = !on;
+      this.input.disabled = !on;
+      this.input.required = on;
+      this.foils.forEach((foil) => {
+        foil.disabled = !on;
+      });
+      this.render();
+    }
+
+    render() {
+      const value = this.input.value.trim();
+      if (this.preview) {
+        this.preview.textContent = value || this.placeholder;
+        this.preview.classList.toggle('is-placeholder', !value);
+      }
+      const foil = this.foils.find((item) => item.checked);
+      this.dataset.foil = foil ? foil.dataset.foilKey : '';
+    }
+  }
+  if (!customElements.get('personalize-field')) customElements.define('personalize-field', PersonalizeField);
+{% endjavascript %}
+
+{% stylesheet %}
+  personalize-field {
+    display: block;
+  }
+  .personalize {
+    --foil: linear-gradient(135deg, #f3e2b3, #c9a24f 45%, #f7e7bd 60%, #b38a3e);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+  .personalize[data-foil='silver'] {
+    --foil: linear-gradient(135deg, #f4f4f4, #b7bcc1 45%, #ffffff 60%, #9aa0a6);
+  }
+  .personalize[data-foil='rose'] {
+    --foil: linear-gradient(135deg, #f6d9cc, #c98b74 45%, #f8e2d8 60%, #b0705a);
+  }
+  .personalize[data-foil='white'] {
+    --foil: linear-gradient(#ffffff, #f1f1f1);
+  }
+  .personalize[data-foil='ink'] {
+    --foil: linear-gradient(#141414, #141414);
+  }
+  .personalize[data-foil='blind'] {
+    --foil: linear-gradient(color-mix(in srgb, var(--tag-color) 70%, #000), color-mix(in srgb, var(--tag-color) 85%, #000));
+  }
+  .personalize__toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 16px;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .personalize__checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-button);
+    margin: 0;
+  }
+  .personalize__toggle-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+  }
+  .personalize__toggle-text .icon {
+    width: 18px;
+    height: 18px;
+  }
+  .personalize__price {
+    margin-inline-start: auto;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+  .personalize__panel {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 20px;
+    padding: 4px 16px 18px;
+  }
+  .personalize__panel[hidden] {
+    display: none;
+  }
+  .personalize__preview {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+  }
+  .personalize__tag {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 76%;
+    aspect-ratio: 1.45;
+    padding: 8px 10px 8px 22px;
+    border-radius: 6px 30px 30px 6px;
+    background:
+      radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.16), transparent 60%),
+      var(--tag-color);
+    box-shadow:
+      inset 0 0 0 3px color-mix(in srgb, var(--tag-color) 80%, #000),
+      inset 0 0 0 4px rgb(255 255 255 / 0.18),
+      0 10px 18px -12px rgb(0 0 0 / 0.6);
+  }
+  [dir='rtl'] .personalize__tag {
+    border-radius: 30px 6px 6px 30px;
+    padding: 8px 22px 8px 10px;
+  }
+  .personalize__hole {
+    position: absolute;
+    inset-inline-start: 8px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    translate: 0 -50%;
+    border-radius: 50%;
+    background: var(--color-surface);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5);
+  }
+  .personalize__letters {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--foil);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.35));
+  }
+  .personalize__letters.is-placeholder {
+    opacity: 0.55;
+  }
+  .personalize__fields {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  .personalize__input {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .personalize__hint,
+  .personalize__note {
+    margin: 4px 0 0;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .personalize__foils {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .personalize__foil-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .personalize__foil {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .personalize__foil input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .personalize__foil:has(input:checked) {
+    border-color: var(--color-text);
+  }
+  .personalize__foil:has(input:focus-visible) {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+  .personalize__foil-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: linear-gradient(#141414, #141414);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
+  }
+  .personalize__foil-swatch--gold {
+    background: linear-gradient(135deg, #f3e2b3, #c9a24f 50%, #b38a3e);
+  }
+  .personalize__foil-swatch--silver {
+    background: linear-gradient(135deg, #ffffff, #b7bcc1 50%, #9aa0a6);
+  }
+  .personalize__foil-swatch--rose {
+    background: linear-gradient(135deg, #f6d9cc, #c98b74 50%, #b0705a);
+  }
+  .personalize__foil-swatch--white {
+    background: #ffffff;
+  }
+  .personalize__foil-swatch--blind {
+    background: var(--tag-color);
+  }
+  @media (max-width: 749px) {
+    .personalize__panel {
+      grid-template-columns: 1fr;
+    }
+    .personalize__preview {
+      aspect-ratio: auto;
+      padding: 18px;
+    }
+    .personalize__tag {
+      width: 150px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Initials",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "toggle_label", "label": "Checkbox label", "info": "Defaults to Add initials" },
+    { "type": "text", "id": "price_note", "label": "Price note", "info": "Optional, for example a fee. This block does not change the price; see the setup guide to charge for it." },
+    { "type": "text", "id": "field_label", "label": "Field label", "info": "Defaults to Your initials" },
+    { "type": "range", "id": "max_length", "label": "Most letters", "min": 1, "max": 12, "step": 1, "default": 3 },
+    { "type": "text", "id": "preview_text", "label": "Preview example", "default": "A.B." },
+    { "type": "color", "id": "tag_color", "label": "Leather tag color", "default": "#5A3A26" },
+    { "type": "text", "id": "property_name", "label": "Name on the order", "info": "Shown next to the text in the cart and on the order", "default": "Initials" },
+    { "type": "header", "content": "Foil choices" },
+    { "type": "text", "id": "foil_options", "label": "Choices", "info": "Optional. Separate with commas, for example: Gold, Silver, Blind" },
+    { "type": "text", "id": "foil_label", "label": "Choices label", "default": "Foil" },
+    { "type": "text", "id": "foil_property", "label": "Choice name on the order", "default": "Foil" },
+    { "type": "text", "id": "note", "label": "Note", "info": "Optional, for example how long personalized orders take" }
+  ],
+  "presets": [{ "name": "Initials" }]
+}
+{% endschema %}

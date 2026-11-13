@@ -1,0 +1,225 @@
+{%- assign heading_id = 'BentoHeading-' | append: section.id -%}
+
+<section
+  class="section bento color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+  {% if section.settings.heading != blank %}
+    aria-labelledby="{{ heading_id }}"
+  {% endif %}
+>
+  <div class="page-width">
+    {%- if section.settings.heading != blank or section.settings.eyebrow != blank -%}
+      {% render 'section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        heading_id: heading_id,
+        description: section.settings.description,
+        alignment: section.settings.header_alignment
+      %}
+    {%- endif -%}
+    <div class="bento__grid" style="--bento-cols: {{ section.settings.columns }}; --bento-row: {{ section.settings.row_height }}px;">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .bento__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--bento-cols), minmax(0, 1fr));
+    grid-auto-rows: var(--bento-row);
+    grid-auto-flow: dense;
+    gap: var(--grid-gap);
+  }
+  .bento-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    color: var(--color-text);
+    isolation: isolate;
+  }
+  .bento-tile--w2 {
+    grid-column: span 2;
+  }
+  .bento-tile--w3 {
+    grid-column: span 3;
+  }
+  .bento-tile--h2 {
+    grid-row: span 2;
+  }
+  .bento-tile__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .bento-tile__media img,
+  .bento-tile__media video,
+  .bento-tile__media .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .bento-tile:hover .bento-tile__media img {
+    scale: 1.05;
+  }
+  .bento-tile:not(.bento-tile--text) .bento-tile__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.62), transparent 55%);
+  }
+  .bento-tile__content {
+    display: grid;
+    gap: 6px;
+    padding: clamp(14px, 2vw, 22px);
+  }
+  .bento-tile:not(.bento-tile--text) .bento-tile__content {
+    color: #fff;
+  }
+  .bento-tile--text {
+    justify-content: space-between;
+  }
+  .bento-tile--text .bento-tile__content {
+    height: 100%;
+    align-content: space-between;
+  }
+  .bento-tile__eyebrow {
+    justify-self: start;
+    padding: 5px 10px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font: 700 0.6875rem/1 var(--font-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .bento-tile__heading {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: clamp(1.125rem, 1.8vw, 1.625rem);
+    line-height: 1;
+    text-transform: var(--heading-case);
+    letter-spacing: var(--heading-ls);
+  }
+  .bento-tile__heading--big {
+    font-size: calc(clamp(2rem, 4.4vw, 4rem) * var(--heading-scale));
+    line-height: 0.9;
+  }
+  .bento-tile__text {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.85;
+  }
+  .bento-tile__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 0.75rem/1 var(--font-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .bento-tile__cta .icon {
+    width: 14px;
+    height: 14px;
+    transition: translate 0.25s ease;
+  }
+  .bento-tile:hover .bento-tile__cta .icon {
+    translate: 3px -3px;
+  }
+  .bento-tile__product {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+  }
+  .bento-tile__title {
+    font-weight: 700;
+  }
+  .bento-tile__product .price {
+    color: inherit;
+  }
+  .bento-tile__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .bento-tile__actions {
+    position: absolute;
+    top: 12px;
+    inset-inline-end: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+  }
+  .bento-tile__add {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+  @media (max-width: 749px) {
+    .bento__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-rows: calc(var(--bento-row) * 0.66);
+    }
+    .bento-tile--w3 {
+      grid-column: span 2;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bento-tile__media img {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bento grid",
+  "tag": "div",
+  "class": "bento-section",
+  "max_blocks": 12,
+  "blocks": [{ "type": "_bento-tile" }],
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The edit" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Choose your bag" },
+    { "type": "richtext", "id": "description", "label": "Description" },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split" }
+      ],
+      "default": "start"
+    },
+    { "type": "range", "id": "columns", "label": "Columns on desktop", "min": 3, "max": 4, "step": 1, "default": 4 },
+    { "type": "range", "id": "row_height", "label": "Row height", "min": 160, "max": 360, "step": 20, "unit": "px", "default": 240 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Bento grid",
+      "blocks": [
+        { "type": "_bento-tile", "settings": { "kind": "image", "width": "2", "height": "2", "eyebrow": "New in", "heading": "The new collection", "link_label": "Shop now", "link": "shopify://collections/all" } },
+        { "type": "_bento-tile", "settings": { "kind": "product", "width": "1", "height": "2" } },
+        { "type": "_bento-tile", "settings": { "kind": "text", "color_scheme": "scheme-6", "eyebrow": "The edit", "heading": "Day to night", "text": "Totes, crossbody bags and clutches.", "link_label": "Shop now", "link": "shopify://collections/all" } },
+        { "type": "_bento-tile", "settings": { "kind": "collection", "link_label": "Explore" } },
+        { "type": "_bento-tile", "settings": { "kind": "product" } },
+        { "type": "_bento-tile", "settings": { "kind": "text", "color_scheme": "scheme-5", "heading": "Made to be carried", "text": "Tap the heart on any bag to save it for later." } },
+        { "type": "_bento-tile", "settings": { "kind": "image", "width": "2", "eyebrow": "Lookbook", "heading": "On the move", "link_label": "See the looks", "link": "shopify://collections/all" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

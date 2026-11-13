@@ -1,0 +1,99 @@
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  data-countdown-container
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <div class="page-width">
+    <div class="countdown-banner countdown-banner--{{ section.settings.layout }} color-{{ section.settings.panel_scheme }}">
+      {%- if section.settings.image != blank -%}
+        <div class="countdown-banner__media media-tile">
+          {{ section.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '500, 900, 1400', sizes: '(min-width: 990px) 45vw, 100vw' }}
+        </div>
+      {%- endif -%}
+      <div class="countdown-banner__content">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .countdown-banner {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .countdown-banner:has(.countdown-banner__media) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .countdown-banner__media {
+    border-radius: 0;
+    min-height: 320px;
+  }
+  .countdown-banner__content {
+    padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .countdown-banner--center .countdown-banner__content {
+    align-items: center;
+    text-align: center;
+  }
+  .countdown-banner--center .countdown {
+    align-items: center;
+  }
+  @media (max-width: 749px) {
+    .countdown-banner:has(.countdown-banner__media) {
+      grid-template-columns: 1fr;
+    }
+    .countdown-banner__media {
+      min-height: 220px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Countdown banner",
+  "tag": "div",
+  "class": "countdown-banner-section",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Section color scheme", "default": "scheme-1" },
+    { "type": "color_scheme", "id": "panel_scheme", "label": "Banner color scheme", "default": "scheme-6" },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Text alignment",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Optional, shown beside the text" },
+    {
+      "type": "paragraph",
+      "content": "Set the end date in the Countdown block. When the countdown block is set to hide, the whole banner hides once the offer ends."
+    },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Countdown banner",
+      "blocks": [
+        { "type": "eyebrow", "settings": { "text": "Limited time", "alignment": "center" } },
+        { "type": "heading", "settings": { "heading": "The season sale ends soon", "size": "h1", "tag": "h2", "alignment": "center" } },
+        { "type": "countdown", "settings": { "style": "boxes", "size": "large", "alignment": "center" } },
+        { "type": "button", "settings": { "label": "Shop the sale", "style": "button--primary" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,29 @@
+{% doc %}
+  Renders a collection tile chosen in the theme editor.
+
+  @example
+  {% content_for 'block', type: '_collection-card', id: 'collection' %}
+{% enddoc %}
+
+{%- capture attrs -%}{{ block.shopify_attributes }}{%- endcapture -%}
+{% render 'collection-card',
+  collection: block.settings.collection,
+  title: block.settings.title,
+  image: block.settings.image,
+  color: block.settings.color,
+  attributes: attrs
+%}
+
+{% schema %}
+{
+  "name": "Collection",
+  "tag": null,
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "text", "id": "title", "label": "Title", "info": "Defaults to the collection title" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to the collection image" },
+    { "type": "color", "id": "color", "label": "Background color", "default": "#F5F0E9" }
+  ],
+  "presets": [{ "name": "Collection" }]
+}
+{% endschema %}

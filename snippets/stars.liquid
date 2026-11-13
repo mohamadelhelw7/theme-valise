@@ -1,0 +1,23 @@
+{% doc %}
+  Renders a row of star icons for a rating value.
+
+  @param {number} rating - Rating value, for example 4.6
+  @param {number} [scale] - Maximum rating, defaults to 5
+
+  @example
+  {% render 'stars', rating: 4.5 %}
+{% enddoc %}
+
+{%- liquid
+  assign scale_max = scale | default: 5
+  assign rounded = rating | round
+-%}
+<span class="stars" role="img" aria-label="{{ 'sections.reviews.rating' | t: rating: rating }}">
+  {%- for i in (1..scale_max) -%}
+    {%- if i <= rounded -%}
+      {% render 'icon', icon: 'star' %}
+    {%- else -%}
+      <span class="star-off">{% render 'icon', icon: 'star' %}</span>
+    {%- endif -%}
+  {%- endfor -%}
+</span>

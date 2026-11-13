@@ -1,0 +1,89 @@
+{% doc %}
+  Renders a group of expandable rows. Optionally only one row can be open at a time.
+
+  @example
+  {% content_for 'block', type: 'accordion', id: 'accordion' %}
+{% enddoc %}
+
+<div
+  class="accordion accordion--{{ block.settings.style }}"
+  data-accordion-name="{% if block.settings.single_open %}accordion-{{ block.id }}{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.heading != blank -%}
+    <p class="accordion__heading">{{ block.settings.heading | escape }}</p>
+  {%- endif -%}
+  {% content_for 'blocks' %}
+</div>
+
+{% javascript %}
+  document.querySelectorAll('[data-accordion-name]').forEach((group) => {
+    const name = group.dataset.accordionName;
+    if (!name) return;
+    group.querySelectorAll(':scope > details').forEach((row) => row.setAttribute('name', name));
+  });
+  document.addEventListener('shopify:section:load', (event) => {
+    event.target.querySelectorAll('[data-accordion-name]').forEach((group) => {
+      const name = group.dataset.accordionName;
+      if (!name) return;
+      group.querySelectorAll(':scope > details').forEach((row) => row.setAttribute('name', name));
+    });
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  .accordion__heading {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .accordion--lines .accordion-row {
+    border-top: 1px solid var(--color-border);
+  }
+  .accordion--lines .accordion-row:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .accordion--cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .accordion--cards .accordion-row {
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding-inline: 18px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Accordion",
+  "tag": null,
+  "blocks": [{ "type": "_accordion-row" }],
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "lines", "label": "Lines" },
+        { "value": "cards", "label": "Cards" }
+      ],
+      "default": "lines"
+    },
+    { "type": "checkbox", "id": "single_open", "label": "Only one row open at a time", "default": true }
+  ],
+  "presets": [
+    {
+      "name": "Accordion",
+      "category": "Text",
+      "blocks": [
+        { "type": "_accordion-row", "settings": { "heading": "How to use", "icon": "drop" } },
+        { "type": "_accordion-row", "settings": { "heading": "Materials and care", "icon": "gem" } },
+        { "type": "_accordion-row", "settings": { "heading": "Shipping and returns", "icon": "truck" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

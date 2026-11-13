@@ -1,0 +1,48 @@
+{% doc %}
+  Renders a pill button link.
+
+  @example
+  {% content_for 'block', type: 'button', id: 'button' %}
+{% enddoc %}
+
+{%- if block.settings.label != blank -%}
+  <a
+    class="button {{ block.settings.style }}"
+    {% if block.settings.link != blank %}
+      href="{{ block.settings.link }}"
+    {% else %}
+      role="link" aria-disabled="true"
+    {% endif %}
+    {% if block.settings.new_tab %}
+      target="_blank" rel="noopener"
+    {% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {{- block.settings.label | escape -}}
+  </a>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Button",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Shop new in" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "checkbox", "id": "new_tab", "label": "Open in new tab", "default": false },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "button--primary", "label": "Solid" },
+        { "value": "button--secondary", "label": "Outline" },
+        { "value": "button--accent", "label": "Accent" },
+        { "value": "button--link", "label": "Text link" }
+      ],
+      "default": "button--primary"
+    }
+  ],
+  "presets": [{ "name": "Button", "category": "Links" }]
+}
+{% endschema %}

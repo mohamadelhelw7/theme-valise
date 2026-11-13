@@ -1,0 +1,168 @@
+{
+  "sections": {
+    "hero": {
+      "type": "campaign-hero",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "height": "full",
+        "scroll_effect": "zoom",
+        "text_position": "center",
+        "overlay": 25,
+        "text_color": "#FFFFFF",
+        "eyebrow": "Our story",
+        "heading": "Made to be\n*carried*",
+        "text": "Tell the story of your brand: who makes your bags and why.",
+        "button_label": "Shop the collection",
+        "button_link": "shopify://collections/all"
+      }
+    },
+    "statement": {
+      "type": "scroll-text",
+      "settings": {
+        "color_scheme": "scheme-1"
+      }
+    },
+    "stories": {
+      "type": "stacked-stories",
+      "blocks": {
+        "stacked_stories_1": {
+          "type": "_story-card",
+          "settings": {
+            "color_scheme": "scheme-4",
+            "eyebrow": "The materials",
+            "heading": "Chosen to\n*last*",
+            "button_label": "Discover"
+          }
+        },
+        "stacked_stories_2": {
+          "type": "_story-card",
+          "settings": {
+            "color_scheme": "scheme-3",
+            "image_position": "end",
+            "eyebrow": "The size",
+            "heading": "Find the right\n*size*",
+            "text": "<p>Every bag shows its measurements and what fits inside on its page.</p>",
+            "button_label": "See the sizes"
+          }
+        },
+        "stacked_stories_3": {
+          "type": "_story-card",
+          "settings": {
+            "color_scheme": "scheme-5",
+            "eyebrow": "New in",
+            "heading": "New bags,\n*every* season",
+            "text": "<p>Sign up to hear about new bags first.</p>",
+            "button_label": "Shop new in"
+          }
+        }
+      },
+      "block_order": [
+        "stacked_stories_1",
+        "stacked_stories_2",
+        "stacked_stories_3"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1"
+      }
+    },
+    "closer_look": {
+      "type": "bag-anatomy",
+      "blocks": {
+        "bag_anatomy_1": {
+          "type": "_anatomy-point",
+          "settings": {
+            "x": 50,
+            "y": 14,
+            "title": "Handle",
+            "text": "Say what the handle is made of and how long the drop is."
+          }
+        },
+        "bag_anatomy_2": {
+          "type": "_anatomy-point",
+          "settings": {
+            "x": 64,
+            "y": 46,
+            "title": "Hardware",
+            "text": "Describe the clasp, buckles and their finish."
+          }
+        },
+        "bag_anatomy_3": {
+          "type": "_anatomy-point",
+          "settings": {
+            "x": 30,
+            "y": 66,
+            "title": "Stitching",
+            "text": "Explain how the bag is sewn and finished."
+          }
+        },
+        "bag_anatomy_4": {
+          "type": "_anatomy-point",
+          "settings": {
+            "x": 58,
+            "y": 90,
+            "title": "Base",
+            "text": "Mention the base, feet or anything that protects it."
+          }
+        }
+      },
+      "block_order": [
+        "bag_anatomy_1",
+        "bag_anatomy_2",
+        "bag_anatomy_3",
+        "bag_anatomy_4"
+      ],
+      "settings": {
+        "color_scheme": "scheme-2"
+      }
+    },
+    "video": {
+      "type": "video-feature",
+      "settings": {
+        "color_scheme": "scheme-1"
+      }
+    },
+    "social": {
+      "type": "social-gallery",
+      "blocks": {
+        "social_gallery_1": {
+          "type": "_gallery-image",
+          "settings": {}
+        },
+        "social_gallery_2": {
+          "type": "_gallery-image",
+          "settings": {}
+        },
+        "social_gallery_3": {
+          "type": "_gallery-image",
+          "settings": {}
+        },
+        "social_gallery_4": {
+          "type": "_gallery-image",
+          "settings": {}
+        },
+        "social_gallery_5": {
+          "type": "_gallery-image",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "social_gallery_1",
+        "social_gallery_2",
+        "social_gallery_3",
+        "social_gallery_4",
+        "social_gallery_5"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "statement",
+    "stories",
+    "closer_look",
+    "video",
+    "social"
+  ]
+}

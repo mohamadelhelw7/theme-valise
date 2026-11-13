@@ -1,0 +1,28 @@
+{% doc %}
+  Renders a small uppercase label above headings.
+
+  @example
+  {% content_for 'block', type: 'eyebrow', id: 'eyebrow' %}
+{% enddoc %}
+
+<span class="eyebrow eyebrow-block" style="--eyebrow-align: {{ block.settings.alignment }};" {{ block.shopify_attributes }}>
+  {{- block.settings.text | escape -}}
+</span>
+
+{% stylesheet %}
+  .eyebrow-block {
+    text-align: var(--eyebrow-align);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Eyebrow",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "Text", "default": "New season" },
+    { "type": "text_alignment", "id": "alignment", "label": "Alignment", "default": "left" }
+  ],
+  "presets": [{ "name": "Eyebrow", "category": "Text" }]
+}
+{% endschema %}

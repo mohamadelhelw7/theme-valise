@@ -1,0 +1,430 @@
+{% doc %}
+  Renders a bag's measurements with a drawn diagram, what fits inside and the
+  ways to carry it. Every value can come from a product metafield through
+  dynamic sources. Hidden on the store until something is filled in.
+{% enddoc %}
+
+{%- liquid
+  assign unit_label = 'products.bag_size.cm' | t
+  if block.settings.unit == 'in'
+    assign unit_label = 'products.bag_size.in' | t
+  endif
+
+  assign w = block.settings.width | strip
+  assign h = block.settings.height | strip
+  assign d = block.settings.depth | strip
+  assign drop = block.settings.strap_drop | strip
+  if w != blank
+    unless w contains ' '
+      assign w = w | append: ' ' | append: unit_label
+    endunless
+  endif
+  if h != blank
+    unless h contains ' '
+      assign h = h | append: ' ' | append: unit_label
+    endunless
+  endif
+  if d != blank
+    unless d contains ' '
+      assign d = d | append: ' ' | append: unit_label
+    endunless
+  endif
+  if drop != blank
+    unless drop contains ' '
+      assign drop = drop | append: ' ' | append: unit_label
+    endunless
+  endif
+
+  assign has_dims = false
+  if w != blank or h != blank or d != blank or drop != blank or block.settings.capacity != blank or block.settings.weight != blank
+    assign has_dims = true
+  endif
+
+  assign fits = ''
+  if block.settings.fit_phone
+    assign fits = fits | append: 'phone,'
+  endif
+  if block.settings.fit_wallet
+    assign fits = fits | append: 'wallet,'
+  endif
+  if block.settings.fit_keys
+    assign fits = fits | append: 'key,'
+  endif
+  if block.settings.fit_sunglasses
+    assign fits = fits | append: 'glasses,'
+  endif
+  if block.settings.fit_bottle
+    assign fits = fits | append: 'bottle,'
+  endif
+  if block.settings.fit_tablet
+    assign fits = fits | append: 'tablet,'
+  endif
+  if block.settings.fit_a4
+    assign fits = fits | append: 'document,'
+  endif
+  if block.settings.fit_laptop_13
+    assign fits = fits | append: 'laptop13,'
+  endif
+  if block.settings.fit_laptop_15
+    assign fits = fits | append: 'laptop15,'
+  endif
+  assign fit_list = fits | split: ','
+
+  assign carry = ''
+  if block.settings.carry_hand
+    assign carry = carry | append: 'hand,'
+  endif
+  if block.settings.carry_shoulder
+    assign carry = carry | append: 'shoulder,'
+  endif
+  if block.settings.carry_crossbody
+    assign carry = carry | append: 'crossbody,'
+  endif
+  if block.settings.carry_backpack
+    assign carry = carry | append: 'backpack,'
+  endif
+  if block.settings.carry_waist
+    assign carry = carry | append: 'waist,'
+  endif
+  if block.settings.carry_clutch
+    assign carry = carry | append: 'clutch,'
+  endif
+  assign carry_list = carry | split: ','
+
+  assign show_drawing = false
+  if block.settings.show_diagram
+    if w != blank or h != blank
+      assign show_drawing = true
+    endif
+  endif
+
+  assign heading = block.settings.heading
+  if heading == blank
+    assign heading = 'products.bag_size.heading' | t
+  endif
+-%}
+
+{%- if has_dims or fit_list.size > 0 or carry_list.size > 0 -%}
+  <details class="bag-size bag-size--{{ block.settings.style }}"{% if block.settings.style == 'open' %} open{% endif %} {{ block.shopify_attributes }}>
+    <summary class="bag-size__summary">
+      <span>{{ heading | escape }}</span>
+      {%- if block.settings.style == 'accordion' -%}
+        {% render 'icon', icon: 'chevron-down' %}
+      {%- endif -%}
+    </summary>
+    <div class="bag-size__body">
+      {%- if has_dims -%}
+        <div class="bag-size__dims">
+          {%- if show_drawing -%}
+            <svg class="bag-size__diagram" viewBox="0 0 172 150" role="img" aria-label="{{ 'products.bag_size.diagram' | t }}">
+              <path d="M44 50 H118 V112 H44 Z"/>
+              <path d="M44 50 L62 36 H136 L118 50"/>
+              <path d="M118 50 L136 36 V98 L118 112"/>
+              <path d="M72 43 C72 20 102 20 102 43"/>
+              <path class="bag-size__stitch" d="M49 55 H113 V107 H49 Z"/>
+              {%- if w != blank -%}
+                <path class="bag-size__measure" d="M44 126 H118 M44 122 V130 M118 122 V130"/>
+                <text x="81" y="142" text-anchor="middle">{{ w | escape }}</text>
+              {%- endif -%}
+              {%- if h != blank -%}
+                <path class="bag-size__measure" d="M30 50 V112 M26 50 H34 M26 112 H34"/>
+                <text x="20" y="81" text-anchor="middle" transform="rotate(-90 20 81)">{{ h | escape }}</text>
+              {%- endif -%}
+              {%- if d != blank -%}
+                <path class="bag-size__measure" d="M124 118 L142 104 M121 115 L127 121 M139 101 L145 107"/>
+                <text x="148" y="119" text-anchor="start">{{ d | escape }}</text>
+              {%- endif -%}
+            </svg>
+          {%- endif -%}
+          <dl class="bag-size__list">
+            {%- if w != blank -%}
+              <div><dt>{{ 'products.bag_size.width' | t }}</dt><dd>{{ w | escape }}</dd></div>
+            {%- endif -%}
+            {%- if h != blank -%}
+              <div><dt>{{ 'products.bag_size.height' | t }}</dt><dd>{{ h | escape }}</dd></div>
+            {%- endif -%}
+            {%- if d != blank -%}
+              <div><dt>{{ 'products.bag_size.depth' | t }}</dt><dd>{{ d | escape }}</dd></div>
+            {%- endif -%}
+            {%- if drop != blank -%}
+              <div><dt>{{ 'products.bag_size.strap_drop' | t }}</dt><dd>{{ drop | escape }}</dd></div>
+            {%- endif -%}
+            {%- if block.settings.capacity != blank -%}
+              <div><dt>{{ 'products.bag_size.capacity' | t }}</dt><dd>{{ block.settings.capacity | escape }}</dd></div>
+            {%- endif -%}
+            {%- if block.settings.weight != blank -%}
+              <div><dt>{{ 'products.bag_size.weight' | t }}</dt><dd>{{ block.settings.weight | escape }}</dd></div>
+            {%- endif -%}
+          </dl>
+        </div>
+      {%- endif -%}
+
+      {%- if fit_list.size > 0 -%}
+        <div class="bag-size__group">
+          <p class="bag-size__label">{{ 'products.bag_size.fits' | t }}</p>
+          <ul class="bag-size__fits" role="list">
+            {%- for item in fit_list -%}
+              <li>
+                {%- case item -%}
+                  {%- when 'phone' -%}
+                    {% render 'icon', icon: 'phone' %}{{ 'products.bag_size.fit_phone' | t }}
+                  {%- when 'wallet' -%}
+                    {% render 'icon', icon: 'wallet' %}{{ 'products.bag_size.fit_wallet' | t }}
+                  {%- when 'key' -%}
+                    {% render 'icon', icon: 'key' %}{{ 'products.bag_size.fit_keys' | t }}
+                  {%- when 'glasses' -%}
+                    {% render 'icon', icon: 'glasses' %}{{ 'products.bag_size.fit_sunglasses' | t }}
+                  {%- when 'bottle' -%}
+                    {% render 'icon', icon: 'bottle' %}{{ 'products.bag_size.fit_bottle' | t }}
+                  {%- when 'tablet' -%}
+                    {% render 'icon', icon: 'tablet' %}{{ 'products.bag_size.fit_tablet' | t }}
+                  {%- when 'document' -%}
+                    {% render 'icon', icon: 'document' %}{{ 'products.bag_size.fit_a4' | t }}
+                  {%- when 'laptop13' -%}
+                    {% render 'icon', icon: 'laptop' %}{{ 'products.bag_size.fit_laptop_13' | t }}
+                  {%- when 'laptop15' -%}
+                    {% render 'icon', icon: 'laptop' %}{{ 'products.bag_size.fit_laptop_15' | t }}
+                {%- endcase -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if carry_list.size > 0 -%}
+        <div class="bag-size__group">
+          <p class="bag-size__label">{{ 'products.bag_size.carry' | t }}</p>
+          <ul class="bag-size__carry" role="list">
+            {%- for item in carry_list -%}
+              <li>
+                {%- case item -%}
+                  {%- when 'hand' -%}
+                    {{ 'products.bag_size.carry_hand' | t }}
+                  {%- when 'shoulder' -%}
+                    {{ 'products.bag_size.carry_shoulder' | t }}
+                  {%- when 'crossbody' -%}
+                    {{ 'products.bag_size.carry_crossbody' | t }}
+                  {%- when 'backpack' -%}
+                    {{ 'products.bag_size.carry_backpack' | t }}
+                  {%- when 'waist' -%}
+                    {{ 'products.bag_size.carry_waist' | t }}
+                  {%- when 'clutch' -%}
+                    {{ 'products.bag_size.carry_clutch' | t }}
+                {%- endcase -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </details>
+{%- elsif request.design_mode -%}
+  <p class="bag-size bag-size--empty" {{ block.shopify_attributes }}>{{ 'products.bag_size.hint' | t }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  .bag-size {
+    border-block: 1px solid var(--color-border);
+  }
+  .bag-size__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    list-style: none;
+    cursor: pointer;
+  }
+  .bag-size__summary::-webkit-details-marker {
+    display: none;
+  }
+  .bag-size--open .bag-size__summary {
+    pointer-events: none;
+  }
+  .bag-size__summary .icon {
+    width: 16px;
+    height: 16px;
+    transition: rotate 0.3s ease;
+  }
+  .bag-size[open] .bag-size__summary .icon {
+    rotate: 180deg;
+  }
+  .bag-size__body {
+    display: grid;
+    gap: 22px;
+    padding-bottom: 22px;
+  }
+  .bag-size__dims {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+  }
+  .bag-size__dims:not(:has(.bag-size__diagram)) {
+    grid-template-columns: 1fr;
+  }
+  .bag-size__diagram {
+    width: 100%;
+    max-width: 260px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    color: var(--color-text);
+  }
+  .bag-size__stitch {
+    stroke-width: 0.7;
+    stroke-dasharray: 2 2.2;
+    opacity: 0.6;
+  }
+  .bag-size__measure {
+    stroke: var(--color-accent);
+  }
+  .bag-size__diagram text {
+    fill: currentColor;
+    stroke: none;
+    font-family: var(--font-label);
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+  .bag-size__list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+  .bag-size__list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 9px;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.875rem;
+  }
+  .bag-size__list div:last-child {
+    border-bottom: 0;
+  }
+  .bag-size__list dt {
+    color: var(--color-muted);
+  }
+  .bag-size__list dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .bag-size__label {
+    margin: 0 0 10px;
+    font-size: 0.75rem;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    color: var(--color-muted);
+  }
+  .bag-size__fits {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bag-size__fits li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+  }
+  .bag-size__fits .icon {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    color: var(--color-accent);
+  }
+  .bag-size__carry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .bag-size__carry li {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+  }
+  .bag-size--empty {
+    padding: 12px 0;
+    font-size: 0.875rem;
+    font-style: italic;
+    color: var(--color-muted);
+  }
+  @media (max-width: 749px) {
+    .bag-size__dims {
+      grid-template-columns: 1fr;
+    }
+    .bag-size__diagram {
+      max-width: 220px;
+      margin-inline: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bag size",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Defaults to Dimensions" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "open", "label": "Always open" },
+        { "value": "accordion", "label": "Opens on tap" }
+      ],
+      "default": "open"
+    },
+    { "type": "header", "content": "Measurements", "info": "Numbers only, like 30. The unit is added for you. Connect product metafields to show each bag's own size." },
+    {
+      "type": "select",
+      "id": "unit",
+      "label": "Unit",
+      "options": [
+        { "value": "cm", "label": "Centimeters" },
+        { "value": "in", "label": "Inches" }
+      ],
+      "default": "cm"
+    },
+    { "type": "text", "id": "width", "label": "Width" },
+    { "type": "text", "id": "height", "label": "Height" },
+    { "type": "text", "id": "depth", "label": "Depth" },
+    { "type": "text", "id": "strap_drop", "label": "Strap or handle drop" },
+    { "type": "text", "id": "capacity", "label": "Capacity", "info": "Written as you type it, for example 6 L" },
+    { "type": "text", "id": "weight", "label": "Weight", "info": "Written as you type it, for example 450 g" },
+    { "type": "checkbox", "id": "show_diagram", "label": "Show a measured drawing", "default": true },
+    { "type": "header", "content": "Fits inside" },
+    { "type": "checkbox", "id": "fit_phone", "label": "Phone", "default": false },
+    { "type": "checkbox", "id": "fit_wallet", "label": "Wallet", "default": false },
+    { "type": "checkbox", "id": "fit_keys", "label": "Keys", "default": false },
+    { "type": "checkbox", "id": "fit_sunglasses", "label": "Sunglasses", "default": false },
+    { "type": "checkbox", "id": "fit_bottle", "label": "Water bottle", "default": false },
+    { "type": "checkbox", "id": "fit_tablet", "label": "Tablet", "default": false },
+    { "type": "checkbox", "id": "fit_a4", "label": "A4 documents", "default": false },
+    { "type": "checkbox", "id": "fit_laptop_13", "label": "13 inch laptop", "default": false },
+    { "type": "checkbox", "id": "fit_laptop_15", "label": "15 to 16 inch laptop", "default": false },
+    { "type": "header", "content": "Ways to carry" },
+    { "type": "checkbox", "id": "carry_hand", "label": "By the handle", "default": false },
+    { "type": "checkbox", "id": "carry_shoulder", "label": "On the shoulder", "default": false },
+    { "type": "checkbox", "id": "carry_crossbody", "label": "Crossbody", "default": false },
+    { "type": "checkbox", "id": "carry_backpack", "label": "As a backpack", "default": false },
+    { "type": "checkbox", "id": "carry_waist", "label": "Around the waist", "default": false },
+    { "type": "checkbox", "id": "carry_clutch", "label": "As a clutch", "default": false }
+  ],
+  "presets": [{ "name": "Bag size" }]
+}
+{% endschema %}

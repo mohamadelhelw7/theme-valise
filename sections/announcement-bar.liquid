@@ -1,0 +1,354 @@
+{%- liquid
+  assign mode = section.settings.mode
+  if section.blocks.size < 2 and mode == 'rotate'
+    assign mode = 'static'
+  endif
+  assign has_locale = false
+  if section.settings.show_country or section.settings.show_language
+    assign has_locale = true
+  endif
+-%}
+
+<announcement-bar
+  class="announcement-bar announcement-bar--{{ mode }} announcement-bar--{{ section.settings.text_size }}{% if has_locale %} announcement-bar--with-locale{% endif %} color-{{ section.settings.color_scheme }}"
+  data-mode="{{ mode }}"
+  data-speed="{{ section.settings.speed }}"
+  data-direction="{{ section.settings.direction }}"
+  data-interval="{{ section.settings.rotate_seconds | times: 1000 }}"
+>
+  <div class="announcement-bar__side announcement-bar__side--start">
+    {%- if section.settings.show_country -%}
+      {% render 'localization-form', id_prefix: 'AnnouncementCountry', show_language: false, show_country: true %}
+    {%- endif -%}
+  </div>
+  <div class="announcement-bar__viewport">
+    <div class="announcement-bar__track">
+      <div class="announcement-bar__group">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+  <div class="announcement-bar__side announcement-bar__side--end">
+    {%- if section.settings.show_language -%}
+      {% render 'localization-form', id_prefix: 'AnnouncementLanguage', show_language: true, show_country: false %}
+    {%- endif -%}
+  </div>
+</announcement-bar>
+
+{% javascript %}
+  class AnnouncementBar extends HTMLElement {
+    connectedCallback() {
+      this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.group = this.querySelector('.announcement-bar__group');
+      if (!this.group) return;
+      this.originals = Array.from(this.group.children);
+      if (this.dataset.mode === 'scroll') this.setupTicker();
+      if (this.dataset.mode === 'rotate') this.setupRotate();
+    }
+
+    disconnectedCallback() {
+      this.stop();
+      if (this.resizeObserver) this.resizeObserver.disconnect();
+    }
+
+    hideClone(node) {
+      node.setAttribute('aria-hidden', 'true');
+      node.removeAttribute('data-shopify-editor-block');
+      node.querySelectorAll('a, button').forEach((el) => el.setAttribute('tabindex', '-1'));
+      return node;
+    }
+
+    setupTicker() {
+      if (this.reduced || !this.originals.length) return;
+      this.track = this.querySelector('.announcement-bar__track');
+      this.viewport = this.querySelector('.announcement-bar__viewport');
+      this.buildTicker();
+      if ('ResizeObserver' in window) {
+        let lastWidth = this.viewport.clientWidth;
+        this.resizeObserver = new ResizeObserver(() => {
+          const width = this.viewport.clientWidth;
+          if (Math.abs(width - lastWidth) < 40) return;
+          lastWidth = width;
+          this.buildTicker();
+        });
+        this.resizeObserver.observe(this.viewport);
+      }
+    }
+
+    buildTicker() {
+      this.classList.remove('is-ready');
+      this.track.querySelectorAll('.announcement-bar__group[aria-hidden]').forEach((clone) => clone.remove());
+      this.group.replaceChildren(...this.originals);
+      this.classList.add('is-measuring');
+      let guard = 0;
+      while (this.group.scrollWidth < this.viewport.clientWidth && guard < 12) {
+        this.originals.forEach((item) => this.group.appendChild(this.hideClone(item.cloneNode(true))));
+        guard += 1;
+      }
+      this.classList.remove('is-measuring');
+      this.track.appendChild(this.hideClone(this.group.cloneNode(true)));
+      this.classList.add('is-ready');
+      const distance = this.group.getBoundingClientRect().width;
+      const speed = Math.max(10, Number(this.dataset.speed) || 50);
+      this.style.setProperty('--ab-duration', (distance / speed).toFixed(2) + 's');
+      const rtl = document.documentElement.dir === 'rtl';
+      const reverse = this.dataset.direction === 'reverse';
+      this.style.setProperty('--ab-shift', rtl !== reverse ? '50%' : '-50%');
+    }
+
+    setupRotate() {
+      this.items = this.originals;
+      if (this.items.length < 2) return;
+      this.index = 0;
+      this.items.forEach((item, i) => item.classList.toggle('is-active', i === 0));
+      this.classList.add('is-ready');
+      if (this.reduced) return;
+      this.start();
+      this.addEventListener('mouseenter', () => this.stop());
+      this.addEventListener('mouseleave', () => this.start());
+      this.addEventListener('focusin', () => this.stop());
+      this.addEventListener('focusout', () => this.start());
+    }
+
+    start() {
+      this.stop();
+      this.timer = setInterval(() => this.next(), Number(this.dataset.interval) || 4000);
+    }
+
+    stop() {
+      clearInterval(this.timer);
+    }
+
+    next() {
+      this.items[this.index].classList.remove('is-active');
+      this.index = (this.index + 1) % this.items.length;
+      this.items[this.index].classList.add('is-active');
+    }
+  }
+  if (!customElements.get('announcement-bar')) customElements.define('announcement-bar', AnnouncementBar);
+{% endjavascript %}
+
+{% stylesheet %}
+  .announcement-bar__side {
+    display: none;
+  }
+  @media (min-width: 990px) {
+    .announcement-bar--with-locale {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+      align-items: center;
+      padding-inline: var(--gutter);
+    }
+    .announcement-bar--with-locale .announcement-bar__side {
+      display: flex;
+    }
+    .announcement-bar__side--end {
+      justify-content: flex-end;
+    }
+    .announcement-bar__side .select {
+      min-height: 32px;
+      border: 0;
+      background-color: transparent;
+      font-size: 0.75rem;
+      padding-block: 0;
+      color: inherit;
+    }
+  }
+  .announcement-bar {
+    display: block;
+    font-size: 0.8125rem;
+    letter-spacing: calc(var(--label-ls) * 0.5);
+    text-transform: var(--label-case);
+    overflow: hidden;
+  }
+  .announcement-bar--medium {
+    font-size: 0.9375rem;
+  }
+  .announcement-bar__viewport {
+    overflow: hidden;
+    padding: 11px 0;
+  }
+  .announcement-bar__track {
+    display: flex;
+  }
+  .announcement-bar__group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 48px;
+    width: 100%;
+    max-width: calc(var(--page-width) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    text-align: center;
+  }
+  .announcement-bar--split .announcement-bar__group {
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    text-align: start;
+  }
+  @media (max-width: 749px) {
+    .announcement-bar--split .announcement-bar__group {
+      flex-direction: column;
+      gap: 6px;
+      text-align: center;
+    }
+  }
+  .announcement-bar.is-measuring .announcement-bar__group,
+  .announcement-bar--scroll.is-ready .announcement-bar__group {
+    flex-wrap: nowrap;
+    flex: none;
+    width: max-content;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+  .announcement-bar--scroll.is-ready .announcement-bar__viewport {
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .announcement-bar--scroll.is-ready .announcement-bar__track {
+    width: max-content;
+    animation: announcement-marquee var(--ab-duration, 30s) linear infinite;
+  }
+  .announcement-bar.is-measuring .announcement,
+  .announcement-bar--scroll.is-ready .announcement {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding-inline: 28px;
+  }
+  .announcement-bar.is-measuring .announcement::after,
+  .announcement-bar--scroll.is-ready .announcement::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    margin-inline-start: 56px;
+  }
+  .announcement-bar--scroll.is-ready:hover .announcement-bar__track,
+  .announcement-bar--scroll.is-ready:focus-within .announcement-bar__track {
+    animation-play-state: paused;
+  }
+  @keyframes announcement-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(var(--ab-shift, -50%));
+    }
+  }
+  .announcement-bar--rotate.is-ready .announcement-bar__group {
+    display: grid;
+    place-items: center;
+  }
+  .announcement-bar--rotate.is-ready .announcement {
+    grid-area: 1 / 1;
+    opacity: 0;
+    translate: 0 8px;
+    visibility: hidden;
+    transition: opacity 0.5s ease, translate 0.5s ease, visibility 0.5s;
+  }
+  .announcement-bar--rotate.is-ready .announcement.is-active {
+    opacity: 1;
+    translate: 0 0;
+    visibility: visible;
+  }
+  @media (max-width: 749px) {
+    .announcement-bar:not(.is-ready):not(.is-measuring) .announcement-bar__group {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .announcement-bar:not(.is-ready):not(.is-measuring) .announcement-bar__group > * {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "tag": "aside",
+  "class": "announcement-bar-section",
+  "enabled_on": { "groups": ["header"] },
+  "max_blocks": 6,
+  "blocks": [{ "type": "_announcement" }, { "type": "_announcement-timer" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-3" },
+    { "type": "checkbox", "id": "show_country", "label": "Show country and currency selector", "info": "Desktop only. Appears when you sell in more than one country.", "default": false },
+    { "type": "checkbox", "id": "show_language", "label": "Show language selector", "info": "Desktop only. Appears when your store has more than one language.", "default": false },
+    {
+      "type": "select",
+      "id": "mode",
+      "label": "Motion",
+      "options": [
+        { "value": "scroll", "label": "Scrolling ticker" },
+        { "value": "rotate", "label": "Rotate one at a time" },
+        { "value": "static", "label": "Static" },
+        { "value": "split", "label": "Message at the start, countdown at the end" }
+      ],
+      "default": "scroll"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Ticker speed",
+      "info": "Pixels per second. The same speed on every screen size.",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "default": 50,
+      "visible_if": "{{ section.settings.mode == 'scroll' }}"
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Ticker direction",
+      "options": [
+        { "value": "forward", "label": "With reading direction" },
+        { "value": "reverse", "label": "Against reading direction" }
+      ],
+      "default": "forward",
+      "visible_if": "{{ section.settings.mode == 'scroll' }}"
+    },
+    {
+      "type": "range",
+      "id": "rotate_seconds",
+      "label": "Time per message",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 4,
+      "visible_if": "{{ section.settings.mode == 'rotate' }}"
+    },
+    {
+      "type": "select",
+      "id": "text_size",
+      "label": "Text size",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" }
+      ],
+      "default": "small"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "blocks": [
+        { "type": "_announcement", "settings": { "text": "The new collection is here" } },
+        { "type": "_announcement", "settings": { "text": "Find a gift for someone special" } },
+        { "type": "_announcement", "settings": { "text": "Discover the new bags" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

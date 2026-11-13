@@ -1,0 +1,127 @@
+{% doc %}
+  Renders a back in stock signup that shows when the selected variant is sold out.
+  Signups are saved as customers tagged restock and restock:<product handle>:<variant>.
+
+  @example
+  {% content_for 'block', type: 'restock-alert', id: 'restock' %}
+{% enddoc %}
+
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign form_id = 'Restock-' | append: block.id
+  assign email_id = 'RestockEmail-' | append: block.id
+  assign tag_base = 'restock:' | append: product.handle
+  assign variant_tag = current.title | handleize
+-%}
+
+{%- if product != blank -%}
+  <restock-alert class="restock" data-handle="{{ product.handle }}" data-tag-base="{{ tag_base | escape }}" {{ block.shopify_attributes }}>
+    <div data-update="restock-{{ block.id }}">
+      <div
+        class="restock__panel color-{{ block.settings.color_scheme }}"
+        data-restock-panel
+        {% if current.available %}
+          hidden
+        {% endif %}
+      >
+        {%- if block.settings.heading != blank -%}
+          <p class="restock__heading">{{ block.settings.heading | escape }}</p>
+        {%- endif -%}
+        {%- if block.settings.text != blank -%}
+          <p class="restock__text">{{ block.settings.text | escape }}</p>
+        {%- endif -%}
+        {%- form 'customer', id: form_id, class: 'restock__form', data-restock-form: '' -%}
+          <input type="hidden" name="contact[tags]" value="restock,{{ tag_base }}:{{ variant_tag }}" data-restock-tags>
+          <div class="restock__row">
+            <label for="{{ email_id }}" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+            <input
+              id="{{ email_id }}"
+              type="email"
+              name="contact[email]"
+              class="field__input"
+              placeholder="{{ 'newsletter.placeholder' | t }}"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              required
+            >
+            <button type="submit" class="button button--primary">{{ block.settings.button_label | escape }}</button>
+          </div>
+        {%- endform -%}
+        <p class="restock__done" data-restock-done role="status" hidden>
+          {% render 'icon', icon: 'check' %}
+          <span>{{ block.settings.success | escape }}</span>
+        </p>
+      </div>
+    </div>
+  </restock-alert>
+{%- endif -%}
+
+{% stylesheet %}
+  .restock__panel {
+    display: grid;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .restock__panel[hidden] {
+    display: none;
+  }
+  .restock__heading {
+    margin: 0;
+    font: 700 0.8125rem/1.2 var(--font-label);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .restock__text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .restock__row {
+    display: flex;
+    gap: 8px;
+  }
+  .restock__row .field__input {
+    flex: 1;
+    min-width: 0;
+  }
+  .restock__done {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 600;
+  }
+  .restock__done[hidden] {
+    display: none;
+  }
+  .restock__done .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-accent);
+  }
+  @media (max-width: 480px) {
+    .restock__row {
+      flex-direction: column;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Back in stock alert",
+  "tag": null,
+  "settings": [
+    { "type": "paragraph", "content": "Shows only when the chosen size or color is sold out. Signups are saved in Customers with the tags restock and restock:product-handle:variant, so you can email them when it's back." },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "This one is sold out" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Want it when it's back? Leave your email." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Notify me" },
+    { "type": "text", "id": "success", "label": "Message after signing up", "default": "You're on the list for this one." }
+  ],
+  "presets": [{ "name": "Back in stock alert", "category": "Product" }]
+}
+{% endschema %}

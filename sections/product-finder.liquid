@@ -1,0 +1,244 @@
+{%- liquid
+  assign base = section.settings.collection | default: collections.all
+  assign limit = section.settings.limit
+-%}
+
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <product-finder class="page-width finder" data-collection-url="{{ base.url }}" data-limit="{{ limit }}">
+    {% render 'section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      description: section.settings.description,
+      alignment: section.settings.header_alignment
+    %}
+    <div class="finder__layout">
+      <div class="finder__quiz color-{{ section.settings.panel_scheme }}">
+        <div class="finder__progress" data-finder-progress aria-hidden="true"><span></span></div>
+        <div class="finder__steps">
+          {% content_for 'blocks' %}
+        </div>
+        <div class="finder__nav">
+          <button type="button" class="button button--link finder__restart" data-finder-restart>{{ 'sections.finder.restart' | t }}</button>
+          <span class="finder__counter" data-finder-counter aria-hidden="true">1 / {{ section.blocks.size }}</span>
+          <div class="finder__arrows">
+            <button type="button" class="round-button" data-finder-prev aria-label="{{ 'sections.finder.previous' | t }}">
+              {% render 'icon', icon: 'chevron-left' %}
+            </button>
+            <button type="button" class="round-button" data-finder-next aria-label="{{ 'sections.finder.next' | t }}">
+              {% render 'icon', icon: 'chevron-right' %}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="finder__output">
+        <p class="finder__note" data-finder-note hidden>{{ 'sections.finder.closest' | t }}</p>
+        <ul
+          class="product-grid finder__results"
+          role="list"
+          data-finder-results
+          aria-live="polite"
+          style="--cols-desktop: {{ section.settings.columns }}; --cols-mobile: 2;"
+        >
+          {%- for product in base.products limit: limit -%}
+            <li>{% render 'product-card', product: product, index: forloop.index %}</li>
+          {%- else -%}
+            {%- for i in (1..limit) -%}
+              <li>{% render 'product-card', product: blank, index: i %}</li>
+            {%- endfor -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  </product-finder>
+</section>
+
+{% stylesheet %}
+  product-finder {
+    display: block;
+  }
+  .finder__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+    gap: clamp(20px, 3vw, 48px);
+    align-items: start;
+  }
+  .finder__quiz {
+    position: relative;
+    padding: 32px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 100%;
+  }
+  .finder__progress {
+    height: 2px;
+    background: var(--color-border);
+  }
+  .finder__progress span {
+    display: block;
+    height: 100%;
+    width: var(--finder-progress, 0%);
+    background: var(--color-accent);
+    transition: width 0.4s ease;
+  }
+  .finder__steps {
+    flex: 1;
+  }
+  .finder__step {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .finder__step[hidden] {
+    display: none;
+  }
+  product-finder.is-ready .finder__step:not([hidden]) {
+    animation: finder-in 0.4s ease both;
+  }
+  @keyframes finder-in {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+  .finder__question {
+    padding: 0;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    text-transform: var(--heading-case);
+    letter-spacing: var(--heading-ls);
+    font-size: calc(1.25rem * var(--heading-scale));
+    line-height: 1.25;
+  }
+  .finder__hint {
+    margin-top: 6px;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .finder__options {
+    display: flex;
+    flex-direction: column;
+    margin-top: 18px;
+  }
+  .finder__option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: color 0.2s, padding 0.2s;
+  }
+  .finder__option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .finder__option .icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0;
+    transition: opacity 0.2s, translate 0.2s;
+    translate: -6px 0;
+  }
+  .finder__option:hover,
+  .finder__option:has(input:checked) {
+    color: var(--color-accent);
+    padding-inline-start: 8px;
+  }
+  .finder__option:hover .icon,
+  .finder__option:has(input:checked) .icon {
+    opacity: 1;
+    translate: none;
+  }
+  .finder__option:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .finder__nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .finder__counter {
+    margin-inline-start: auto;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .finder__arrows {
+    display: flex;
+    gap: 8px;
+  }
+  .finder__note {
+    margin-bottom: 14px;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .finder__results[aria-busy='true'] {
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  @media (max-width: 989px) {
+    .finder__layout {
+      grid-template-columns: 1fr;
+    }
+    .finder__quiz {
+      padding: 24px 18px 18px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product finder",
+  "tag": "div",
+  "class": "product-finder-section",
+  "max_blocks": 6,
+  "blocks": [{ "type": "_finder-question" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" },
+    { "type": "color_scheme", "id": "panel_scheme", "label": "Questions panel color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "Answers filter products by tag. Products update after each answer. If nothing matches every answer, the closest matches are shown." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Find your bag" },
+    { "type": "inline_richtext", "id": "description", "label": "Description", "default": "Three quick questions and we'll suggest bags for you." },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split with accent line" }
+      ],
+      "default": "split"
+    },
+    { "type": "collection", "id": "collection", "label": "Search in collection", "info": "Leave empty to search all products" },
+    { "type": "range", "id": "limit", "label": "Products to suggest", "min": 2, "max": 8, "step": 1, "default": 3 },
+    { "type": "range", "id": "columns", "label": "Columns on desktop", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" }
+  ],
+  "presets": [
+    {
+      "name": "Product finder",
+      "blocks": [
+        { "type": "_finder-question", "settings": { "question": "Where will you carry it?", "answers": "Work | work\nEvery day | everyday\nEvenings | evening\nTravel | travel" } },
+        { "type": "_finder-question", "settings": { "question": "How do you like to carry it?", "answers": "By the handle | handheld\nOn the shoulder | shoulder\nCrossbody | crossbody\nAs a backpack | backpack" } },
+        { "type": "_finder-question", "settings": { "question": "What size do you need?", "answers": "Small | small\nMedium | medium\nLarge | large\nNo preference" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

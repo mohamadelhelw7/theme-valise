@@ -1,0 +1,293 @@
+{%- liquid
+  assign center_image = section.settings.image | default: collections.all.products.first.featured_image
+  assign has_end = false
+  if section.settings.end_heading != blank or section.settings.button_label != blank
+    assign has_end = true
+  endif
+-%}
+
+<scroll-progress
+  class="collage collage--{{ section.settings.length }} color-{{ section.settings.color_scheme }}"
+  data-static-progress="1"
+  data-no-reveal
+>
+  <div class="collage__sticky">
+    <div class="collage__images" aria-hidden="true">
+      {% content_for 'blocks' %}
+    </div>
+
+    <h2 class="collage__words">
+      <span class="collage__word collage__word--start display-word">{{ section.settings.word_start | escape }}</span>
+      <span class="collage__word collage__word--end display-word">{{ section.settings.word_end | escape }}</span>
+    </h2>
+
+    <div class="collage__frame">
+      <div class="collage__frame-media">
+        {%- if center_image != blank -%}
+          {{
+            center_image
+            | image_url: width: 2400
+            | image_tag: widths: '750, 1100, 1500, 1920, 2400', sizes: '100vw', loading: 'lazy', alt: ''
+          }}
+        {%- else -%}
+          {% render 'media-placeholder', kind: 'lifestyle' %}
+        {%- endif -%}
+      </div>
+      {%- if has_end -%}
+        <div class="collage__end page-width">
+          {%- if section.settings.end_heading != blank -%}
+            <p class="collage__end-heading h2">{{ section.settings.end_heading | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.button_label != blank -%}
+            <a class="button button--light" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</scroll-progress>
+
+{% stylesheet %}
+  .collage {
+    --p: 0;
+    --e: min(1, calc(var(--p) / 0.72));
+    --dir: 1;
+    display: block;
+    position: relative;
+    height: calc(100vh + var(--collage-scroll));
+  }
+  [dir='rtl'] .collage {
+    --dir: -1;
+  }
+  .collage--short {
+    --collage-scroll: 90vh;
+  }
+  .collage--medium {
+    --collage-scroll: 150vh;
+  }
+  .collage--long {
+    --collage-scroll: 220vh;
+  }
+  .collage.is-static {
+    height: 100vh;
+  }
+  .collage__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .collage__images {
+    position: absolute;
+    inset: 0;
+  }
+  .collage-image {
+    position: absolute;
+    width: var(--w, 12vw);
+    aspect-ratio: var(--ratio, 4 / 5);
+    overflow: hidden;
+    translate: 0 calc(var(--p) * var(--speed, 30vh) * -1);
+    box-shadow: 0 24px 50px -30px rgb(0 0 0 / 0.5);
+  }
+  .collage-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .collage-image:nth-child(8n + 1) {
+    top: 4%;
+    inset-inline-start: 2%;
+    --w: 12vw;
+    --speed: 26vh;
+  }
+  .collage-image:nth-child(8n + 2) {
+    top: 2%;
+    inset-inline-start: 20%;
+    --w: 15vw;
+    --ratio: 4 / 3;
+    --speed: 40vh;
+  }
+  .collage-image:nth-child(8n + 3) {
+    top: 6%;
+    inset-inline-end: 6%;
+    --w: 13vw;
+    --speed: 32vh;
+  }
+  .collage-image:nth-child(8n + 4) {
+    top: 40%;
+    inset-inline-start: 2%;
+    --w: 7vw;
+    --ratio: 1;
+    --speed: 18vh;
+  }
+  .collage-image:nth-child(8n + 5) {
+    top: 42%;
+    inset-inline-end: 2%;
+    --w: 7vw;
+    --ratio: 1;
+    --speed: 22vh;
+  }
+  .collage-image:nth-child(8n + 6) {
+    bottom: 3%;
+    inset-inline-start: 9%;
+    --w: 15vw;
+    --ratio: 4 / 3;
+    --speed: 46vh;
+  }
+  .collage-image:nth-child(8n + 7) {
+    bottom: 2%;
+    inset-inline-end: 13%;
+    --w: 14vw;
+    --speed: 38vh;
+  }
+  .collage-image:nth-child(8n + 8) {
+    bottom: 10%;
+    inset-inline-end: 1%;
+    --w: 6vw;
+    --ratio: 3 / 4;
+    --speed: 30vh;
+  }
+  .collage__words {
+    margin: 0;
+    font: inherit;
+  }
+  .collage__word {
+    position: absolute;
+    top: 50%;
+    translate: calc(var(--e) * var(--dir) * -12vw) -50%;
+    font-size: calc(clamp(2rem, 4.4vw, 4.75rem) * var(--heading-scale));
+    white-space: nowrap;
+    z-index: 1;
+  }
+  .collage__word--start {
+    inset-inline-end: calc(50% + 14vw + 2.5vw);
+  }
+  .collage__word--end {
+    inset-inline-start: calc(50% + 14vw + 2.5vw);
+    translate: calc(var(--e) * var(--dir) * 12vw) -50%;
+  }
+  .collage__frame {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    clip-path: inset(calc((1 - var(--e)) * 28%) calc((1 - var(--e)) * 36%));
+  }
+  .collage__frame-media {
+    position: absolute;
+    inset: 0;
+    background: var(--color-surface);
+  }
+  .collage__frame-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    scale: calc(1.18 - var(--e) * 0.18);
+  }
+  .collage__frame-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / calc(var(--p) * 0.38));
+  }
+  .collage__end {
+    position: absolute;
+    inset: auto 0 12vh;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    text-align: center;
+    color: #fff;
+    opacity: calc((var(--p) - 0.78) * 5);
+    pointer-events: none;
+  }
+  .collage.is-complete .collage__end,
+  .collage.is-static .collage__end {
+    pointer-events: auto;
+  }
+  .collage__end-heading {
+    max-width: 18ch;
+  }
+  @media (max-width: 749px) {
+    .collage__frame {
+      clip-path: inset(calc((1 - var(--e)) * 27%) calc((1 - var(--e)) * 16%));
+    }
+    .collage .collage__word {
+      inset-inline: 0;
+      text-align: center;
+      font-size: calc(clamp(1.75rem, 9vw, 2.75rem) * var(--heading-scale));
+      translate: 0 0;
+    }
+    .collage .collage__word--start {
+      top: 14%;
+      translate: 0 calc(var(--e) * -8vh);
+    }
+    .collage .collage__word--end {
+      top: auto;
+      bottom: 14%;
+      translate: 0 calc(var(--e) * 8vh);
+    }
+    .collage-image {
+      --w: 22vw;
+    }
+    .collage-image:nth-child(8n + 4),
+    .collage-image:nth-child(8n + 5),
+    .collage-image:nth-child(8n + 8) {
+      display: none;
+    }
+    .collage-image:nth-child(8n + 2),
+    .collage-image:nth-child(8n + 6) {
+      --w: 28vw;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Scroll collage",
+  "tag": "section",
+  "class": "scroll-collage-section",
+  "max_blocks": 8,
+  "blocks": [{ "type": "_collage-image" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-6" },
+    { "type": "paragraph", "content": "The center photo grows to fill the screen as shoppers scroll, while the floating photos drift away." },
+    { "type": "text", "id": "word_start", "label": "Word before the photo", "default": "Carry" },
+    { "type": "text", "id": "word_end", "label": "Word after the photo", "default": "Lightly" },
+    { "type": "image_picker", "id": "image", "label": "Center photo", "info": "Defaults to your first product photo. A wide lifestyle photo works best." },
+    {
+      "type": "select",
+      "id": "length",
+      "label": "Scroll length",
+      "options": [
+        { "value": "short", "label": "Short" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "long", "label": "Long" }
+      ],
+      "default": "medium"
+    },
+    { "type": "header", "content": "When the photo fills the screen" },
+    { "type": "text", "id": "end_heading", "label": "Heading", "default": "Made to be carried" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the collection" },
+    { "type": "url", "id": "button_link", "label": "Button link" }
+  ],
+  "presets": [
+    {
+      "name": "Scroll collage",
+      "blocks": [
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" },
+        { "type": "_collage-image" }
+      ]
+    }
+  ]
+}
+{% endschema %}

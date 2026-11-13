@@ -1,0 +1,17 @@
+{% comment %}
+  Rendering-only section for the product finder. It is fetched with ?section_id=finder-results
+  on a collection URL filtered by tags, and returns product cards.
+{% endcomment %}
+<ul data-finder-grid>
+  {%- for product in collection.products limit: 8 -%}
+    <li>{% render 'product-card', product: product, index: forloop.index %}</li>
+  {%- endfor -%}
+</ul>
+
+{% schema %}
+{
+  "name": "Finder results",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

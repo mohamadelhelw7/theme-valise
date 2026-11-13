@@ -1,0 +1,49 @@
+{% doc %}
+  Renders language and country selectors when the store has more than one available.
+  Changing a selector switches the storefront immediately.
+
+  @param {string} id_prefix - Unique prefix for field ids
+  @param {boolean} [show_language] - Show the language selector
+  @param {boolean} [show_country] - Show the country selector
+
+  @example
+  {% render 'localization-form', id_prefix: 'Footer', show_language: true, show_country: true %}
+{% enddoc %}
+
+{%- liquid
+  assign has_languages = false
+  if show_language and localization.available_languages.size > 1
+    assign has_languages = true
+  endif
+  assign has_countries = false
+  if show_country and localization.available_countries.size > 1
+    assign has_countries = true
+  endif
+-%}
+
+{%- if has_languages or has_countries -%}
+  {%- assign localization_form_id = id_prefix | append: 'LocalizationForm' -%}
+  {%- form 'localization', id: localization_form_id, class: 'localization-form' -%}
+    {%- if has_languages -%}
+      <label class="visually-hidden" for="{{ id_prefix }}-language">{{ 'general.localization.language' | t }}</label>
+      <select id="{{ id_prefix }}-language" name="language_code" class="select" data-localization-select>
+        {%- for language in localization.available_languages -%}
+          <option value="{{ language.iso_code }}" lang="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+            {{- language.endonym_name | capitalize -}}
+          </option>
+        {%- endfor -%}
+      </select>
+    {%- endif -%}
+    {%- if has_countries -%}
+      <label class="visually-hidden" for="{{ id_prefix }}-country">{{ 'general.localization.country' | t }}</label>
+      <select id="{{ id_prefix }}-country" name="country_code" class="select" data-localization-select>
+        {%- for country in localization.available_countries -%}
+          <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+            {{- country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol -}})
+          </option>
+        {%- endfor -%}
+      </select>
+    {%- endif -%}
+    <noscript><button type="submit" class="button button--secondary button--small">{{ 'general.localization.update' | t }}</button></noscript>
+  {%- endform -%}
+{%- endif -%}

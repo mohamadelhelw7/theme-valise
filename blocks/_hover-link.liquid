@@ -1,0 +1,53 @@
+{% doc %}
+  Renders one row of the hover list: a large link with an optional product count.
+  Its photo follows the pointer on desktop and shows as a small thumbnail on touch screens.
+{% enddoc %}
+
+{%- liquid
+  assign link_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign link_index = forloop.index0
+      break
+    endif
+  endfor
+  assign link_collection = block.settings.collection
+  assign link_label = block.settings.label | default: link_collection.title
+  assign link_url = block.settings.link | default: link_collection.url | default: routes.collections_url
+  assign fallback_product = collections.all.products[link_index]
+  assign link_image = block.settings.image | default: link_collection.featured_image | default: fallback_product.featured_image
+-%}
+
+<li class="hover-link" {{ block.shopify_attributes }}>
+  <a class="hover-link__anchor" href="{{ link_url }}">
+    <span class="hover-link__thumb" aria-hidden="true">
+      {%- if link_image != blank -%}
+        {{ link_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', width: 80, height: 107 }}
+      {%- endif -%}
+    </span>
+    <span class="hover-link__label">{{ link_label | escape }}</span>
+    {%- if section.settings.show_counts and link_collection != blank -%}
+      <sup class="hover-link__count">{{ link_collection.products_count }}</sup>
+    {%- endif -%}
+    <span class="hover-link__arrow" aria-hidden="true">{% render 'icon', icon: 'arrow-up-right' %}</span>
+  </a>
+  {%- if link_image != blank -%}
+    <template data-hover-image>
+      {{ link_image | image_url: width: 700 | image_tag: widths: '350, 500, 700', sizes: '280px', alt: '' }}
+    </template>
+  {%- endif -%}
+</li>
+
+{% schema %}
+{
+  "name": "Link",
+  "tag": null,
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "Collection", "info": "Fills the label, link and photo for you" },
+    { "type": "text", "id": "label", "label": "Label", "default": "Totes" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "image_picker", "id": "image", "label": "Photo", "info": "Defaults to the collection photo" }
+  ],
+  "presets": [{ "name": "Link" }]
+}
+{% endschema %}

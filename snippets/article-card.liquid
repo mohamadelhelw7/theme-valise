@@ -1,0 +1,58 @@
+{% doc %}
+  Renders a blog article card with image, date, title and excerpt.
+
+  @param {article} article - The article to render
+  @param {number} [index] - Position in the list, used for placeholder tint
+
+  @example
+  {% render 'article-card', article: article %}
+{% enddoc %}
+
+{%- assign tint_index = index | default: 1 | modulo: 4 | plus: 1 -%}
+<article class="article-card">
+  <div class="article-card__media media-tile" style="--tile-bg: var(--tint-{{ tint_index }});">
+    {%- if article.image -%}
+      {{ article.image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 600, 900', sizes: '(min-width: 990px) 33vw, 100vw', alt: article.image.alt | escape }}
+    {%- else -%}
+      {% render 'media-placeholder', kind: 'article', index: index %}
+    {%- endif -%}
+  </div>
+  <div class="article-card__info">
+    <time class="product-card__type" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: format: 'date' }}</time>
+    <h2 class="h3"><a href="{{ article.url }}" class="article-card__link">{{ article.title | escape }}</a></h2>
+    {%- if article.excerpt_or_content != blank -%}
+      <p class="article-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 24 }}</p>
+    {%- endif -%}
+  </div>
+</article>
+
+{% stylesheet %}
+  .article-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .article-card__media {
+    aspect-ratio: 3 / 2;
+    border-radius: var(--radius-md);
+  }
+  .article-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .article-card__link {
+    text-decoration: none;
+  }
+  .article-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .article-card__excerpt {
+    color: var(--color-body);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+{% endstylesheet %}

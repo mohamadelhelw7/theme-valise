@@ -1,0 +1,58 @@
+{% doc %}
+  Renders a product or variant price with an optional compare-at price.
+
+  @param {product} [product] - Product to price (uses selected or first available variant)
+  @param {variant} [variant] - Variant to price; takes priority over product
+  @param {string} [class] - Extra class names
+
+  @example
+  {% render 'price', product: product %}
+{% enddoc %}
+
+{%- liquid
+  if variant
+    assign target = variant
+    assign price = variant.price
+    assign compare_at = variant.compare_at_price
+    assign varies = false
+  else
+    assign target = product.selected_or_first_available_variant
+    assign price = target.price
+    assign compare_at = target.compare_at_price
+    assign varies = product.price_varies
+  endif
+
+  assign on_sale = false
+  if compare_at > price
+    assign on_sale = true
+  endif
+-%}
+
+<div class="price{% if on_sale %} price--on-sale{% endif %} {{ class }}">
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+  {%- else -%}
+    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+  {%- endif -%}
+  <span class="price__current">
+    {%- capture formatted_price -%}{% render 'format-money', amount: price %}{%- endcapture -%}
+    {%- if varies -%}
+      {{ 'products.product.price.from_price' | t: price: formatted_price }}
+    {%- else -%}
+      {{ formatted_price }}
+    {%- endif -%}
+  </span>
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+    <s class="price__compare">{% render 'format-money', amount: compare_at %}</s>
+  {%- endif -%}
+  {%- if target.unit_price_measurement -%}
+    <small class="price__unit">
+      {%- render 'format-money', amount: target.unit_price -%}/
+      {%- if target.unit_price_measurement.reference_value != 1 -%}
+        {{- target.unit_price_measurement.reference_value -}}
+      {%- endif -%}
+      {{- target.unit_price_measurement.reference_unit -}}
+    </small>
+  {%- endif -%}
+</div>

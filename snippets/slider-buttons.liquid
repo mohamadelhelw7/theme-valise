@@ -1,0 +1,15 @@
+{% doc %}
+  Renders previous and next arrow buttons for a card-slider element.
+
+  @example
+  {% render 'slider-buttons' %}
+{% enddoc %}
+
+<div class="slider-buttons">
+  <button type="button" class="slider-button" data-slider-prev aria-label="{{ 'general.slider.previous' | t }}">
+    {% render 'icon', icon: 'chevron-left' %}
+  </button>
+  <button type="button" class="slider-button" data-slider-next aria-label="{{ 'general.slider.next' | t }}">
+    {% render 'icon', icon: 'chevron-right' %}
+  </button>
+</div>

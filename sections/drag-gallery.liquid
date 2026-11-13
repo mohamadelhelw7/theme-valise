@@ -1,0 +1,251 @@
+{%- liquid
+  assign heading_id = 'DragGalleryHeading-' | append: section.id
+-%}
+
+<section
+  class="section drag-gallery color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+  {% if section.settings.heading != blank %}
+    aria-labelledby="{{ heading_id }}"
+  {% endif %}
+>
+  {%- if section.settings.heading != blank or section.settings.eyebrow != blank -%}
+    <div class="page-width">
+      {% render 'section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        heading_id: heading_id,
+        description: section.settings.description,
+        alignment: section.settings.header_alignment
+      %}
+    </div>
+  {%- endif -%}
+
+  <drag-canvas
+    class="drag-gallery__canvas"
+    data-cursor="{{ 'general.cursor.drag' | t }}"
+    style="--canvas-h: {{ section.settings.height }}vh; --cell: {{ section.settings.cell_width }}px; --cols: {{ section.settings.columns }};"
+  >
+    <div class="drag-gallery__viewport" data-canvas-viewport>
+      <ul class="drag-gallery__grid" role="list">
+        {% content_for 'blocks' %}
+      </ul>
+    </div>
+    {%- if section.settings.hint != blank -%}
+      <p class="drag-gallery__hint" aria-hidden="true">
+        {% render 'icon', icon: 'drag' %}
+        <span>{{ section.settings.hint | escape }}</span>
+      </p>
+    {%- endif -%}
+  </drag-canvas>
+</section>
+
+{% stylesheet %}
+  .drag-gallery__canvas {
+    position: relative;
+    display: block;
+  }
+  .drag-gallery__viewport {
+    height: var(--canvas-h);
+    min-height: 480px;
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .drag-gallery__canvas.is-dragging .drag-gallery__viewport {
+    cursor: grabbing;
+  }
+  .drag-gallery__canvas.is-dragging .canvas-item__inner {
+    pointer-events: none;
+  }
+  .drag-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    align-items: start;
+    gap: clamp(20px, 3vw, 44px);
+    width: max-content;
+    margin: 0;
+    padding: 10vh 10vw calc(10vh + var(--cell) * 0.4);
+    list-style: none;
+  }
+  .canvas-item:nth-child(3n + 2) {
+    translate: 0 calc(var(--cell) * 0.38);
+  }
+  .canvas-item:nth-child(3n) {
+    translate: 0 calc(var(--cell) * 0.14);
+  }
+  .canvas-item--wide {
+    grid-column: span 2;
+  }
+  .canvas-item__inner {
+    display: grid;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .canvas-item__media {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .canvas-item--square .canvas-item__media {
+    aspect-ratio: 1;
+  }
+  .canvas-item--tall .canvas-item__media {
+    aspect-ratio: 2 / 3;
+  }
+  .canvas-item--wide .canvas-item__media {
+    aspect-ratio: 3 / 2;
+  }
+  .canvas-item__media img,
+  .canvas-item__media .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    transition: scale 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  a.canvas-item__inner:hover .canvas-item__media img {
+    scale: 1.06;
+  }
+  .canvas-item__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.8125rem;
+  }
+  .canvas-item__number {
+    color: var(--color-accent);
+    font: 700 0.6875rem/1 var(--font-label);
+    letter-spacing: 0.08em;
+  }
+  .canvas-item__caption {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .canvas-item__price {
+    font: 700 0.75rem/1 var(--font-label);
+  }
+  .drag-gallery__hint {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    font: 700 0.75rem/1 var(--font-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    translate: -50% -50%;
+    pointer-events: none;
+    transition: opacity 0.4s ease, scale 0.4s ease;
+  }
+  .drag-gallery__hint .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .drag-gallery__canvas.is-touched .drag-gallery__hint {
+    opacity: 0;
+    scale: 0.9;
+  }
+  @media (hover: none), (pointer: coarse) {
+    .drag-gallery__viewport {
+      height: auto;
+      min-height: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      cursor: auto;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+    .drag-gallery__viewport::-webkit-scrollbar {
+      display: none;
+    }
+    .drag-gallery__grid {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: min(62vw, var(--cell));
+      gap: 14px;
+      padding: 8px max(16px, calc((100vw - var(--page-width, 1440px)) / 2)) 64px;
+    }
+    .canvas-item:nth-child(3n + 2) {
+      translate: 0 40px;
+    }
+    .canvas-item:nth-child(3n) {
+      translate: 0 16px;
+    }
+    .drag-gallery__hint {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .canvas-item__media img {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Drag gallery",
+  "tag": "div",
+  "class": "drag-gallery-section",
+  "max_blocks": 24,
+  "blocks": [{ "type": "_canvas-item" }],
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Lookbook" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Drag to explore" },
+    { "type": "richtext", "id": "description", "label": "Description" },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split" }
+      ],
+      "default": "start"
+    },
+    { "type": "text", "id": "hint", "label": "Hint over the gallery", "info": "Shows on computers until the shopper drags", "default": "Drag" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 3, "max": 8, "step": 1, "default": 5 },
+    { "type": "range", "id": "cell_width", "label": "Photo width", "min": 200, "max": 440, "step": 20, "unit": "px", "default": 320 },
+    { "type": "range", "id": "height", "label": "Gallery height on computers", "min": 50, "max": 100, "step": 5, "unit": "vh", "default": 85 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Drag gallery",
+      "blocks": [
+        { "type": "_canvas-item", "settings": { "shape": "portrait" } },
+        { "type": "_canvas-item", "settings": { "shape": "tall" } },
+        { "type": "_canvas-item", "settings": { "shape": "square" } },
+        { "type": "_canvas-item", "settings": { "shape": "portrait" } },
+        { "type": "_canvas-item", "settings": { "shape": "wide" } },
+        { "type": "_canvas-item", "settings": { "shape": "portrait" } },
+        { "type": "_canvas-item", "settings": { "shape": "square" } },
+        { "type": "_canvas-item", "settings": { "shape": "tall" } },
+        { "type": "_canvas-item", "settings": { "shape": "portrait" } },
+        { "type": "_canvas-item", "settings": { "shape": "portrait" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,266 @@
+{%- liquid
+  assign hero_product = section.settings.product | default: product
+  assign hero_image = section.settings.image
+  if hero_image == blank and hero_product != blank
+    assign media_index = section.settings.media_position | minus: 1
+    assign hero_image = hero_product.media[media_index].preview_image | default: hero_product.featured_media.preview_image
+  endif
+-%}
+
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <div class="page-width">
+    <div
+      class="product-hero{% if section.settings.image_position == 'right' %} product-hero--reverse{% endif %}"
+      style="--ph-min: {{ section.settings.min_height }}px;"
+    >
+      <div class="product-hero__media media-tile" style="--tile-bg: var(--tint-1);">
+        {%- if hero_image -%}
+          {{
+            hero_image
+            | image_url: width: 1600
+            | image_tag:
+              loading: 'lazy',
+              widths: '600, 900, 1200, 1600',
+              sizes: '(min-width: 990px) 50vw, 100vw',
+              alt: hero_product.title
+              | escape
+          }}
+        {%- else -%}
+          {% render 'media-placeholder', kind: 'product', index: 5 %}
+        {%- endif -%}
+      </div>
+      <div class="product-hero__content color-{{ section.settings.panel_scheme }}">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .product-hero {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    min-height: var(--ph-min);
+  }
+  .product-hero--reverse .product-hero__media {
+    order: 2;
+  }
+  .product-hero__media {
+    border-radius: var(--radius-lg);
+    min-height: 360px;
+  }
+  .product-hero__content {
+    border-radius: var(--radius-lg);
+    padding: clamp(32px, 5vw, 64px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  @media (max-width: 989px) {
+    .product-hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .product-hero--reverse .product-hero__media {
+      order: 0;
+    }
+    .product-hero__media {
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product hero",
+  "tag": "div",
+  "class": "product-hero-section",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "info": "On product pages this uses the current product automatically"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Defaults to a product photo"
+    },
+    {
+      "type": "range",
+      "id": "media_position",
+      "label": "Product photo to use",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2,
+      "info": "Used when no image is set. Falls back to the first photo."
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "color_scheme",
+      "id": "panel_scheme",
+      "label": "Panel color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 320,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product hero",
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "Why you'll love it"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Easy to carry,\nmade to be noticed",
+            "size": "h1",
+            "tag": "h2",
+            "max_width": 22
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "<p>Describe the shape, the materials and the details that make this bag.</p>"
+          }
+        },
+        {
+          "type": "icon-list",
+          "settings": {
+            "layout": "list",
+            "boxed": false
+          },
+          "blocks": [
+            {
+              "type": "_icon-item",
+              "settings": {
+                "icon": "bag",
+                "title": "Add the first reason here"
+              }
+            },
+            {
+              "type": "_icon-item",
+              "settings": {
+                "icon": "key",
+                "title": "Add the second reason here"
+              }
+            },
+            {
+              "type": "_icon-item",
+              "settings": {
+                "icon": "sparkle",
+                "title": "Add the third reason here"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

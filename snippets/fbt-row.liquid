@@ -1,0 +1,80 @@
+{% doc %}
+  Renders one row of the Frequently bought together list with a checkbox, title, variant choice and price.
+
+  @param {product} product - The product in this row
+  @param {boolean} [current] - True for the product being viewed
+
+  @example
+  {% render 'fbt-row', product: product, current: true %}
+{% enddoc %}
+
+{%- assign row_variant = product.selected_or_first_available_variant -%}
+<div class="fbt-row">
+  <input
+    type="checkbox"
+    id="Fbt-{{ product.id }}"
+    class="fbt-row__check"
+    data-fbt-check
+    checked
+  >
+  <label for="Fbt-{{ product.id }}" class="fbt-row__label">
+    {%- if current -%}
+      <span class="fbt-row__badge">{{ 'sections.fbt.this_item' | t }}</span>
+    {%- endif -%}
+    <span class="fbt-row__title">{{ product.title | escape }}</span>
+  </label>
+  {%- unless product.has_only_default_variant -%}
+    <label class="visually-hidden" for="FbtVariant-{{ product.id }}">{{ 'products.product.choose_options' | t }}</label>
+    <select id="FbtVariant-{{ product.id }}" class="select fbt-row__select" data-fbt-variant>
+      {%- for v in product.variants -%}
+        <option value="{{ v.id }}" data-price="{{ v.price }}" {% if v.id == row_variant.id %}selected{% endif %} {% unless v.available %}disabled{% endunless %}>
+          {{- v.title | escape -}}
+        </option>
+      {%- endfor -%}
+    </select>
+  {%- endunless -%}
+  <span class="fbt-row__price" data-fbt-price>{% render 'format-money', amount: row_variant.price %}</span>
+</div>
+
+{% stylesheet %}
+  .fbt-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    min-height: 56px;
+    padding: 10px 0;
+  }
+  .fbt-row__check {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-button);
+    flex: none;
+  }
+  .fbt-row__label {
+    flex: 1;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .fbt-row__badge {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  .fbt-row__title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .fbt-row__select {
+    width: auto;
+    min-height: 40px;
+    font-size: 0.8125rem;
+    max-width: 180px;
+  }
+  .fbt-row__price {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-inline-start: auto;
+  }
+{% endstylesheet %}

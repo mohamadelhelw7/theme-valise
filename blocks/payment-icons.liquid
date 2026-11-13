@@ -1,0 +1,66 @@
+{% doc %}
+  Renders a secure checkout line with the store's enabled payment method icons.
+
+  @example
+  {% content_for 'block', type: 'payment-icons', id: 'payment-icons' %}
+{% enddoc %}
+
+<div class="payment-icons-block" {{ block.shopify_attributes }}>
+  {%- if block.settings.text != blank -%}
+    <p class="payment-icons-block__text">
+      {% render 'icon', icon: 'lock' %}
+      {{ block.settings.text | escape }}
+    </p>
+  {%- endif -%}
+  {%- if shop.enabled_payment_types.size > 0 -%}
+    <ul class="payment-icons-block__list" role="list">
+      {%- for type in shop.enabled_payment_types -%}
+        <li>{{ type | payment_type_svg_tag: class: 'payment-icons-block__icon' }}</li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .payment-icons-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .payment-icons-block__text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+  .payment-icons-block__text .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-accent);
+  }
+  .payment-icons-block__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .payment-icons-block__icon {
+    width: 38px;
+    height: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Payment icons",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "Text", "default": "Secure checkout" },
+    { "type": "paragraph", "content": "Icons come from the payment methods enabled in your Shopify payment settings." }
+  ],
+  "presets": [{ "name": "Payment icons", "category": "Trust" }]
+}
+{% endschema %}

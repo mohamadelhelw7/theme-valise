@@ -1,0 +1,227 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width">
+    {%- liquid
+      assign auto_text = false
+      if settings.placeholder_text_heroes and section.settings.image == blank
+        assign auto_text = true
+      endif
+    -%}
+    <div class="image-text color-{{ section.settings.panel_scheme }}{% if section.settings.image_position == 'right' %} image-text--reverse{% endif %}{% if auto_text %} image-text--text-only{% endif %}">
+      {%- unless auto_text -%}
+        <div class="image-text__media media-tile" style="--tile-bg: var(--tint-2);">
+          {%- if section.settings.image -%}
+            {{ section.settings.image | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '500, 800, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw' }}
+          {%- else -%}
+            {% render 'media-placeholder', kind: 'lifestyle' %}
+          {%- endif -%}
+        </div>
+      {%- endunless -%}
+      <div class="image-text__content">
+        {% content_for 'blocks' %}
+        {%- if auto_text and request.design_mode -%}
+          <p class="text-only-hint">{{ 'general.placeholder.text_only' | t }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .image-text {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    border-radius: 32px;
+    padding: 24px;
+  }
+  .image-text--reverse .image-text__media {
+    order: 2;
+  }
+  .image-text--text-only {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(40px, 7vw, 88px);
+  }
+  .image-text--text-only::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: var(
+      --text-only-texture,
+      radial-gradient(circle, color-mix(in srgb, var(--color-ph-ink, var(--color-accent)) 28%, transparent) 0 1.2px, transparent 1.9px)
+    );
+    background-size: var(--text-only-texture-size, 8px 8px);
+    -webkit-mask-image: var(--text-only-mask, radial-gradient(70% 90% at 50% 50%, transparent 40%, #000 100%));
+    mask-image: var(--text-only-mask, radial-gradient(70% 90% at 50% 50%, transparent 40%, #000 100%));
+  }
+  .image-text--text-only .image-text__content {
+    max-width: 720px;
+    align-items: center;
+    text-align: center;
+  }
+  .image-text__media {
+    min-height: 460px;
+    height: 100%;
+    border-radius: 24px;
+  }
+  .image-text__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px;
+  }
+  @media (max-width: 989px) {
+    .image-text {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 16px;
+    }
+    .image-text--reverse .image-text__media {
+      order: 0;
+    }
+    .image-text__media {
+      min-height: 300px;
+    }
+    .image-text__content {
+      padding: 8px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Image with text",
+  "tag": "section",
+  "class": "image-with-text-section",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "panel_scheme",
+      "label": "Panel color scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image with text",
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "How it's made"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Details you can feel",
+            "size": "h2"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "<p>Describe how your bags are made: the materials, the lining and the hardware.</p>"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "label": "Learn more",
+            "style": "button--primary"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

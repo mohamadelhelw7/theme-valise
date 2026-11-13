@@ -1,0 +1,352 @@
+{%- liquid
+  assign anatomy_product = section.settings.product
+  if anatomy_product == blank and product != blank
+    assign anatomy_product = product
+  endif
+  if anatomy_product == blank and section.settings.auto_fill
+    assign anatomy_product = collections.all.products.first
+  endif
+  assign anatomy_image = section.settings.image | default: anatomy_product.featured_image
+  assign anatomy_alt = section.settings.image.alt | default: anatomy_product.title | escape
+  assign point_count = section.blocks.size | at_least: 1
+  assign heading_lines = section.settings.heading | escape | newline_to_br | split: '<br />'
+  assign button_url = section.settings.button_link | default: anatomy_product.url
+  if section.settings.button_link == blank and product != blank
+    if anatomy_product.id == product.id
+      assign button_url = blank
+    endif
+  endif
+-%}
+
+<scroll-progress
+  class="anatomy color-{{ section.settings.color_scheme }}"
+  data-static-progress="1"
+  data-anatomy
+  data-no-reveal
+  style="--count: {{ point_count }}; --len: {{ section.settings.scroll_length }}svh; --img-h: {{ section.settings.image_size }}svh;"
+>
+  <div class="anatomy__sticky">
+    <div class="anatomy__head page-width">
+      {%- if section.settings.eyebrow != blank -%}
+        <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2 class="anatomy__heading h1">
+          {%- for line in heading_lines -%}
+            {%- assign parts = line | strip | split: '*' -%}
+            {%- for part in parts -%}
+              {%- assign odd = forloop.index0 | modulo: 2 -%}
+              {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+            {%- endfor -%}
+            {%- unless forloop.last -%}<br>{%- endunless -%}
+          {%- endfor -%}
+        </h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <p class="anatomy__text">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="anatomy__stage">
+      <div class="anatomy__figure{% if anatomy_image == blank %} anatomy__figure--empty{% endif %}">
+        {%- if anatomy_image != blank -%}
+          {{
+            anatomy_image
+            | image_url: width: 1400
+            | image_tag: widths: '500, 800, 1100, 1400', sizes: '(min-width: 750px) 50vw, 90vw', loading: 'lazy', alt: anatomy_alt, class: 'anatomy__image'
+          }}
+        {%- else -%}
+          {% render 'media-placeholder', kind: 'product', index: 6, label: anatomy_product.title %}
+        {%- endif -%}
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+
+    <ol class="anatomy__list page-width" role="list">
+      {%- for block in section.blocks -%}
+        <li class="anatomy__list-item">
+          <span class="anatomy__list-number" aria-hidden="true">{{ forloop.index }}</span>
+          <span>
+            {%- if block.settings.title != blank -%}
+              <strong>{{ block.settings.title | escape }}</strong>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <span>{{ block.settings.text | escape }}</span>
+            {%- endif -%}
+          </span>
+        </li>
+      {%- endfor -%}
+    </ol>
+
+    {%- if section.settings.button_label != blank and button_url != blank -%}
+      <div class="anatomy__actions">
+        <a class="button button--secondary" href="{{ button_url }}">{{ section.settings.button_label | escape }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+</scroll-progress>
+
+{% javascript %}
+  document.addEventListener('shopify:block:select', (event) => {
+    const point = event.target.closest('.anatomy-point');
+    const section = point && point.closest('[data-anatomy]');
+    if (!section) return;
+    const points = Array.from(section.querySelectorAll('.anatomy-point'));
+    const index = points.indexOf(point);
+    const count = Math.max(points.length, 1);
+    const start = 0.08 + (index * 0.77) / count + 0.12;
+    const rect = section.getBoundingClientRect();
+    const total = rect.height - window.innerHeight;
+    if (total <= 0) return;
+    window.scrollTo({ top: window.scrollY + rect.top + total * Math.min(1, start), behavior: 'instant' });
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  .anatomy {
+    display: block;
+    position: relative;
+    height: var(--len);
+  }
+  .anatomy__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 560px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding-block: calc(var(--header-height, 0px) + 24px) 32px;
+    overflow: hidden;
+  }
+  .anatomy__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .anatomy__heading em {
+    color: var(--color-accent);
+  }
+  .heading-accent-italic .anatomy__heading em {
+    font-style: italic;
+    color: inherit;
+  }
+  .anatomy__text {
+    max-width: 520px;
+    color: var(--color-muted);
+  }
+  .anatomy__stage {
+    position: relative;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  .anatomy__figure {
+    position: relative;
+    height: min(var(--img-h), 100%);
+    max-width: 92vw;
+  }
+  .anatomy__image {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .anatomy__figure--empty {
+    aspect-ratio: 1;
+  }
+  .anatomy-point {
+    --s: calc(0.08 + var(--i) * 0.77 / var(--count));
+    --t: clamp(0, calc((var(--p, 1) - var(--s)) / 0.12), 1);
+    --line: clamp(32px, 6vw, 140px);
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+    z-index: 2;
+  }
+  .anatomy-point__dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    background: var(--color-bg);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    opacity: calc(0.35 + var(--t) * 0.65);
+    scale: calc(0.85 + var(--t) * 0.15);
+  }
+  .anatomy-point__dot::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: calc(var(--t) * 0.35);
+  }
+  .anatomy-point__line {
+    position: absolute;
+    top: 0;
+    width: var(--line);
+    height: 1px;
+    background: currentColor;
+    scale: var(--t) 1;
+  }
+  .anatomy-point--right .anatomy-point__line {
+    left: 14px;
+    transform-origin: left center;
+  }
+  .anatomy-point--left .anatomy-point__line {
+    right: 14px;
+    transform-origin: right center;
+  }
+  .anatomy-point__label {
+    position: absolute;
+    top: 0;
+    width: max-content;
+    max-width: min(240px, 18vw);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: var(--t);
+    translate: 0 calc(-50% + (1 - var(--t)) * 10px);
+  }
+  .anatomy-point--right .anatomy-point__label {
+    left: calc(14px + var(--line) + 12px);
+    text-align: left;
+  }
+  .anatomy-point--left .anatomy-point__label {
+    right: calc(14px + var(--line) + 12px);
+    text-align: right;
+  }
+  .anatomy-point__title {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+  }
+  .anatomy-point__text {
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+  .anatomy__list {
+    display: none;
+  }
+  .anatomy__actions {
+    display: flex;
+    justify-content: center;
+  }
+  @media (max-width: 989px) {
+    .anatomy {
+      height: auto;
+    }
+    .anatomy__sticky {
+      position: relative;
+      height: auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 24px;
+      padding-block: var(--space-large);
+      overflow: visible;
+    }
+    .anatomy-point {
+      --t: 1;
+    }
+    .anatomy__figure {
+      height: auto;
+      width: min(100%, 520px);
+      margin-inline: auto;
+    }
+    .anatomy__image {
+      width: 100%;
+      height: auto;
+    }
+    .anatomy-point__line,
+    .anatomy-point__label {
+      display: none;
+    }
+    .anatomy__list {
+      display: grid;
+      gap: 14px;
+      list-style: none;
+      margin: 0;
+      padding-block: 0;
+    }
+    .anatomy__list-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .anatomy__list-item strong {
+      display: block;
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      letter-spacing: var(--label-ls);
+      text-transform: var(--label-case);
+    }
+    .anatomy__list-item span span {
+      font-size: 0.875rem;
+      color: var(--color-muted);
+    }
+    .anatomy__list-number {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      font-size: 0.6875rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "A closer look",
+  "tag": "section",
+  "class": "anatomy-section",
+  "max_blocks": 6,
+  "blocks": [{ "type": "_anatomy-point" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "A closer look" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "info": "Wrap a word in *asterisks* to highlight it", "default": "The *details*" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Scroll to see what goes into each bag." },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "A cut-out photo or a photo on a plain background works best. Defaults to the product's photo, or on product pages to that product." },
+    { "type": "product", "id": "product", "label": "Product" },
+    { "type": "checkbox", "id": "auto_fill", "label": "Use the first product when none is picked", "default": true },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop this bag" },
+    { "type": "url", "id": "button_link", "label": "Button link", "info": "Defaults to the product" },
+    { "type": "header", "content": "Scroll effect" },
+    { "type": "range", "id": "scroll_length", "label": "Scroll length", "min": 150, "max": 400, "step": 25, "unit": "%", "default": 250, "info": "How far shoppers scroll while the points appear. Phones show all points at once." },
+    { "type": "range", "id": "image_size", "label": "Photo height", "min": 40, "max": 80, "step": 5, "unit": "%", "default": 60 }
+  ],
+  "presets": [
+    {
+      "name": "A closer look",
+      "blocks": [
+        { "type": "_anatomy-point", "settings": { "x": 50, "y": 14, "title": "Handle", "text": "Say what the handle is made of and how long the drop is." } },
+        { "type": "_anatomy-point", "settings": { "x": 64, "y": 46, "title": "Hardware", "text": "Describe the clasp, buckles and their finish." } },
+        { "type": "_anatomy-point", "settings": { "x": 30, "y": 66, "title": "Stitching", "text": "Explain how the bag is sewn and finished." } },
+        { "type": "_anatomy-point", "settings": { "x": 58, "y": 90, "title": "Base", "text": "Mention the base, feet or anything that protects it." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

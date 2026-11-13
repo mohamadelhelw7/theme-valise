@@ -1,0 +1,31 @@
+{%- liquid
+  assign in_cart = ','
+  for item in cart.items
+    assign in_cart = in_cart | append: item.product_id | append: ','
+  endfor
+  assign shown = 0
+-%}
+
+<div data-cart-upsell-results>
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+    {%- for rec in recommendations.products -%}
+      {%- assign needle = ',' | append: rec.id | append: ',' -%}
+      {%- if in_cart contains needle or rec.available == false -%}
+        {%- continue -%}
+      {%- endif -%}
+      {% render 'upsell-item', product: rec %}
+      {%- assign shown = shown | plus: 1 -%}
+      {%- if shown >= 3 -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Cart upsell",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,101 @@
+{% doc %}
+  Renders a short fit note, for example "Model is 175 cm and wears S".
+  Hidden on the store until text is added. The text can come from a metafield through dynamic sources.
+{% enddoc %}
+
+{%- if block.settings.text != blank -%}
+  <p class="fit-note" {{ block.shopify_attributes }}>
+    {% render 'icon', icon: block.settings.icon %}
+    <span>{{ block.settings.text }}</span>
+  </p>
+{%- elsif request.design_mode -%}
+  <p class="fit-note fit-note--empty" {{ block.shopify_attributes }}>
+    {% render 'icon', icon: block.settings.icon %}
+    <span>{{ 'products.product.fit_note_hint' | t }}</span>
+  </p>
+{%- endif -%}
+
+{% stylesheet %}
+  .fit-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+  .fit-note .icon {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    color: var(--color-accent);
+  }
+  .fit-note--empty {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Fit note",
+  "tag": null,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Text",
+      "info": "For example: Shown on a 170 cm model. Connect a product metafield to show a different note on each product."
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "ruler",
+          "label": "Size guide"
+        },
+        {
+          "value": "sparkle",
+          "label": "Sparkle"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "bag",
+          "label": "Bag"
+        },
+        {
+          "value": "wallet",
+          "label": "Wallet"
+        },
+        {
+          "value": "key",
+          "label": "Key"
+        },
+        {
+          "value": "pen",
+          "label": "Personalization"
+        },
+        {
+          "value": "laptop",
+          "label": "Laptop"
+        }
+      ],
+      "default": "ruler"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Fit note"
+    }
+  ]
+}
+{% endschema %}

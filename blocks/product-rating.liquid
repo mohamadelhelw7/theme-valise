@@ -1,0 +1,70 @@
+{% doc %}
+  Renders the product star rating from the standard reviews metafields
+  (reviews.rating and reviews.rating_count), which most review apps fill in.
+
+  @example
+  {% content_for 'block', type: 'product-rating', id: 'rating' %}
+{% enddoc %}
+
+{%- liquid
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | default: 0
+-%}
+
+{%- if rating != blank -%}
+  {%- liquid
+    assign scale = rating.scale_max | default: 5
+    assign rating_value = rating.rating | times: 1.0
+    assign rounded = rating_value | round
+  -%}
+  <a href="#{{ block.settings.anchor | default: 'reviews' }}" class="product-rating" {{ block.shopify_attributes }}>
+    <span class="stars" role="img" aria-label="{{ 'sections.reviews.rating' | t: rating: rating_value }}">
+      {%- for i in (1..scale) -%}
+        {%- if i <= rounded -%}
+          {% render 'icon', icon: 'star' %}
+        {%- else -%}
+          <span class="review-card__star-off">{% render 'icon', icon: 'star' %}</span>
+        {%- endif -%}
+      {%- endfor -%}
+    </span>
+    <span class="product-rating__text">
+      {{ rating_value | round: 1 }}
+      {%- if rating_count > 0 %} ({{ 'sections.reviews.count' | t: count: rating_count }}){% endif -%}
+    </span>
+  </a>
+{%- elsif request.design_mode -%}
+  <p class="product-rating product-rating--empty" {{ block.shopify_attributes }}>{{ 'sections.reviews.no_rating' | t }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .product-rating__text {
+    color: var(--color-body);
+  }
+  .product-rating--empty {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Star rating",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the rating saved by your review app in the reviews.rating metafield. Hidden when a product has no rating."
+    },
+    { "type": "text", "id": "anchor", "label": "Link to section ID", "default": "reviews" }
+  ],
+  "presets": [{ "name": "Star rating", "category": "Product" }]
+}
+{% endschema %}

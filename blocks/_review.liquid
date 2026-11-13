@@ -1,0 +1,156 @@
+{% doc %}
+  Renders a customer review card: optional photo, name with verified badge, stars,
+  the review, and a footer linking to the reviewed product with its thumbnail.
+
+  @example
+  {% content_for 'block', type: '_review', id: 'review' %}
+{% enddoc %}
+
+{%- liquid
+  assign rating = block.settings.rating
+  assign product_ref = block.settings.product
+-%}
+
+<figure class="review-card" {{ block.shopify_attributes }}>
+  {%- if block.settings.show_image -%}
+    <div class="review-card__media media-tile" style="--tile-bg: {{ block.settings.color }};">
+      {%- if block.settings.image -%}
+        {{
+          block.settings.image
+          | image_url: width: 900
+          | image_tag: loading: 'lazy', widths: '300, 600, 900', sizes: '(min-width: 990px) 33vw, 85vw', alt: ''
+        }}
+      {%- else -%}
+        {% render 'media-placeholder', kind: 'product' %}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  <div class="review-card__body">
+    <div class="review-card__head">
+      <span class="review-card__author">{{ block.settings.author | escape }}</span>
+      {%- if block.settings.verified -%}
+        <span class="review-card__verified">{{ 'sections.reviews.verified' | t }}</span>
+      {%- endif -%}
+    </div>
+    {%- if block.settings.show_stars -%}
+      {% render 'stars', rating: rating %}
+    {%- endif -%}
+    <blockquote class="review-card__quote rte">{{ block.settings.quote }}</blockquote>
+    {%- if product_ref != blank or block.settings.product_name != blank -%}
+      <figcaption class="review-card__footer">
+        {%- if product_ref != blank -%}
+          <a href="{{ product_ref.url }}" class="review-card__product">
+            <span class="review-card__thumb">
+              {%- if product_ref.featured_media -%}
+                {{ product_ref.featured_media | image_url: width: 120, height: 120, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+              {%- endif -%}
+            </span>
+            <span class="review-card__product-title">{{ product_ref.title | escape }}</span>
+          </a>
+        {%- else -%}
+          <span class="review-card__product">
+            <span class="review-card__product-title">{{ block.settings.product_name | escape }}</span>
+          </span>
+        {%- endif -%}
+      </figcaption>
+    {%- endif -%}
+  </div>
+</figure>
+
+{% stylesheet %}
+  .review-card {
+    margin: 0;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .review-card__media {
+    aspect-ratio: 4 / 3;
+    border-radius: 0;
+  }
+  .review-card__body {
+    padding: 22px 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  .review-card__head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .review-card__author {
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  .review-card__verified {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .review-card__star-off {
+    opacity: 0.2;
+    display: inline-flex;
+  }
+  .review-card__quote {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-body);
+  }
+  .review-card__footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+  }
+  .review-card__product {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .review-card__thumb {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: min(var(--radius-sm), 8px);
+    overflow: hidden;
+    background: var(--tint-1);
+  }
+  .review-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .review-card__product-title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Review",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "author", "label": "Customer name", "default": "Customer name" },
+    { "type": "checkbox", "id": "verified", "label": "Show verified buyer", "default": true },
+    { "type": "checkbox", "id": "show_stars", "label": "Show stars", "default": true },
+    { "type": "range", "id": "rating", "label": "Rating", "min": 1, "max": 5, "step": 1, "default": 5 },
+    { "type": "richtext", "id": "quote", "label": "Review", "default": "<p>Paste a real customer review here.</p>" },
+    { "type": "header", "content": "Product" },
+    { "type": "product", "id": "product", "label": "Product reviewed", "info": "Shows its photo and links to it" },
+    { "type": "text", "id": "product_name", "label": "Product name", "info": "Used when no product is selected" },
+    { "type": "header", "content": "Photo" },
+    { "type": "checkbox", "id": "show_image", "label": "Show photo", "default": true },
+    { "type": "image_picker", "id": "image", "label": "Customer or product photo" },
+    { "type": "color", "id": "color", "label": "Photo background", "default": "#EFECE7" }
+  ],
+  "presets": [{ "name": "Review" }]
+}
+{% endschema %}

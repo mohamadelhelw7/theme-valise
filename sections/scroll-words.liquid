@@ -1,0 +1,165 @@
+{%- liquid
+  assign word_a = section.settings.color_a
+  if word_a == blank
+    assign word_a = 'var(--color-accent)'
+  endif
+  assign word_b = section.settings.color_b
+  if word_b == blank
+    assign word_b = 'color-mix(in srgb, var(--color-accent) 58%, var(--color-bg))'
+  endif
+-%}
+
+<section
+  class="section scroll-words color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }}); --word-a: {{ word_a }}; --word-b: {{ word_b }};"
+>
+  <div class="page-width">
+    {%- if section.settings.heading != blank or section.settings.eyebrow != blank -%}
+      {% render 'section-header', eyebrow: section.settings.eyebrow, heading: section.settings.heading, alignment: 'center' %}
+    {%- endif -%}
+    <div class="scroll-words__rows" data-no-reveal>
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .scroll-words__rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-gap);
+  }
+  .word-pair {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 28vw) minmax(0, 1fr);
+    column-gap: 3vw;
+  }
+  .word-pair__word {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+  .word-pair__word .display-word {
+    position: sticky;
+    top: calc(50vh - 0.55em);
+    align-self: flex-start;
+    margin-block: 14vh;
+    font-size: calc(clamp(2rem, 4.4vw, 4.75rem) * var(--heading-scale));
+    font-weight: 700;
+    color: var(--word-a);
+    overflow-wrap: normal;
+    white-space: nowrap;
+  }
+  .word-pair__word--end .display-word,
+  .word-pair:nth-child(even) .word-pair__word--start .display-word {
+    color: var(--word-b);
+  }
+  .word-pair:nth-child(even) .word-pair__word--end .display-word {
+    color: var(--word-a);
+  }
+  .word-pair__media {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .word-pair__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.8s ease;
+  }
+  .word-pair__media:hover img {
+    scale: 1.04;
+  }
+  .word-pair__link {
+    position: absolute;
+    inset: 0;
+  }
+  .word-pair__accent {
+    position: absolute;
+    top: 58%;
+    width: clamp(80px, 11vw, 190px);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .word-pair__accent--start {
+    inset-inline-start: 3%;
+  }
+  .word-pair__accent--end {
+    inset-inline-end: 3%;
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .word-pair__accent {
+        animation: word-pair-drift linear both;
+        animation-timeline: view();
+      }
+      @keyframes word-pair-drift {
+        from {
+          translate: 0 40%;
+          rotate: -8deg;
+        }
+        to {
+          translate: 0 -60%;
+          rotate: 8deg;
+        }
+      }
+    }
+  }
+  @media (max-width: 749px) {
+    .word-pair {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 14px;
+      padding-block: 12px;
+    }
+    .word-pair__media {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: 78%;
+      justify-self: center;
+    }
+    .word-pair__word .display-word {
+      position: static;
+      margin: 0;
+      font-size: calc(clamp(1.5rem, 8vw, 2.5rem) * var(--heading-scale));
+    }
+    .word-pair__accent {
+      width: 22vw;
+      top: 40%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Scrolling words",
+  "tag": "div",
+  "class": "scroll-words-section",
+  "max_blocks": 8,
+  "blocks": [{ "type": "_word-pair" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "Each word pair stays in view while its photo scrolls past. Colors alternate between rows." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "color", "id": "color_a", "label": "First word color", "info": "Leave empty to use the accent color" },
+    { "type": "color", "id": "color_b", "label": "Second word color", "info": "Leave empty to use a lighter accent" },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling words",
+      "blocks": [
+        { "type": "_word-pair", "settings": { "word_start": "Work", "word_end": "Days" } },
+        { "type": "_word-pair", "settings": { "word_start": "Long", "word_end": "Weekends" } },
+        { "type": "_word-pair", "settings": { "word_start": "Quiet", "word_end": "Details" } },
+        { "type": "_word-pair", "settings": { "word_start": "Evenings", "word_end": "Out" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

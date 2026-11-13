@@ -1,0 +1,97 @@
+{% doc %}
+  Renders a highlighted payment or delivery note, such as a cash on delivery message.
+
+  @example
+  {% content_for 'block', type: 'payment-note', id: 'payment-note' %}
+{% enddoc %}
+
+<div class="payment-note payment-note--{{ block.settings.style }}" {{ block.shopify_attributes }}>
+  <span class="payment-note__icon">{% render 'icon', icon: block.settings.icon %}</span>
+  <div class="payment-note__text">
+    {%- if block.settings.title != blank -%}
+      <p class="payment-note__title">{{ block.settings.title | escape }}</p>
+    {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <p class="payment-note__body">{{ block.settings.text | escape }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .payment-note {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .payment-note--boxed {
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+  .payment-note--accent {
+    background: color-mix(in srgb, var(--color-accent) 12%, var(--color-bg));
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+  }
+  .payment-note__icon {
+    color: var(--color-accent);
+    display: inline-flex;
+  }
+  .payment-note__icon .icon {
+    width: 24px;
+    height: 24px;
+  }
+  .payment-note__title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .payment-note__body {
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Payment note",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        { "value": "cash", "label": "Cash" },
+        { "value": "truck", "label": "Delivery" },
+        { "value": "lock", "label": "Secure" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "return", "label": "Return" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "check", "label": "Check" }
+      ],
+      "default": "cash"
+    },
+    { "type": "text", "id": "title", "label": "Title", "default": "Cash on delivery available" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Pay in cash when your order arrives." },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "plain", "label": "Plain" },
+        { "value": "boxed", "label": "Card" },
+        { "value": "accent", "label": "Accent tint" }
+      ],
+      "default": "accent"
+    }
+  ],
+  "presets": [
+    { "name": "Cash on delivery", "category": "Trust" },
+    {
+      "name": "Payment note",
+      "category": "Trust",
+      "settings": { "icon": "lock", "title": "Secure payments", "text": "Pay by card, wallet or installments.", "style": "plain" }
+    }
+  ]
+}
+{% endschema %}

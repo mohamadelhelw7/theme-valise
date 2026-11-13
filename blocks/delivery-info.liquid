@@ -1,0 +1,181 @@
+{% doc %}
+  Renders an estimated delivery date range and an optional governorate or zone picker
+  that shows delivery time and fee for the shopper's area.
+
+  @example
+  {% content_for 'block', type: 'delivery-info', id: 'delivery-info' %}
+{% enddoc %}
+
+{%- liquid
+  assign skip_days = ''
+  if block.settings.skip_sunday
+    assign skip_days = skip_days | append: '0,'
+  endif
+  if block.settings.skip_friday
+    assign skip_days = skip_days | append: '5,'
+  endif
+  if block.settings.skip_saturday
+    assign skip_days = skip_days | append: '6,'
+  endif
+  assign estimate_text = block.settings.estimate_text | default: ''
+  if estimate_text == blank
+    assign estimate_text = 'products.delivery.estimate' | t
+  endif
+  assign zone_label = block.settings.zone_label | default: ''
+  if zone_label == blank
+    assign zone_label = 'products.delivery.deliver_to' | t
+  endif
+-%}
+
+<delivery-info
+  class="delivery-info delivery-info--{{ block.settings.style }}"
+  data-min="{{ block.settings.min_days }}"
+  data-max="{{ block.settings.max_days }}"
+  data-cutoff="{{ block.settings.cutoff_hour }}"
+  data-skip="{{ skip_days | remove_last: ',' }}"
+  data-layout="{{ block.settings.zone_layout }}"
+  {{ block.shopify_attributes }}
+>
+  {%- if block.settings.show_estimate -%}
+    <div class="delivery-info__row" data-estimate-row hidden>
+      <span class="delivery-info__icon">{% render 'icon', icon: 'truck' %}</span>
+      <p class="delivery-info__text" data-delivery-estimate data-template="{{ estimate_text | escape }}"></p>
+    </div>
+  {%- endif -%}
+
+  <div class="delivery-info__zones">
+    <div class="delivery-info__picker" data-zone-picker hidden>
+      <label class="delivery-info__label" for="Zone-{{ block.id }}">
+        {% render 'icon', icon: 'globe-pin' %}
+        {{ zone_label | escape }}
+      </label>
+      <select id="Zone-{{ block.id }}" class="select" data-zone-select>
+        <option value="">{{ 'products.delivery.choose_area' | t }}</option>
+      </select>
+      <p class="delivery-info__result" data-zone-result role="status" hidden></p>
+    </div>
+    <div class="delivery-info__table" data-zone-table>
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</delivery-info>
+
+{% stylesheet %}
+  .delivery-info {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 0.9375rem;
+  }
+  .delivery-info--boxed {
+    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+  }
+  .delivery-info__row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .delivery-info__row[hidden],
+  .delivery-info__picker[hidden],
+  .delivery-info__table[hidden] {
+    display: none;
+  }
+  .delivery-info__icon {
+    color: var(--color-accent);
+    display: inline-flex;
+  }
+  .delivery-info__icon .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .delivery-info__text {
+    color: var(--color-body);
+  }
+  .delivery-info__picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .delivery-info__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .delivery-info__label .icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-accent);
+  }
+  .delivery-info__picker .select {
+    min-height: 46px;
+  }
+  .delivery-info__result {
+    font-weight: 600;
+  }
+  .delivery-info__table {
+    display: flex;
+    flex-direction: column;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Delivery estimate",
+  "tag": null,
+  "blocks": [{ "type": "_delivery-zone" }],
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "plain", "label": "Plain" },
+        { "value": "boxed", "label": "In a card" }
+      ],
+      "default": "boxed"
+    },
+    { "type": "header", "content": "Estimated delivery date" },
+    { "type": "checkbox", "id": "show_estimate", "label": "Show estimated delivery dates", "default": true },
+    { "type": "range", "id": "min_days", "label": "Fastest delivery", "min": 0, "max": 14, "step": 1, "unit": "d", "default": 1, "info": "Business days" },
+    { "type": "range", "id": "max_days", "label": "Slowest delivery", "min": 1, "max": 21, "step": 1, "unit": "d", "default": 4, "info": "Business days" },
+    { "type": "range", "id": "cutoff_hour", "label": "Order cutoff hour", "min": 0, "max": 23, "step": 1, "default": 14, "info": "Orders after this hour count from the next day. 24 hour clock." },
+    { "type": "checkbox", "id": "skip_friday", "label": "No deliveries on Friday", "default": true },
+    { "type": "checkbox", "id": "skip_saturday", "label": "No deliveries on Saturday", "default": false },
+    { "type": "checkbox", "id": "skip_sunday", "label": "No deliveries on Sunday", "default": false },
+    { "type": "text", "id": "estimate_text", "label": "Estimate text", "info": "Use [start] and [end] for the dates. Leave empty for the default translated text." },
+    { "type": "header", "content": "Delivery areas" },
+    {
+      "type": "paragraph",
+      "content": "Add Area blocks with the governorates, cities or regions you ship to, plus their delivery time and fee."
+    },
+    {
+      "type": "select",
+      "id": "zone_layout",
+      "label": "Show areas as",
+      "options": [
+        { "value": "selector", "label": "A dropdown shoppers pick from" },
+        { "value": "table", "label": "A list" }
+      ],
+      "default": "selector"
+    },
+    { "type": "text", "id": "zone_label", "label": "Dropdown label", "info": "Leave empty for the default translated label" }
+  ],
+  "presets": [
+    {
+      "name": "Delivery estimate",
+      "category": "Product",
+      "blocks": [
+        { "type": "_delivery-zone", "settings": { "zone_name": "Cairo and Giza", "governorates": "Cairo, Giza" } },
+        { "type": "_delivery-zone", "settings": { "zone_name": "Alexandria and Delta", "governorates": "Alexandria, Qalyubia, Sharqia, Dakahlia, Gharbia, Monufia, Beheira, Kafr El Sheikh, Damietta" } },
+        { "type": "_delivery-zone", "settings": { "zone_name": "Canal cities", "governorates": "Port Said, Ismailia, Suez" } },
+        { "type": "_delivery-zone", "settings": { "zone_name": "Upper Egypt", "governorates": "Faiyum, Beni Suef, Minya, Asyut, Sohag, Qena, Luxor, Aswan" } },
+        { "type": "_delivery-zone", "settings": { "zone_name": "Remote areas", "governorates": "Red Sea, New Valley, Matrouh, North Sinai, South Sinai" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

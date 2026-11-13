@@ -1,0 +1,26 @@
+{% doc %}
+  Renders merchant-provided HTML or Liquid, such as an app embed snippet.
+
+  @example
+  {% content_for 'block', type: 'custom-liquid', id: 'custom-liquid' %}
+{% enddoc %}
+
+<div class="custom-liquid" {{ block.shopify_attributes }}>
+  {{ block.settings.custom_liquid }}
+</div>
+
+{% schema %}
+{
+  "name": "Custom code",
+  "tag": null,
+  "settings": [
+    {
+      "type": "liquid",
+      "id": "custom_liquid",
+      "label": "Liquid or HTML",
+      "info": "Use this for app snippets or small custom additions."
+    }
+  ],
+  "presets": [{ "name": "Custom code", "category": "Layout" }]
+}
+{% endschema %}

@@ -1,0 +1,80 @@
+{% doc %}
+  Renders one vertical video reel with an optional product chip. Falls back to a product photo.
+{% enddoc %}
+
+{%- liquid
+  assign reel_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign reel_index = forloop.index0
+      break
+    endif
+  endfor
+  assign reel_product = block.settings.product
+  if reel_product == blank and section.settings.auto_products
+    assign reel_product = collections.all.products[reel_index]
+  endif
+  assign poster = block.settings.image
+  if poster == blank and block.settings.video != blank
+    assign poster = block.settings.video.preview_image
+  endif
+  if poster == blank and reel_product != blank
+    assign poster = reel_product.featured_image
+  endif
+-%}
+
+<li class="reel" data-reel {{ block.shopify_attributes }}>
+  <div class="reel__media">
+    {%- if block.settings.video != blank -%}
+      {{
+        block.settings.video
+        | video_tag: autoplay: false, loop: true, muted: true, playsinline: true, controls: false, preload: 'none', image_size: '720x', class: 'reel__video'
+      }}
+      <button type="button" class="reel__toggle" data-reel-toggle aria-pressed="false" aria-label="{{ 'sections.video.play' | t }}">
+        {% render 'icon', icon: 'sound', class: 'reel__icon-play' %}
+        {% render 'icon', icon: 'pause', class: 'reel__icon-pause' %}
+      </button>
+    {%- elsif poster != blank -%}
+      {{
+        poster
+        | image_url: width: 720
+        | image_tag: loading: 'lazy', widths: '360, 540, 720', sizes: '(min-width: 990px) 22vw, 60vw', alt: '', class: 'reel__poster'
+      }}
+    {%- else -%}
+      {%- assign ph_n = reel_index | plus: 1 -%}{% render 'media-placeholder', kind: 'product', index: ph_n %}
+    {%- endif -%}
+
+    {%- if block.settings.caption != blank -%}
+      <p class="reel__caption">{{ block.settings.caption | escape }}</p>
+    {%- endif -%}
+
+    {%- if reel_product != blank -%}
+      <a class="reel__product color-{{ section.settings.chip_scheme }}" href="{{ reel_product.url }}">
+        {%- if reel_product.featured_media -%}
+          <span class="reel__product-media">
+            {{ reel_product.featured_media | image_url: width: 120, height: 120, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+          </span>
+        {%- endif -%}
+        <span class="reel__product-text">
+          <span class="reel__product-title">{{ reel_product.title | escape }}</span>
+          <span class="reel__product-price">{% render 'format-money', amount: reel_product.price %}</span>
+        </span>
+        {% render 'icon', icon: 'arrow-up-right', class: 'reel__product-icon' %}
+      </a>
+    {%- endif -%}
+  </div>
+</li>
+
+{% schema %}
+{
+  "name": "Reel",
+  "tag": null,
+  "settings": [
+    { "type": "video", "id": "video", "label": "Video", "info": "A vertical 9:16 video works best. Upload it under Content > Files." },
+    { "type": "image_picker", "id": "image", "label": "Cover image", "info": "Shows before the video plays. Defaults to the video cover or the product photo." },
+    { "type": "text", "id": "caption", "label": "Caption", "info": "For example @yourhandle or a short line" },
+    { "type": "product", "id": "product", "label": "Product" }
+  ],
+  "presets": [{ "name": "Reel" }]
+}
+{% endschema %}

@@ -1,0 +1,36 @@
+{% doc %}
+  Renders product option selectors as pills, swatches or dropdowns.
+
+  @example
+  {% content_for 'block', type: 'variant-picker', id: 'variant-picker' %}
+{% enddoc %}
+
+{%- capture attrs -%}{{ block.shopify_attributes }}{%- endcapture -%}
+{% render 'variant-picker',
+  product: product,
+  id_prefix: block.id,
+  style: block.settings.style,
+  swatches: block.settings.swatches,
+  attributes: attrs
+%}
+
+{% schema %}
+{
+  "name": "Variant picker",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "pills", "label": "Buttons" },
+        { "value": "dropdown", "label": "Dropdowns" }
+      ],
+      "default": "pills"
+    },
+    { "type": "checkbox", "id": "swatches", "label": "Show color swatches", "default": true }
+  ],
+  "presets": [{ "name": "Variant picker", "category": "Product" }]
+}
+{% endschema %}

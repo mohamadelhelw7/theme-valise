@@ -1,0 +1,168 @@
+<section class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width statement" style="--statement-max: {{ section.settings.max_width }}px;">
+    <p class="statement__line">
+      {% content_for 'blocks' %}
+    </p>
+  </div>
+</section>
+
+{% stylesheet %}
+  .statement {
+    max-width: var(--statement-max);
+    text-align: center;
+  }
+  .statement__line {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+  .statement__text em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+  .statement__pill {
+    display: inline-block;
+    width: 2.1em;
+    height: 1em;
+    border-radius: 999px;
+    background: var(--pill-bg);
+    vertical-align: middle;
+    overflow: hidden;
+    margin-inline: 0.08em;
+    position: relative;
+    top: -0.05em;
+  }
+  .statement__pill img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Statement",
+  "tag": "div",
+  "class": "statement-section",
+  "blocks": [
+    {
+      "type": "_statement-text"
+    },
+    {
+      "type": "_statement-pill"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 600,
+      "max": 1320,
+      "step": 20,
+      "unit": "px",
+      "default": 1100
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Statement",
+      "blocks": [
+        {
+          "type": "_statement-text",
+          "settings": {
+            "text": "Fewer bags,"
+          }
+        },
+        {
+          "type": "_statement-pill",
+          "settings": {
+            "color": "#EAD9CF"
+          }
+        },
+        {
+          "type": "_statement-text",
+          "settings": {
+            "text": "carried more often, and a style that"
+          }
+        },
+        {
+          "type": "_statement-pill",
+          "settings": {
+            "color": "#DCE1D2"
+          }
+        },
+        {
+          "type": "_statement-text",
+          "settings": {
+            "text": "feels like yours"
+          }
+        },
+        {
+          "type": "_statement-pill",
+          "settings": {
+            "color": "#C9B8A6"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

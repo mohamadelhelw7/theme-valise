@@ -1,0 +1,38 @@
+{% doc %}
+  Renders one floating photo in the scroll collage. Falls back to a product photo.
+{% enddoc %}
+
+{%- liquid
+  assign image_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign image_index = forloop.index
+      break
+    endif
+  endfor
+  assign fallback_product = collections.all.products[image_index]
+  assign collage_image = block.settings.image | default: fallback_product.featured_image
+-%}
+
+<div class="collage-image" {{ block.shopify_attributes }}>
+  {%- if collage_image != blank -%}
+    {{
+      collage_image
+      | image_url: width: 700
+      | image_tag: widths: '300, 500, 700', sizes: '(min-width: 990px) 16vw, 30vw', loading: 'lazy', alt: ''
+    }}
+  {%- else -%}
+    {% render 'media-placeholder', kind: 'product', index: image_index %}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Floating photo",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to a product photo" }
+  ],
+  "presets": [{ "name": "Floating photo" }]
+}
+{% endschema %}

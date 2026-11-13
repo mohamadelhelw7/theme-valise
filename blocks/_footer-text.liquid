@@ -1,0 +1,37 @@
+{% doc %}
+  Renders a titled text column in the footer, such as contact details.
+
+  @example
+  {% content_for 'block', type: '_footer-text', id: 'text' %}
+{% enddoc %}
+
+<div class="footer-text" {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h2 class="footer-menu__heading">{{ block.settings.heading | escape }}</h2>
+  {%- endif -%}
+  <div class="footer-text__body rte">{{ block.settings.text }}</div>
+</div>
+
+{% stylesheet %}
+  .footer-text {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 0.9375rem;
+  }
+  .footer-text__body {
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Text",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Contact" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Message us on WhatsApp with any question about our bags.</p>" }
+  ]
+}
+{% endschema %}

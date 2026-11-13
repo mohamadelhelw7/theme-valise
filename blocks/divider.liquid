@@ -1,0 +1,33 @@
+{% doc %}
+  Renders a horizontal line or blank space between blocks.
+
+  @example
+  {% content_for 'block', type: 'divider', id: 'divider' %}
+{% enddoc %}
+
+<div class="divider{% if block.settings.show_line %} divider--line{% endif %}" style="--divider-space: {{ block.settings.space }}px;" {{ block.shopify_attributes }}></div>
+
+{% stylesheet %}
+  .divider {
+    width: 100%;
+    padding-block: calc(var(--divider-space) / 2);
+  }
+  .divider--line::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: var(--color-border);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Divider",
+  "tag": null,
+  "settings": [
+    { "type": "checkbox", "id": "show_line", "label": "Show line", "default": true },
+    { "type": "range", "id": "space", "label": "Space", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 8 }
+  ],
+  "presets": [{ "name": "Divider", "category": "Layout" }]
+}
+{% endschema %}

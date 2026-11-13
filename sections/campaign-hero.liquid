@@ -1,0 +1,370 @@
+{%- liquid
+  assign hero_image = section.settings.image | default: collections.all.products.first.featured_image
+  assign effect = section.settings.scroll_effect
+  assign heading_lines = section.settings.heading | escape | newline_to_br | split: '<br />'
+  assign hero_alt = section.settings.image.alt | default: section.settings.heading | escape
+-%}
+
+<scroll-progress
+  class="campaign campaign--{{ effect }} campaign--{{ section.settings.height }} campaign--text-{{ section.settings.text_position }} color-{{ section.settings.color_scheme }}"
+  data-static-progress="0"
+  style="--overlay: {{ section.settings.overlay | divided_by: 100.0 }}; --hero-text: {{ section.settings.text_color }};"
+  data-no-reveal
+>
+  <div class="campaign__sticky">
+    <div class="campaign__frame">
+      <div class="campaign__media">
+        {%- if section.settings.video != blank -%}
+          {{
+            section.settings.video
+            | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata', image_size: '1600x', class: 'campaign__video'
+          }}
+        {%- elsif hero_image != blank -%}
+          <picture>
+            {%- if section.settings.image_mobile -%}
+              <source
+                media="(max-width: 749px)"
+                srcset="{{ section.settings.image_mobile | image_url: width: 750 }} 750w, {{ section.settings.image_mobile | image_url: width: 1100 }} 1100w"
+              >
+            {%- endif -%}
+            {{
+              hero_image
+              | image_url: width: 2400
+              | image_tag:
+                widths: '750, 1100, 1500, 1920, 2400',
+                sizes: '100vw',
+                loading: 'eager',
+                fetchpriority: 'high',
+                alt: hero_alt,
+                class: 'campaign__image'
+            }}
+          </picture>
+        {%- else -%}
+          {% render 'media-placeholder', kind: 'hero' %}
+        {%- endif -%}
+      </div>
+      <div class="campaign__overlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="campaign__content page-width">
+      <div class="campaign__inner">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="campaign__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="campaign__heading h0 split-lines">
+            {%- for line in heading_lines -%}
+              {%- assign parts = line | strip | split: '*' -%}
+              <span class="line"><span style="--line: {{ forloop.index0 }};">
+                {%- for part in parts -%}
+                  {%- assign odd = forloop.index0 | modulo: 2 -%}
+                  {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+                {%- endfor -%}
+              </span></span>
+            {%- endfor -%}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <p class="campaign__text">{{ section.settings.text | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.button_label != blank or section.settings.button2_label != blank -%}
+          <div class="campaign__buttons">
+            {%- if section.settings.button_label != blank -%}
+              <a class="button campaign__button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">{{ section.settings.button_label | escape }}</a>
+            {%- endif -%}
+            {%- if section.settings.button2_label != blank -%}
+              <a class="button campaign__button campaign__button--outline" href="{{ section.settings.button2_link | default: routes.collections_url }}">{{ section.settings.button2_label | escape }}</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.settings.show_scroll_hint -%}
+      <span class="campaign__hint" aria-hidden="true"><span></span></span>
+    {%- endif -%}
+  </div>
+</scroll-progress>
+
+{% stylesheet %}
+  .campaign {
+    --p: 0;
+    --e: min(1, calc(var(--p) / 0.85));
+    --campaign-h: 100svh;
+    --arch-side: 27%;
+    --arch-radius: 23vw;
+    display: block;
+    position: relative;
+  }
+  .campaign--large {
+    --campaign-h: 86svh;
+  }
+  .campaign--medium {
+    --campaign-h: 70svh;
+  }
+  .campaign:not(.campaign--none):not(.is-static) {
+    height: calc(var(--campaign-h) + 70vh);
+  }
+  .campaign__sticky {
+    position: sticky;
+    top: 0;
+    height: var(--campaign-h);
+    min-height: 540px;
+    overflow: hidden;
+  }
+  .campaign__frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .campaign--arch .campaign__frame {
+    clip-path: inset(
+      calc(var(--e) * 8%) calc(var(--e) * var(--arch-side)) 0 calc(var(--e) * var(--arch-side))
+      round calc(var(--e) * var(--arch-radius)) calc(var(--e) * var(--arch-radius)) 0 0
+    );
+  }
+  .campaign--card .campaign__frame {
+    clip-path: inset(calc(var(--e) * 7%) calc(var(--e) * 6%) calc(var(--e) * 7%) round calc(var(--e) * 28px));
+  }
+  .campaign__media,
+  .campaign__media picture,
+  .campaign__image,
+  .campaign__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .campaign__image,
+  .campaign__video {
+    object-fit: cover;
+  }
+  .campaign__media {
+    background: var(--color-surface);
+    scale: calc(1.12 - var(--e) * 0.12);
+    animation: campaign-settle 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .campaign--zoom .campaign__media {
+    scale: calc(1.18 - var(--e) * 0.18);
+  }
+  @keyframes campaign-settle {
+    from {
+      opacity: 0;
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      filter: none;
+    }
+  }
+  .campaign__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(0 0 0 / calc(var(--overlay) + 0.18)),
+      rgb(0 0 0 / var(--overlay)) 50%,
+      rgb(0 0 0 / calc(var(--overlay) * 0.5))
+    );
+  }
+  .campaign:not(:has(.campaign__image, .campaign__video)) .campaign__overlay {
+    display: none;
+  }
+  .campaign__content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    padding-top: calc(var(--header-overlap, 0px) + 32px);
+    padding-bottom: clamp(48px, 9vh, 96px);
+    color: var(--hero-text);
+  }
+  .campaign:not(:has(.campaign__image, .campaign__video)) .campaign__content {
+    color: var(--color-text);
+  }
+  .campaign--text-center .campaign__content {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .campaign--text-bottom_center .campaign__content {
+    justify-content: center;
+    text-align: center;
+  }
+  .campaign__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 780px;
+  }
+  .campaign--text-center .campaign__inner,
+  .campaign--text-bottom_center .campaign__inner {
+    align-items: center;
+  }
+  .campaign--arch .campaign__inner {
+    opacity: calc(1 - var(--e) * 1.8);
+    translate: 0 calc(var(--e) * -8vh);
+  }
+  .campaign--zoom .campaign__inner,
+  .campaign--card .campaign__inner {
+    translate: 0 calc(var(--e) * -6vh);
+  }
+  .campaign__eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    animation: campaign-fade 1s ease 0.1s both;
+  }
+  .campaign__heading {
+    font-size: calc(clamp(2.6rem, 6vw, 5.5rem) * var(--heading-scale));
+    line-height: 1.02;
+  }
+  .campaign__heading em {
+    font-style: italic;
+  }
+  .heading-accent-color .campaign__heading em {
+    font-style: normal;
+  }
+  .campaign__text {
+    max-width: 520px;
+    font-size: 1rem;
+    opacity: 0.9;
+    animation: campaign-fade 1s ease 0.7s both;
+  }
+  .campaign__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    animation: campaign-fade 1s ease 0.85s both;
+  }
+  .campaign__button {
+    background: var(--hero-text);
+    color: #1b1b1b;
+    border-color: var(--hero-text);
+  }
+  .campaign__button:hover {
+    background: transparent;
+    color: var(--hero-text);
+    border-color: var(--hero-text);
+  }
+  .campaign__button--outline {
+    background: transparent;
+    color: var(--hero-text);
+  }
+  .campaign__button--outline:hover {
+    background: var(--hero-text);
+    color: #1b1b1b;
+  }
+  @keyframes campaign-fade {
+    from {
+      opacity: 0;
+      translate: 0 16px;
+    }
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+  .campaign__hint {
+    position: absolute;
+    z-index: 2;
+    bottom: 22px;
+    left: 50%;
+    width: 1px;
+    height: 48px;
+    background: color-mix(in srgb, var(--hero-text) 35%, transparent);
+    overflow: hidden;
+    opacity: calc(1 - var(--e) * 3);
+  }
+  .campaign__hint span {
+    position: absolute;
+    inset: 0;
+    background: var(--hero-text);
+    animation: campaign-hint 2s ease-in-out infinite;
+  }
+  @keyframes campaign-hint {
+    from {
+      translate: 0 -100%;
+    }
+    to {
+      translate: 0 100%;
+    }
+  }
+  @media (max-width: 749px) {
+    .campaign {
+      --arch-side: 9%;
+      --arch-radius: 41vw;
+    }
+    .campaign__content {
+      padding-bottom: 56px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Campaign hero",
+  "tag": "section",
+  "class": "campaign-hero-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "info": "The page color shows around the photo once it shrinks", "default": "scheme-1" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to your first product photo. A wide photo works best." },
+    { "type": "image_picker", "id": "image_mobile", "label": "Image on mobile" },
+    { "type": "video", "id": "video", "label": "Video", "info": "Plays muted on a loop instead of the image" },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "options": [
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full", "label": "Full screen" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "select",
+      "id": "scroll_effect",
+      "label": "When shoppers scroll",
+      "options": [
+        { "value": "arch", "label": "Shrink into an arch" },
+        { "value": "card", "label": "Shrink into a card" },
+        { "value": "zoom", "label": "Slow zoom out" },
+        { "value": "none", "label": "No effect" }
+      ],
+      "default": "arch"
+    },
+    { "type": "range", "id": "overlay", "label": "Image darkening", "min": 0, "max": 80, "step": 5, "unit": "%", "default": 25 },
+    { "type": "color", "id": "text_color", "label": "Text over the image", "default": "#FFFFFF" },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Text position",
+      "options": [
+        { "value": "bottom_start", "label": "Bottom start" },
+        { "value": "bottom_center", "label": "Bottom center" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "bottom_start"
+    },
+    { "type": "checkbox", "id": "show_scroll_hint", "label": "Show scroll line", "default": true },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The new collection" },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Each line slides up on its own. Wrap words in *asterisks* for the accent style.",
+      "default": "The everyday\n*tote*"
+    },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Room for everything you need, and nothing you don't." },
+    { "type": "text", "id": "button_label", "label": "First button label", "default": "Shop now" },
+    { "type": "url", "id": "button_link", "label": "First button link" },
+    { "type": "text", "id": "button2_label", "label": "Second button label" },
+    { "type": "url", "id": "button2_link", "label": "Second button link" }
+  ],
+  "presets": [{ "name": "Campaign hero" }]
+}
+{% endschema %}

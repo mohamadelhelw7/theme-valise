@@ -1,0 +1,188 @@
+{% doc %}
+  Renders one icon with a title and optional caption inside the Icons block.
+
+  @example
+  {% content_for 'block', type: '_icon-item', id: 'icon-item' %}
+{% enddoc %}
+
+<li class="icon-item" {{ block.shopify_attributes }}>
+  <span class="icon-item__icon">
+    {%- if block.settings.custom_icon -%}
+      {{ block.settings.custom_icon | image_url: width: 80 | image_tag: alt: '', loading: 'lazy' }}
+    {%- else -%}
+      {% render 'icon', icon: block.settings.icon %}
+    {%- endif -%}
+  </span>
+  <span class="icon-item__text">
+    <span class="icon-item__title">{{ block.settings.title | escape }}</span>
+    {%- if block.settings.text != blank -%}
+      <span class="icon-item__caption">{{ block.settings.text | escape }}</span>
+    {%- endif -%}
+  </span>
+</li>
+
+{% stylesheet %}
+  .icon-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .icon-item__icon {
+    color: var(--color-accent);
+    display: inline-flex;
+    flex: none;
+  }
+  .icon-item__icon .icon,
+  .icon-item__icon img {
+    width: 24px;
+    height: 24px;
+  }
+  .icon-item__text {
+    display: flex;
+    flex-direction: column;
+  }
+  .icon-item__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .icon-item__caption {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Icon",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        {
+          "value": "drop",
+          "label": "Drop"
+        },
+        {
+          "value": "leaf",
+          "label": "Leaf"
+        },
+        {
+          "value": "heart",
+          "label": "Heart"
+        },
+        {
+          "value": "sparkle",
+          "label": "Sparkle"
+        },
+        {
+          "value": "gem",
+          "label": "Gem"
+        },
+        {
+          "value": "ruler",
+          "label": "Size guide"
+        },
+        {
+          "value": "flask",
+          "label": "Lab tested"
+        },
+        {
+          "value": "shield",
+          "label": "Shield"
+        },
+        {
+          "value": "sun",
+          "label": "Sun"
+        },
+        {
+          "value": "check",
+          "label": "Check"
+        },
+        {
+          "value": "truck",
+          "label": "Delivery"
+        },
+        {
+          "value": "box",
+          "label": "Package"
+        },
+        {
+          "value": "return",
+          "label": "Return"
+        },
+        {
+          "value": "recycle",
+          "label": "Recycle"
+        },
+        {
+          "value": "gift",
+          "label": "Gift"
+        },
+        {
+          "value": "clock",
+          "label": "Clock"
+        },
+        {
+          "value": "lock",
+          "label": "Secure"
+        },
+        {
+          "value": "globe",
+          "label": "Globe"
+        },
+        {
+          "value": "star",
+          "label": "Star"
+        },
+        {
+          "value": "bag",
+          "label": "Bag"
+        },
+        {
+          "value": "wallet",
+          "label": "Wallet"
+        },
+        {
+          "value": "key",
+          "label": "Key"
+        },
+        {
+          "value": "pen",
+          "label": "Personalization"
+        },
+        {
+          "value": "laptop",
+          "label": "Laptop"
+        }
+      ],
+      "default": "check"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_icon",
+      "label": "Custom icon",
+      "info": "Replaces the icon above"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Benefit"
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Caption"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Icon"
+    }
+  ]
+}
+{% endschema %}

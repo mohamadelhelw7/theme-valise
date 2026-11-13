@@ -1,0 +1,138 @@
+{% doc %}
+  Renders the product form: quantity selector, add to cart button and the Shopify Buy it now button,
+  stacked at the same width. Elements marked with data-update are refreshed when the variant changes.
+
+  @param {product} product - The product
+  @param {string} form_id - Unique id for the form element
+  @param {boolean} [show_quantity] - Show the quantity selector
+  @param {boolean} [show_dynamic_checkout] - Show Buy it now and accelerated checkout buttons
+
+  @example
+  {% render 'buy-form', product: product, form_id: 'ProductForm-main', show_quantity: true %}
+{% enddoc %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+{%- form 'product', product, id: form_id, data-product-form: '', novalidate: 'novalidate', class: 'buy-form' -%}
+  <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+  {%- if show_quantity -%}
+    <div class="buy-form__quantity">
+      <label class="buy-form__label" for="{{ form_id }}-quantity">{{ 'products.product.quantity' | t }}</label>
+      <quantity-input class="quantity">
+        <button type="button" name="minus" class="quantity__button" aria-label="{{ 'products.product.quantity_decrease' | t }}">
+          {% render 'icon', icon: 'minus' %}
+        </button>
+        <input id="{{ form_id }}-quantity" class="quantity__input" type="number" name="quantity" value="1" min="1" step="1">
+        <button type="button" name="plus" class="quantity__button" aria-label="{{ 'products.product.quantity_increase' | t }}">
+          {% render 'icon', icon: 'plus' %}
+        </button>
+      </quantity-input>
+    </div>
+  {%- endif -%}
+
+  <div class="buy-form__add" data-update="add-button-{{ form_id }}">
+    <button
+      type="submit"
+      name="add"
+      class="button button--primary button--full"
+      data-add-button
+      {% unless current_variant.available %}
+        disabled
+      {% endunless %}
+    >
+      <span data-add-label>
+        {%- if current_variant.available -%}
+          {{ 'products.product.add_to_cart' | t }}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t }}
+        {%- endif -%}
+      </span>
+    </button>
+  </div>
+
+  {%- if show_dynamic_checkout -%}
+    <div class="buy-form__checkout">
+      {{ form | payment_button }}
+    </div>
+  {%- endif -%}
+
+  <p class="form-message form-message--error" data-form-error role="alert" hidden></p>
+{%- endform -%}
+
+{% stylesheet %}
+  .buy-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .buy-form__quantity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .buy-form__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: calc(var(--label-ls) * 0.6);
+    text-transform: var(--label-case);
+    color: var(--color-muted);
+  }
+  .buy-form__quantity .quantity {
+    height: var(--button-height);
+  }
+  .buy-form__checkout {
+    width: 100%;
+  }
+  .buy-form__checkout .shopify-payment-button,
+  .buy-form__checkout shopify-accelerated-checkout {
+    width: 100%;
+  }
+  .buy-form__checkout shopify-accelerated-checkout {
+    --shopify-accelerated-checkout-button-block-size: min(var(--button-height), 55px);
+    --shopify-accelerated-checkout-button-border-radius: var(--button-radius);
+    --shopify-accelerated-checkout-button-box-shadow: none;
+    --shopify-accelerated-checkout-skeleton-background-color: color-mix(in srgb, var(--color-text) 10%, var(--color-bg));
+  }
+  .buy-form__checkout .shopify-payment-button {
+    font-family: var(--font-body);
+    font-weight: var(--button-weight);
+    letter-spacing: var(--button-ls);
+    text-transform: var(--button-case);
+  }
+  .buy-form__checkout .shopify-payment-button__button {
+    min-height: var(--button-height);
+    border-radius: var(--button-radius);
+    overflow: hidden;
+  }
+  .buy-form__checkout .shopify-payment-button__button--unbranded {
+    background: transparent;
+    color: var(--color-button-2);
+    border: 1.5px solid var(--color-button-2);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: var(--button-weight);
+    text-transform: var(--button-case);
+    letter-spacing: var(--button-ls);
+    line-height: 1.2;
+    box-shadow: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .buy-form__checkout .shopify-payment-button__button--unbranded:hover:not([disabled]),
+  .buy-form__checkout .shopify-payment-button__button--unbranded:focus-visible {
+    background: var(--color-button-2);
+    color: var(--color-bg);
+  }
+  .buy-form__checkout .shopify-payment-button__more-options {
+    margin-top: 8px;
+    color: var(--color-body);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+{% endstylesheet %}

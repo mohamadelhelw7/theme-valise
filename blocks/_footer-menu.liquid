@@ -1,0 +1,62 @@
+{% doc %}
+  Renders a titled column of links from a navigation menu.
+
+  @example
+  {% content_for 'block', type: '_footer-menu', id: 'menu' %}
+{% enddoc %}
+
+{%- assign menu = block.settings.menu -%}
+<nav class="footer-menu" aria-label="{{ block.settings.heading | default: menu.title | escape }}" {{ block.shopify_attributes }}>
+  <h2 class="footer-menu__heading">{{ block.settings.heading | default: menu.title | escape }}</h2>
+  {%- if menu != blank -%}
+    <ul class="footer-menu__list" role="list">
+      {%- for link in menu.links -%}
+        <li><a href="{{ link.url }}" class="footer-menu__link">{{ link.title | escape }}</a></li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</nav>
+
+{% stylesheet %}
+  .footer-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 0.9375rem;
+  }
+  .footer-menu__heading {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-text);
+  }
+  .footer-menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .footer-menu__link {
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+  .footer-menu__link:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Menu",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" }
+  ]
+}
+{% endschema %}

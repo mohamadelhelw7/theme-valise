@@ -1,0 +1,243 @@
+{% doc %}
+  Fills a frame that has no image yet. By default it shows a fine line drawing
+  of a bag in soft studio light, with a floor shadow. Wide frames show a shelf
+  with three bags. When a product name says what the bag is (tote, backpack,
+  wallet and so on, in English or Arabic), the drawing matches it.
+  Theme settings → Layout → Missing photos can switch it to a plain tint.
+  Inside the theme editor it also shows an "Add an image" hint, which shoppers
+  never see.
+
+  @param {string} [kind] - product (one bag, default), article, collection, hero, lifestyle or video (a shelf when the frame is wide)
+  @param {number} [index] - Position in a list, used to vary the drawing
+  @param {string} [label] - A product or collection name, used to pick a matching drawing
+
+  @example
+  {% render 'media-placeholder', kind: 'product', index: forloop.index, label: product.title %}
+{% enddoc %}
+
+{%- liquid
+  assign ph_kind = kind | default: 'product'
+  assign ph_index = index | default: 1 | plus: 0
+  assign ph_shelf = false
+  if ph_kind == 'hero' or ph_kind == 'lifestyle' or ph_kind == 'collection' or ph_kind == 'video'
+    assign ph_shelf = true
+  endif
+  assign ph_items = 'tote,crossbody,backpack,clutch,bucket,satchel,weekender,wallet' | split: ','
+  if ph_kind == 'article'
+    assign ph_items = 'clutch,satchel,bucket,wallet,tote' | split: ','
+  endif
+  assign ph_pick = ph_index | minus: 1 | modulo: ph_items.size
+  assign ph_name = ph_items[ph_pick]
+
+  assign ph_label = label | downcase
+  if ph_label contains 'backpack' or ph_label contains 'rucksack' or ph_label contains 'ظهر'
+    assign ph_name = 'backpack'
+  elsif ph_label contains 'wallet' or ph_label contains 'card holder' or ph_label contains 'cardholder' or ph_label contains 'purse' or ph_label contains 'محفظ'
+    assign ph_name = 'wallet'
+  elsif ph_label contains 'clutch' or ph_label contains 'pouch' or ph_label contains 'envelope' or ph_label contains 'كلاتش'
+    assign ph_name = 'clutch'
+  elsif ph_label contains 'bucket' or ph_label contains 'باكت'
+    assign ph_name = 'bucket'
+  elsif ph_label contains 'duffel' or ph_label contains 'duffle' or ph_label contains 'weekender' or ph_label contains 'travel' or ph_label contains 'سفر'
+    assign ph_name = 'weekender'
+  elsif ph_label contains 'crossbody' or ph_label contains 'cross body' or ph_label contains 'sling' or ph_label contains 'كروس'
+    assign ph_name = 'crossbody'
+  elsif ph_label contains 'satchel' or ph_label contains 'top handle' or ph_label contains 'briefcase' or ph_label contains 'handbag' or ph_label contains 'يد'
+    assign ph_name = 'satchel'
+  elsif ph_label contains 'tote' or ph_label contains 'shopper' or ph_label contains 'توت'
+    assign ph_name = 'tote'
+  endif
+
+  assign ph_shelf_items = 'tote,crossbody,bucket,satchel,backpack' | split: ','
+  assign ph_s1 = ph_index | minus: 1 | modulo: 5
+  assign ph_s2 = ph_index | modulo: 5
+  assign ph_s3 = ph_index | plus: 1 | modulo: 5
+-%}
+
+{%- if settings.placeholder_style == 'plain' -%}
+  <span class="media-placeholder" aria-hidden="true">
+    {%- if request.design_mode -%}
+      <span class="media-placeholder__hint">{{ 'general.placeholder.image' | t }}</span>
+    {%- endif -%}
+  </span>
+{%- else -%}
+  <span class="media-placeholder media-placeholder--art{% if ph_shelf %} media-placeholder--shelf{% endif %}" aria-hidden="true">
+    <span class="media-placeholder__art">
+      {%- if ph_shelf -%}
+        <span class="media-placeholder__item media-placeholder__item--extra">{% render 'placeholder-art', name: ph_shelf_items[ph_s2] %}</span>
+        <span class="media-placeholder__item media-placeholder__item--main">{% render 'placeholder-art', name: ph_shelf_items[ph_s1] %}</span>
+        <span class="media-placeholder__item media-placeholder__item--extra">{% render 'placeholder-art', name: ph_shelf_items[ph_s3] %}</span>
+      {%- else -%}
+        <span class="media-placeholder__item media-placeholder__item--main">{% render 'placeholder-art', name: ph_name %}</span>
+      {%- endif -%}
+    </span>
+    {%- if ph_kind != 'product' -%}
+      <span class="media-placeholder__tag">N° {% if ph_index < 10 %}0{% endif %}{{ ph_index }}</span>
+    {%- endif -%}
+    {%- if request.design_mode -%}
+      <span class="media-placeholder__hint">{{ 'general.placeholder.image' | t }}</span>
+    {%- endif -%}
+  </span>
+{%- endif -%}
+
+{% stylesheet %}
+  .media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, #ffffff 35%, transparent), transparent 60%),
+      linear-gradient(160deg, color-mix(in srgb, var(--color-text) 3%, transparent), color-mix(in srgb, var(--color-text) 9%, transparent));
+  }
+  .media-placeholder__hint {
+    position: relative;
+    z-index: 3;
+    font-size: 0.6875rem;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  }
+
+  /* Studio drawings */
+  .media-placeholder--art {
+    --ph-bg: var(--card-tint, var(--tile-bg, var(--color-surface)));
+    --ph-ink: color-mix(in srgb, var(--color-text) 72%, var(--ph-bg));
+    container: ph / size;
+    background-color: var(--ph-bg);
+    background-image:
+      radial-gradient(70% 60% at 50% 36%, var(--ph-glow, rgb(255 255 255 / 0.6)), transparent 72%),
+      linear-gradient(to bottom, transparent 64%, color-mix(in srgb, var(--color-text) 5%, transparent));
+    color: var(--ph-ink);
+  }
+  .media-placeholder__art {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2cqw;
+    width: 62cqmin;
+    translate: 0 2cqh;
+  }
+  .media-placeholder__item {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .media-placeholder__item::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-inline: 14%;
+    bottom: 3%;
+    height: 9%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--color-text) 16%, transparent), transparent);
+  }
+  .bag-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    fill: var(--ph-bg);
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .bag-art__strap {
+    fill: none;
+  }
+  .bag-art__stitch {
+    fill: none;
+    stroke-width: 0.9;
+    stroke-dasharray: 2.2 2.4;
+    opacity: 0.75;
+  }
+  .media-placeholder--shelf .media-placeholder__art {
+    width: min(64cqw, 120cqh);
+    gap: 4cqw;
+  }
+  .media-placeholder--shelf .media-placeholder__art::after {
+    content: '';
+    position: absolute;
+    inset-inline: -10%;
+    bottom: 5%;
+    height: 1px;
+    background: color-mix(in srgb, var(--color-text) 22%, transparent);
+  }
+  .media-placeholder--shelf .media-placeholder__item--extra {
+    flex-basis: 0;
+    flex-grow: 0.8;
+  }
+  .media-placeholder__tag {
+    position: absolute;
+    bottom: max(10px, 5cqmin);
+    inset-inline: 0;
+    text-align: center;
+    font-family: var(--font-label, var(--font-body));
+    font-size: max(10px, 2.6cqmin);
+    letter-spacing: 0.14em;
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+  .media-placeholder--art .media-placeholder__hint {
+    position: absolute;
+    top: max(10px, 4cqmin);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    padding: 4px 10px;
+    white-space: nowrap;
+    background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  }
+  [dir='rtl'] .media-placeholder--art .media-placeholder__hint {
+    translate: 50% 0;
+  }
+
+  @container ph (aspect-ratio < 1.2) {
+    .media-placeholder--shelf .media-placeholder__item--extra {
+      display: none;
+    }
+    .media-placeholder--shelf .media-placeholder__art {
+      width: 56cqmin;
+    }
+  }
+  @container ph (max-width: 160px) {
+    .media-placeholder__tag,
+    .media-placeholder__item::after {
+      display: none;
+    }
+    .media-placeholder__art {
+      width: 70cqmin;
+      translate: none;
+    }
+    .bag-art {
+      stroke-width: 2.4;
+    }
+    .bag-art__stitch {
+      display: none;
+    }
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .media-placeholder__item--main .bag-art {
+      transition: translate 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .product-card:hover .media-placeholder__item--main .bag-art,
+    .media-tile:hover .media-placeholder__item--main .bag-art {
+      translate: 0 -3%;
+    }
+  }
+
+  /* Soft studio light behind sections shown as text only */
+  :root,
+  [class*='color-scheme-'] {
+    --text-only-texture-size: auto;
+    --text-only-mask: none;
+    --text-only-texture:
+      radial-gradient(60% 70% at 50% 30%, var(--ph-glow, rgb(255 255 255 / 0.5)), transparent 70%),
+      linear-gradient(to bottom, transparent 55%, color-mix(in srgb, var(--color-text) 5%, transparent));
+  }
+{% endstylesheet %}

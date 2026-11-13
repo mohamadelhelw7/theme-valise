@@ -1,0 +1,122 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: 0px; --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width">
+    <div class="page-title-block">
+      <h1 class="h1">{{ 'general.search.title' | t }}</h1>
+      <form action="{{ routes.search_url }}" method="get" role="search" class="main-search__form">
+        <label class="visually-hidden" for="MainSearch">{{ 'general.search.label' | t }}</label>
+        <input
+          id="MainSearch"
+          class="field__input"
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          placeholder="{{ 'general.search.placeholder' | t }}"
+        >
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit" class="button button--primary">{{ 'general.search.submit' | t }}</button>
+      </form>
+      {%- if search.performed -%}
+        <p class="page-title-block__desc" role="status">
+          {{ 'general.search.results_count' | t: count: search.results_count, terms: search.terms }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- if search.performed -%}
+      {%- paginate search.results by 24 -%}
+        {%- if search.results_count > 0 -%}
+          <ul class="product-grid" role="list">
+            {%- for item in search.results -%}
+              <li>
+                {%- case item.object_type -%}
+                  {%- when 'product' -%}
+                    {% render 'product-card', product: item, index: forloop.index, heading_level: 'h2' %}
+                  {%- else -%}
+                    <a href="{{ item.url }}" class="search-result">
+                      <span class="product-card__type">{{ item.object_type }}</span>
+                      <span class="search-result__title">{{ item.title | escape }}</span>
+                      {%- if item.content != blank -%}
+                        <span class="search-result__excerpt">{{ item.content | strip_html | truncatewords: 20 }}</span>
+                      {%- endif -%}
+                    </a>
+                {%- endcase -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- if paginate.pages > 1 -%}
+            {% render 'pagination', paginate: paginate %}
+          {%- endif -%}
+        {%- else -%}
+          <div class="empty-state">
+            <p>{{ 'general.search.no_results' | t }}</p>
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .main-search__form {
+    display: flex;
+    gap: 8px;
+    max-width: 640px;
+    margin-top: 20px;
+  }
+  .search-result {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100%;
+    padding: 20px;
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+  }
+  .search-result__title {
+    font-weight: 600;
+  }
+  .search-result__excerpt {
+    font-size: 0.875rem;
+    color: var(--color-body);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Search results",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    }
+  ]
+}
+{% endschema %}

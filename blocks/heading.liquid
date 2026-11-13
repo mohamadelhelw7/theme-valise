@@ -1,0 +1,97 @@
+{% doc %}
+  Renders a heading with a selectable size and HTML tag.
+  Words wrapped in *asterisks* are set in italic accent style, and Enter starts a new line.
+
+  @example
+  {% content_for 'block', type: 'heading', id: 'heading' %}
+{% enddoc %}
+
+{%- liquid
+  assign tag = block.settings.tag
+  assign parts = block.settings.heading | escape | split: '*'
+  assign ends_with_star = false
+  assign last_char = block.settings.heading | slice: -1
+  if last_char == '*'
+    assign ends_with_star = true
+  endif
+-%}
+<{{ tag }}
+  class="heading-block {{ block.settings.size }} heading-block--{{ block.settings.alignment }}"
+  style="--heading-max: {{ block.settings.max_width }}ch;"
+  {{ block.shopify_attributes }}
+>
+  {%- for part in parts -%}
+    {%- assign odd = forloop.index0 | modulo: 2 -%}
+    {%- if odd == 1 -%}
+      {%- if forloop.last and ends_with_star == false -%}
+        *{{ part | newline_to_br }}
+      {%- else -%}
+        <em>{{ part | newline_to_br }}</em>
+      {%- endif -%}
+    {%- else -%}
+      {{- part | newline_to_br -}}
+    {%- endif -%}
+  {%- endfor -%}
+</{{ tag }}>
+
+{% stylesheet %}
+  .heading-block {
+    max-width: var(--heading-max);
+    text-wrap: balance;
+  }
+  .heading-block--center {
+    text-align: center;
+    margin-inline: auto;
+  }
+  .heading-block--right {
+    text-align: end;
+    margin-inline-start: auto;
+  }
+  .heading-block em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Press Enter to start a new line. Wrap words in *asterisks* to set them in italic.",
+      "default": "The everyday\n*tote*"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Size",
+      "options": [
+        { "value": "h0", "label": "Display" },
+        { "value": "h1", "label": "Large" },
+        { "value": "h2", "label": "Medium" },
+        { "value": "h3", "label": "Small" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "tag",
+      "label": "HTML tag",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "p", "label": "Paragraph" }
+      ],
+      "default": "h2"
+    },
+    { "type": "text_alignment", "id": "alignment", "label": "Alignment", "default": "left" },
+    { "type": "range", "id": "max_width", "label": "Max width", "min": 10, "max": 60, "step": 1, "unit": "ch", "default": 30 }
+  ],
+  "presets": [{ "name": "Heading", "category": "Text" }]
+}
+{% endschema %}

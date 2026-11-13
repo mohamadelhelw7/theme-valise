@@ -1,0 +1,72 @@
+{% doc %}
+  Renders an expandable content row, such as materials or care.
+  Content can come from rich text or a page.
+
+  @example
+  {% content_for 'block', type: 'collapsible', id: 'collapsible' %}
+{% enddoc %}
+
+<details class="collapsible" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+  <summary class="collapsible__summary">
+    {{ block.settings.heading | escape }}
+    <span class="collapsible__icon" aria-hidden="true">{% render 'icon', icon: 'plus' %}</span>
+  </summary>
+  <div class="collapsible__content rte">
+    {{ block.settings.content }}
+    {%- if block.settings.page != blank -%}
+      {{ block.settings.page.content }}
+    {%- endif -%}
+  </div>
+</details>
+
+{% stylesheet %}
+  .collapsible {
+    border-top: 1px solid var(--color-border);
+  }
+  .collapsible + .collapsible {
+    border-top: 1px solid var(--color-border);
+  }
+  .collapsible:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .collapsible__summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 56px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .collapsible__summary::-webkit-details-marker {
+    display: none;
+  }
+  .collapsible__icon {
+    display: inline-flex;
+    transition: rotate 0.2s ease;
+  }
+  .collapsible[open] .collapsible__icon {
+    rotate: 45deg;
+  }
+  .collapsible__content {
+    padding-bottom: 18px;
+    color: var(--color-body);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collapsible row",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "How to use" },
+    { "type": "richtext", "id": "content", "label": "Content", "default": "<p>Describe the materials, the size and how to care for this bag.</p>" },
+    { "type": "page", "id": "page", "label": "Content from page" },
+    { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
+  ],
+  "presets": [{ "name": "Collapsible row", "category": "Text" }]
+}
+{% endschema %}

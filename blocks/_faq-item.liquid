@@ -1,0 +1,63 @@
+{% doc %}
+  Renders one expandable question and answer using details and summary.
+
+  @example
+  {% content_for 'block', type: '_faq-item', id: 'faq' %}
+{% enddoc %}
+
+<details class="faq-item" name="faq-{{ section.id }}" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+  <summary class="faq-item__question">
+    {{ block.settings.question | escape }}
+    <span class="faq-item__icon" aria-hidden="true">{% render 'icon', icon: 'plus' %}</span>
+  </summary>
+  <div class="faq-item__answer rte">{{ block.settings.answer }}</div>
+</details>
+
+{% stylesheet %}
+  .faq-item {
+    background: var(--color-surface);
+    border-radius: 18px;
+  }
+  .faq-item__question {
+    min-height: 60px;
+    padding: 18px 22px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    list-style: none;
+    border-radius: 18px;
+  }
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+  .faq-item__icon {
+    display: inline-flex;
+    transition: rotate 0.2s ease;
+  }
+  .faq-item[open] .faq-item__icon {
+    rotate: 45deg;
+  }
+  .faq-item__answer {
+    padding: 0 22px 20px;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Question",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "question", "label": "Question", "default": "How long does delivery take?" },
+    { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Add your delivery times and the areas you ship to.</p>" },
+    { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
+  ],
+  "presets": [{ "name": "Question" }]
+}
+{% endschema %}

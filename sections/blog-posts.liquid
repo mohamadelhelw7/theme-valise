@@ -1,0 +1,249 @@
+{%- liquid
+  assign source_blog = section.settings.blog | default: blogs.news
+  assign limit = section.settings.limit
+  assign is_slider = false
+  if section.settings.layout == 'slider'
+    assign is_slider = true
+  endif
+-%}
+
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <card-slider class="page-width">
+    {% render 'section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      description: section.settings.description,
+      alignment: section.settings.header_alignment,
+      slider: is_slider,
+      link_url: source_blog.url,
+      link_label: section.settings.link_label
+    %}
+    <ul
+      class="blog-posts blog-posts--{{ section.settings.card_style }}{% if is_slider %} slider-track{% else %} blog-posts--grid{% endif %}"
+      role="list"
+      style="--slider-cols: {{ section.settings.columns }}; --blog-cols: {{ section.settings.columns }};"
+      {% if is_slider %}
+        data-slider-track
+      {% endif %}
+    >
+      {%- for article in source_blog.articles limit: limit -%}
+        <li>
+          <article class="post-card">
+            <div class="post-card__media">
+              {%- if article.image -%}
+                {{
+                  article.image
+                  | image_url: width: 1000
+                  | image_tag: widths: '400, 600, 800, 1000', sizes: '(min-width: 990px) 33vw, 85vw', loading: 'lazy', alt: ''
+                }}
+              {%- else -%}
+                {% render 'media-placeholder', kind: 'article', index: forloop.index %}
+              {%- endif -%}
+            </div>
+            <div class="post-card__body">
+              <h3 class="post-card__title"><a href="{{ article.url }}">{{ article.title | escape }}</a></h3>
+              {%- if section.settings.show_excerpt -%}
+                <p class="post-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 22 }}</p>
+              {%- endif -%}
+              <div class="post-card__meta">
+                {%- if section.settings.show_author -%}<span>{{ article.author | escape }}</span>{%- endif -%}
+                {%- if section.settings.show_date -%}{{ article.published_at | time_tag: format: 'date' }}{%- endif -%}
+              </div>
+            </div>
+          </article>
+        </li>
+      {%- else -%}
+        {%- for i in (1..3) -%}
+          <li>
+            <article class="post-card">
+              <div class="post-card__media">{% render 'media-placeholder', kind: 'article', index: i %}</div>
+              <div class="post-card__body">
+                <h3 class="post-card__title">{{ 'sections.blog_posts.placeholder_title' | t }}</h3>
+                {%- if section.settings.show_excerpt -%}
+                  <p class="post-card__excerpt">{{ 'sections.blog_posts.placeholder_excerpt' | t }}</p>
+                {%- endif -%}
+              </div>
+            </article>
+          </li>
+        {%- endfor -%}
+      {%- endfor -%}
+    </ul>
+  </card-slider>
+</section>
+
+{% stylesheet %}
+  .blog-posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .blog-posts--grid {
+    display: grid;
+    grid-template-columns: repeat(var(--blog-cols), minmax(0, 1fr));
+    gap: var(--grid-gap);
+  }
+  .post-card {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .post-card__media {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: var(--tint-1);
+  }
+  .post-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.7s ease;
+  }
+  .post-card:hover .post-card__media img {
+    scale: 1.05;
+  }
+  .post-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 18px;
+    flex: 1;
+  }
+  .post-card__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    text-transform: var(--heading-case);
+    letter-spacing: var(--heading-ls);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+  .post-card__title a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .post-card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .post-card__excerpt {
+    font-size: 0.875rem;
+    color: var(--color-body);
+    line-height: 1.6;
+  }
+  .post-card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: auto;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+  .blog-posts--overlay .post-card {
+    color: var(--color-accent-contrast);
+  }
+  .blog-posts--overlay .post-card__media {
+    aspect-ratio: 4 / 3;
+  }
+  .blog-posts--overlay .post-card__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-accent) 94%, transparent) 0%,
+      color-mix(in srgb, var(--color-accent) 70%, transparent) 42%,
+      transparent 75%
+    );
+  }
+  .blog-posts--overlay .post-card__body {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 22px;
+  }
+  .blog-posts--overlay .post-card__excerpt,
+  .blog-posts--overlay .post-card__meta {
+    color: inherit;
+    opacity: 0.88;
+  }
+  .blog-posts--overlay .post-card__excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (max-width: 989px) {
+    .blog-posts--grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 749px) {
+    .blog-posts--grid {
+      grid-template-columns: 1fr;
+    }
+    .blog-posts--overlay .post-card__media {
+      aspect-ratio: 4 / 5;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "tag": "div",
+  "class": "blog-posts-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "From the journal" },
+    { "type": "inline_richtext", "id": "description", "label": "Description", "default": "Care guides, styling notes and the stories behind our bags." },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split with accent line" }
+      ],
+      "default": "split"
+    },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "All posts" },
+    { "type": "blog", "id": "blog", "label": "Blog", "info": "Defaults to your News blog" },
+    { "type": "range", "id": "limit", "label": "Posts", "min": 2, "max": 9, "step": 1, "default": 3 },
+    { "type": "range", "id": "columns", "label": "Columns on desktop", "min": 2, "max": 4, "step": 1, "default": 3 },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "slider", "label": "Slider" }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card style",
+      "options": [
+        { "value": "overlay", "label": "Text over photo" },
+        { "value": "classic", "label": "Text under photo" }
+      ],
+      "default": "overlay"
+    },
+    { "type": "checkbox", "id": "show_excerpt", "label": "Show excerpt", "default": true },
+    { "type": "checkbox", "id": "show_author", "label": "Show author", "default": false },
+    { "type": "checkbox", "id": "show_date", "label": "Show date", "default": true },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [{ "name": "Blog posts" }]
+}
+{% endschema %}

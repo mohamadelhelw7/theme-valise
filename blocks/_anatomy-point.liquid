@@ -1,0 +1,65 @@
+{% doc %}
+  Renders one numbered point on the A closer look photo, with a line and a label
+  that appear as shoppers scroll.
+{% enddoc %}
+
+{%- liquid
+  assign point_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign point_index = forloop.index0
+      break
+    endif
+  endfor
+  assign point_number = point_index | plus: 1
+  assign point_side = block.settings.side
+  if point_side == 'auto'
+    if block.settings.x < 50
+      assign point_side = 'left'
+    else
+      assign point_side = 'right'
+    endif
+  endif
+-%}
+
+<div
+  class="anatomy-point anatomy-point--{{ point_side }}"
+  style="--x: {{ block.settings.x }}%; --y: {{ block.settings.y }}%; --i: {{ point_index }};"
+  {{ block.shopify_attributes }}
+>
+  <span class="anatomy-point__dot" aria-hidden="true">{{ point_number }}</span>
+  <span class="anatomy-point__line" aria-hidden="true"></span>
+  <span class="anatomy-point__label">
+    {%- if block.settings.title != blank -%}
+      <span class="anatomy-point__title">{{ block.settings.title | escape }}</span>
+    {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <span class="anatomy-point__text">{{ block.settings.text | escape }}</span>
+    {%- endif -%}
+  </span>
+</div>
+
+{% schema %}
+{
+  "name": "Point",
+  "tag": null,
+  "settings": [
+    { "type": "range", "id": "x", "label": "Across the photo", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
+    { "type": "range", "id": "y", "label": "Down the photo", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
+    {
+      "type": "select",
+      "id": "side",
+      "label": "Label side",
+      "options": [
+        { "value": "auto", "label": "Automatic" },
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "auto"
+    },
+    { "type": "text", "id": "title", "label": "Title", "default": "Hardware" },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Describe the clasp, buckles and their finish." }
+  ],
+  "presets": [{ "name": "Point" }]
+}
+{% endschema %}

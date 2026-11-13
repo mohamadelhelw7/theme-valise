@@ -1,0 +1,176 @@
+{%- liquid
+  assign fp = section.settings.product
+  if fp == blank
+    assign fp = collections.all.products.first
+  endif
+  assign current_variant = fp.selected_or_first_available_variant
+  assign form_id = 'ProductForm-' | append: section.id
+  assign rating = fp.metafields.reviews.rating.value
+-%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  {%- if fp != blank -%}
+    <product-info
+      class="page-width featured-product{% if section.settings.image_position == 'end' %} featured-product--reverse{% endif %}"
+      data-section="{{ section.id }}"
+      data-url="{{ fp.url }}"
+      data-update-url="false"
+      data-client-render="true"
+    >
+      <media-gallery class="featured-product__gallery" aria-label="{{ 'products.product.gallery' | t }}">
+        <ul class="gallery__track featured-product__track" data-gallery-track role="list">
+          {%- for media in fp.media limit: 8 -%}
+            {%- if media.media_type == 'image' -%}
+              <li class="gallery__slide featured-product__slide" data-media-id="{{ media.id }}">
+                {%- assign media_alt = media.alt | default: fp.title | escape -%}
+                {{ media | image_url: width: 1400 | image_tag: loading: 'lazy', widths: '500, 800, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw', alt: media_alt }}
+              </li>
+            {%- endif -%}
+          {%- else -%}
+            <li class="gallery__slide featured-product__slide">{% render 'media-placeholder', kind: 'product', index: 2 %}</li>
+          {%- endfor -%}
+        </ul>
+        {%- if fp.media.size > 1 -%}
+          <div class="gallery__dots featured-product__dots" aria-hidden="true">
+            {%- for media in fp.media limit: 8 -%}
+              {%- if media.media_type == 'image' -%}
+                <button type="button" class="gallery__dot" data-dot="{{ media.id }}" tabindex="-1" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </media-gallery>
+
+      <div class="featured-product__info">
+        {%- if section.settings.eyebrow != blank or section.settings.show_vendor -%}
+          <span class="eyebrow">
+            {%- if section.settings.show_vendor and fp.vendor != blank -%}{{ fp.vendor | escape }}{%- else -%}{{ section.settings.eyebrow | escape }}{%- endif -%}
+          </span>
+        {%- endif -%}
+        {%- if section.settings.badge != blank -%}
+          <span class="featured-product__badge">{{ section.settings.badge | escape }}</span>
+        {%- endif -%}
+        <h2 class="h1 featured-product__title"><a href="{{ fp.url }}">{{ fp.title | escape }}</a></h2>
+        {%- if rating != blank -%}
+          {% render 'stars', rating: rating.rating, scale: rating.scale_max %}
+        {%- endif -%}
+        <div data-update="price">{% render 'price', variant: current_variant, class: 'featured-product__price' %}</div>
+        {%- if section.settings.show_description and fp.description != blank -%}
+          <p class="featured-product__description">{{ fp.description | strip_html | truncatewords: section.settings.description_words }}</p>
+        {%- endif -%}
+        {% render 'variant-picker', product: fp, id_prefix: section.id, swatches: true %}
+        {% render 'buy-form', product: fp, form_id: form_id, show_quantity: section.settings.show_quantity, show_dynamic_checkout: section.settings.show_dynamic_checkout %}
+        <a href="{{ fp.url }}" class="link-underline">{{ 'products.quick_view.full_details' | t }}</a>
+      </div>
+
+      <script type="application/json" data-product-variants>
+        {{ fp.variants | json }}
+      </script>
+    </product-info>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .featured-product__badge {
+    align-self: flex-start;
+    padding: 6px 12px;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+  }
+  .featured-product {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(24px, 5vw, 72px);
+    align-items: center;
+  }
+  .featured-product--reverse .featured-product__gallery {
+    order: 2;
+  }
+  .featured-product__gallery {
+    position: relative;
+    min-width: 0;
+  }
+  .featured-product__track {
+    border-radius: var(--radius-lg);
+    gap: 0;
+  }
+  .featured-product__slide {
+    aspect-ratio: 4 / 5;
+    border-radius: 0;
+  }
+  .featured-product__dots {
+    position: absolute;
+    bottom: 16px;
+    inset-inline: 0;
+    display: flex;
+  }
+  .featured-product__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    max-width: 520px;
+  }
+  .featured-product__info .buy-form,
+  .featured-product__info variant-picker {
+    width: 100%;
+  }
+  .featured-product__title a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .featured-product__price {
+    font-size: 1.25rem;
+  }
+  .featured-product__description {
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+  @media (max-width: 989px) {
+    .featured-product {
+      grid-template-columns: 1fr;
+    }
+    .featured-product--reverse .featured-product__gallery {
+      order: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Featured product",
+  "tag": "section",
+  "class": "featured-product-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "product", "id": "product", "label": "Product", "info": "Uses your first product until you pick one" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Featured" },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor instead of eyebrow", "default": false },
+    { "type": "text", "id": "badge", "label": "Badge", "info": "For example Limited edition" },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position on desktop",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "end", "label": "End" }
+      ],
+      "default": "start"
+    },
+    { "type": "checkbox", "id": "show_description", "label": "Show short description", "default": true },
+    { "type": "range", "id": "description_words", "label": "Description length", "min": 10, "max": 60, "step": 5, "unit": "w", "default": 30 },
+    { "type": "checkbox", "id": "show_quantity", "label": "Show quantity selector", "default": true },
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show Buy it now button", "default": true },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [{ "name": "Featured product" }]
+}
+{% endschema %}

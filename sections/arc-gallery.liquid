@@ -1,0 +1,229 @@
+{%- liquid
+  assign middle = section.blocks.size | minus: 1 | divided_by: 2
+-%}
+
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --arc-pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <arc-gallery class="arc" data-no-reveal>
+    <div class="page-width">
+      {% render 'section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        description: section.settings.description,
+        alignment: section.settings.header_alignment
+      %}
+    </div>
+
+    <div class="arc__stage" data-arc-stage>
+      <div class="arc__ring">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+
+    <div class="arc__panel color-{{ section.settings.panel_scheme }}">
+      <div class="arc__panel-inner page-width">
+        <button type="button" class="round-button" data-arc-prev aria-label="{{ 'general.slider.previous' | t }}">
+          {% render 'icon', icon: 'chevron-left' %}
+        </button>
+        <div class="arc__captions" aria-live="polite">
+          {%- for block in section.blocks -%}
+            <div class="arc__caption" data-arc-caption {% unless forloop.index0 == middle %}hidden{% endunless %}>
+              {%- if block.settings.heading != blank -%}
+                <h3 class="arc__caption-heading h3">{{ block.settings.heading | escape }}</h3>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <p class="arc__caption-text">{{ block.settings.text | escape }}</p>
+              {%- endif -%}
+              {%- if block.settings.link_label != blank and block.settings.link != blank -%}
+                <a class="arc__caption-link" href="{{ block.settings.link }}">{{ block.settings.link_label | escape }}</a>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+          <p class="arc__counter" data-arc-counter aria-hidden="true"></p>
+        </div>
+        <button type="button" class="round-button" data-arc-next aria-label="{{ 'general.slider.next' | t }}">
+          {% render 'icon', icon: 'chevron-right' %}
+        </button>
+      </div>
+    </div>
+  </arc-gallery>
+</section>
+
+{% stylesheet %}
+  .arc {
+    --arc-dir: 1;
+    --arc-item-w: clamp(150px, 15vw, 250px);
+    display: block;
+  }
+  [dir='rtl'] .arc {
+    --arc-dir: -1;
+  }
+  .arc__stage {
+    position: relative;
+    height: calc(var(--arc-item-w) * 1.333 + 150px);
+    perspective: calc(var(--arc-radius, 1000px) * 1.7);
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .arc__ring {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: translateZ(var(--arc-radius, 1000px))
+      rotateY(calc(var(--arc-index, 0) * var(--arc-step, 12deg) * var(--arc-dir)));
+    transition: transform 1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .arc__item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--arc-item-w);
+    aspect-ratio: 3 / 4;
+    margin: calc(var(--arc-item-w) * -0.6667) 0 0 calc(var(--arc-item-w) * -0.5);
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--color-surface);
+    transform: rotateY(calc(var(--i, 0) * var(--arc-step, 12deg) * var(--arc-dir) * -1))
+      translateZ(calc(var(--arc-radius, 1000px) * -1));
+    backface-visibility: hidden;
+    transition: opacity 0.6s ease, filter 0.6s ease;
+  }
+  .arc__item:not(.is-active) {
+    filter: brightness(0.9) saturate(0.85);
+  }
+  .arc__item.is-far {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .arc__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .arc__panel {
+    position: relative;
+    z-index: 2;
+    margin-top: -88px;
+    border-radius: 50% 50% 0 0 / 88px 88px 0 0;
+    padding-top: 108px;
+    padding-bottom: max(var(--arc-pb, 0px), 56px);
+  }
+  .arc__panel-inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 20px;
+  }
+  .arc__captions {
+    max-width: 620px;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .arc__caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: arc-caption 0.6s ease both;
+  }
+  .arc__caption[hidden] {
+    display: none;
+  }
+  @keyframes arc-caption {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+  .arc__caption-text {
+    color: var(--color-body);
+    font-size: 0.9375rem;
+  }
+  .arc__caption-link {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    text-underline-offset: 6px;
+  }
+  .arc__counter {
+    margin-top: 14px;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  @media (max-width: 749px) {
+    .arc {
+      --arc-item-w: 44vw;
+    }
+    .arc__panel {
+      margin-top: -56px;
+      border-radius: 50% 50% 0 0 / 56px 56px 0 0;
+      padding-top: 72px;
+    }
+    .arc__panel-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .arc__captions {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .arc__panel-inner > .round-button:last-child {
+      justify-self: end;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Curved gallery",
+  "tag": "div",
+  "class": "arc-gallery-section",
+  "max_blocks": 14,
+  "blocks": [{ "type": "_arc-slide" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "color_scheme", "id": "panel_scheme", "label": "Curved panel color scheme", "default": "scheme-2" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Explore by style" },
+    { "type": "inline_richtext", "id": "description", "label": "Description", "default": "Turn the gallery to find the shape that suits you." },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split with accent line" }
+      ],
+      "default": "split"
+    },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "medium" }
+  ],
+  "presets": [
+    {
+      "name": "Curved gallery",
+      "blocks": [
+        { "type": "_arc-slide", "settings": { "heading": "Totes", "text": "Room for the whole day." } },
+        { "type": "_arc-slide", "settings": { "heading": "Crossbody", "text": "Hands free, from day to night." } },
+        { "type": "_arc-slide", "settings": { "heading": "Shoulder bags", "text": "Easy to grab on the way out." } },
+        { "type": "_arc-slide", "settings": { "heading": "Backpacks", "text": "For the commute and the weekend." } },
+        { "type": "_arc-slide", "settings": { "heading": "Clutches", "text": "Small, and made for evenings." } },
+        { "type": "_arc-slide", "settings": { "heading": "Wallets", "text": "Cards, coins and the small things." } },
+        { "type": "_arc-slide", "settings": { "heading": "Travel", "text": "Weekenders for longer trips." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

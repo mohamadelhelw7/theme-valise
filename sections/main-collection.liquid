@@ -1,0 +1,620 @@
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign per_page = section.settings.products_per_page
+  assign form_id = 'CollectionFilters-' | append: section.id
+  assign drawer_id = 'FacetsDrawer-' | append: section.id
+  assign has_filters = false
+  if section.settings.enable_filtering and collection.filters.size > 0
+    assign has_filters = true
+  endif
+  assign active_count = 0
+  for filter in collection.filters
+    assign active_count = active_count | plus: filter.active_values.size
+    if filter.min_value.value or filter.max_value.value
+      assign active_count = active_count | plus: 1
+    endif
+  endfor
+-%}
+
+{% render 'breadcrumbs' %}
+
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: 0px; --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width">
+    <div class="page-title-block collection-hero">
+      <div>
+        {%- if section.settings.show_eyebrow -%}
+          <span class="eyebrow">{{ 'collections.eyebrow' | t }}</span>
+        {%- endif -%}
+        <h1 class="h1">{{ collection.title | escape }}</h1>
+        {%- if section.settings.show_description and collection.description != blank -%}
+          <div class="page-title-block__desc rte">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.show_image and collection.image -%}
+        <div class="collection-hero__media media-tile">
+          {{ collection.image | image_url: width: 900 | image_tag: loading: 'eager', widths: '400, 600, 900', sizes: '(min-width: 750px) 33vw, 100vw' }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- paginate collection.products by per_page -%}
+      {%- liquid
+        assign show_promo = false
+        if section.settings.show_promo and paginate.current_page == 1
+          assign show_promo = true
+        endif
+      -%}
+      <facet-form class="collection-layout collection-layout--{{ section.settings.filter_layout }}{% unless has_filters %} collection-layout--no-filters{% endunless %}">
+        <div class="facets__bar">
+          {%- if has_filters -%}
+            <button type="button" class="button button--secondary button--small facets__open" data-modal-open="{{ drawer_id }}" aria-haspopup="dialog">
+              {{ 'collections.filters.title' | t }}
+              {%- if active_count > 0 %} ({{ active_count }}){% endif -%}
+            </button>
+          {%- endif -%}
+          <span class="facets__count">{{ 'collections.product_count' | t: count: collection.products_count }}</span>
+          {%- if section.settings.show_grid_switch -%}
+            <div class="grid-switch grid-switch--desktop" role="group" aria-label="{{ 'collections.grid.label' | t }}" data-grid-switch="desktop" data-grid-default="{{ section.settings.columns_desktop }}">
+              {%- for cols in (2..4) -%}
+                <button type="button" data-grid-cols="{{ cols }}" aria-pressed="{% if cols == section.settings.columns_desktop %}true{% else %}false{% endif %}" aria-label="{{ 'collections.grid.columns' | t: count: cols }}">
+                  {%- for bar in (1..cols) -%}<i></i>{%- endfor -%}
+                </button>
+              {%- endfor -%}
+            </div>
+            <div class="grid-switch grid-switch--mobile" role="group" aria-label="{{ 'collections.grid.label' | t }}" data-grid-switch="mobile" data-grid-default="{{ section.settings.columns_mobile }}">
+              {%- for cols in (1..2) -%}
+                {%- assign cols_text = cols | append: '' -%}
+                <button type="button" data-grid-cols="{{ cols }}" aria-pressed="{% if cols_text == section.settings.columns_mobile %}true{% else %}false{% endif %}" aria-label="{{ 'collections.grid.columns' | t: count: cols }}">
+                  {%- for bar in (1..cols) -%}<i></i>{%- endfor -%}
+                </button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+          {%- if section.settings.enable_sorting -%}
+            <label class="visually-hidden" for="SortBy-{{ section.id }}">{{ 'collections.sort_by' | t }}</label>
+            <select id="SortBy-{{ section.id }}" name="sort_by" class="select facets__sort" form="{{ form_id }}">
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>{{ option.name | escape }}</option>
+              {%- endfor -%}
+            </select>
+          {%- endif -%}
+        </div>
+
+        {%- if has_filters -%}
+          <dialog id="{{ drawer_id }}" class="modal drawer drawer--start facets-drawer" aria-label="{{ 'collections.filters.title' | t }}">
+            <form id="{{ form_id }}" class="facets">
+              <div class="facets__header">
+                <h2 class="h3">{{ 'collections.filters.title' | t }}</h2>
+                <button type="button" class="icon-button" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+                  {% render 'icon', icon: 'close' %}
+                </button>
+              </div>
+              <div class="facets__list">
+                {%- for filter in collection.filters -%}
+                  <details
+                    class="filter"
+                    {% if section.settings.filter_layout == 'vertical' %}
+                      open
+                    {% else %}
+                      data-escape-close data-click-outside
+                    {% endif %}
+                  >
+                    <summary class="filter__summary">
+                      {{ filter.label | escape }}
+                      {%- if filter.active_values.size > 0 -%}
+                        <span class="filter__count">{{ filter.active_values.size }}</span>
+                      {%- endif -%}
+                      {% render 'icon', icon: 'chevron-down' %}
+                    </summary>
+                    <div class="filter__panel">
+                      {%- case filter.type -%}
+                        {%- when 'price_range' -%}
+                          <div class="filter__price">
+                            <div class="field">
+                              <label class="field__label" for="Filter-{{ section.id }}-{{ filter.param_name }}-gte">{{ 'collections.filters.from' | t }}</label>
+                              <input
+                                class="field__input"
+                                type="number"
+                                inputmode="decimal"
+                                id="Filter-{{ section.id }}-{{ filter.param_name }}-gte"
+                                name="{{ filter.min_value.param_name }}"
+                                value="{% if filter.min_value.value %}{{ filter.min_value.value | money_without_currency | replace: ',', '' }}{% endif %}"
+                                placeholder="0"
+                                min="0"
+                              >
+                            </div>
+                            <div class="field">
+                              <label class="field__label" for="Filter-{{ section.id }}-{{ filter.param_name }}-lte">{{ 'collections.filters.to' | t }}</label>
+                              <input
+                                class="field__input"
+                                type="number"
+                                inputmode="decimal"
+                                id="Filter-{{ section.id }}-{{ filter.param_name }}-lte"
+                                name="{{ filter.max_value.param_name }}"
+                                value="{% if filter.max_value.value %}{{ filter.max_value.value | money_without_currency | replace: ',', '' }}{% endif %}"
+                                placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                min="0"
+                              >
+                            </div>
+                          </div>
+                        {%- else -%}
+                          <ul class="filter__list" role="list">
+                            {%- for value in filter.values -%}
+                              {%- liquid
+                                assign disabled = false
+                                if value.count == 0 and value.active == false
+                                  assign disabled = true
+                                endif
+                              -%}
+                              <li>
+                                <label class="filter__option{% if disabled %} filter__option--disabled{% endif %}">
+                                  <input
+                                    type="checkbox"
+                                    name="{{ value.param_name }}"
+                                    value="{{ value.value }}"
+                                    {% if value.active %}
+                                      checked
+                                    {% endif %}
+                                    {% if disabled %}
+                                      disabled
+                                    {% endif %}
+                                  >
+                                  {%- if value.swatch.color -%}
+                                    <span class="filter__swatch" style="background: {{ value.swatch.color }};" aria-hidden="true"></span>
+                                  {%- endif -%}
+                                  <span>{{ value.label | escape }}</span>
+                                  <span class="filter__option-count">({{ value.count }})</span>
+                                </label>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                      {%- endcase -%}
+                    </div>
+                  </details>
+                {%- endfor -%}
+              </div>
+              <div class="facets__footer">
+                {%- if active_count > 0 -%}
+                  <a href="{{ collection.url }}?sort_by={{ sort_by }}" class="button button--link">{{ 'collections.filters.clear' | t }}</a>
+                {%- endif -%}
+                <button type="submit" class="button button--primary facets__apply">{{ 'collections.filters.apply' | t }}</button>
+              </div>
+            </form>
+          </dialog>
+        {%- else -%}
+          <form id="{{ form_id }}" hidden></form>
+        {%- endif -%}
+
+        <div class="collection-layout__products">
+          {%- if collection.products.size > 0 -%}
+            <ul
+              class="product-grid product-grid--collection"
+              data-product-grid
+              role="list"
+              style="--cols-desktop: {{ section.settings.columns_desktop }}; --cols-mobile: {{ section.settings.columns_mobile }};"
+            >
+              {%- for product in collection.products -%}
+                {%- if show_promo and forloop.index == section.settings.promo_position -%}
+                  <li class="grid-promo grid-promo--{{ section.settings.promo_size }} color-{{ section.settings.promo_scheme }}">
+                    {%- if section.settings.promo_image != blank -%}
+                      {{
+                        section.settings.promo_image
+                        | image_url: width: 1200
+                        | image_tag: widths: '400, 600, 900, 1200', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'lazy', alt: '', class: 'grid-promo__image'
+                      }}
+                    {%- endif -%}
+                    <div class="grid-promo__content">
+                      {%- if section.settings.promo_eyebrow != blank -%}
+                        <span class="eyebrow">{{ section.settings.promo_eyebrow | escape }}</span>
+                      {%- endif -%}
+                      {%- if section.settings.promo_heading != blank -%}
+                        <p class="grid-promo__heading h2">{{ section.settings.promo_heading | escape }}</p>
+                      {%- endif -%}
+                      {%- if section.settings.promo_link_label != blank -%}
+                        <a class="button button--primary" href="{{ section.settings.promo_link | default: routes.all_products_collection_url }}">{{ section.settings.promo_link_label | escape }}</a>
+                      {%- endif -%}
+                    </div>
+                  </li>
+                {%- endif -%}
+                <li>{% render 'product-card', product: product, index: forloop.index, heading_level: 'h2' %}</li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <div class="empty-state">
+              <p>{{ 'collections.empty' | t }}</p>
+              <a href="{{ collection.url }}" class="button button--secondary">{{ 'collections.filters.clear' | t }}</a>
+            </div>
+          {%- endif -%}
+
+          {%- if paginate.pages > 1 -%}
+            {%- if section.settings.pagination_style == 'numbers' -%}
+              {% render 'pagination', paginate: paginate %}
+            {%- elsif paginate.next -%}
+              {%- liquid
+                assign shown_count = paginate.current_offset | plus: collection.products.size
+                assign shown_percent = shown_count | times: 100 | divided_by: paginate.items
+              -%}
+              <load-more
+                class="load-more"
+                data-mode="{{ section.settings.pagination_style }}"
+                data-next="{{ paginate.next.url }}"
+                data-section="{{ section.id }}"
+              >
+                <p class="load-more__count">{{ 'collections.load_more.showing' | t: shown: shown_count, total: paginate.items }}</p>
+                <div class="load-more__bar" aria-hidden="true"><span style="width: {{ shown_percent }}%;"></span></div>
+                <a class="button button--secondary load-more__button" href="{{ paginate.next.url }}" data-load-more>
+                  {{- 'collections.load_more.button' | t -}}
+                </a>
+              </load-more>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+      </facet-form>
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .grid-promo {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .grid-promo--wide {
+    grid-column: span 2;
+  }
+  .grid-promo__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .grid-promo:has(.grid-promo__image)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent 60%);
+  }
+  .grid-promo__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: clamp(18px, 3vw, 32px);
+  }
+  .grid-promo:has(.grid-promo__image) .grid-promo__content,
+  .grid-promo:has(.grid-promo__image) .eyebrow {
+    color: #fff;
+  }
+  .grid-promo__heading {
+    max-width: 14ch;
+  }
+  @media (max-width: 749px) {
+    .grid-promo,
+    .grid-promo--wide {
+      grid-column: 1 / -1;
+      min-height: 360px;
+    }
+  }
+  .collection-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .collection-hero .h1 {
+    margin-top: 8px;
+  }
+  .collection-hero__media {
+    width: min(360px, 100%);
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+  }
+  .collection-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'bar' 'filters' 'products';
+    gap: 20px;
+  }
+  .facets__bar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    gap: 12px 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .facets__count {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin-inline-end: auto;
+  }
+  .facets__sort {
+    min-height: 44px;
+    width: auto;
+  }
+  .facets-drawer {
+    grid-area: filters;
+  }
+  .collection-layout__products {
+    grid-area: products;
+    min-width: 0;
+  }
+  .facets {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  .facets__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .facets__list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 20px;
+  }
+  .facets__footer {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+  }
+  .facets__apply {
+    flex: 1;
+  }
+  .filter {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .filter__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    min-height: 52px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .filter__summary::-webkit-details-marker {
+    display: none;
+  }
+  .filter__summary .icon {
+    width: 16px;
+    height: 16px;
+    margin-inline-start: auto;
+    transition: rotate 0.2s ease;
+  }
+  .filter[open] > .filter__summary .icon {
+    rotate: 180deg;
+  }
+  .filter__count {
+    background: var(--color-button);
+    color: var(--color-button-text);
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .filter__panel {
+    padding-bottom: 12px;
+  }
+  .filter__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .filter__option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 6px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9375rem;
+  }
+  .filter__option:hover {
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  }
+  .filter__option input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-button);
+  }
+  .filter__swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  }
+  .filter__option--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .filter__option-count {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    margin-inline-start: auto;
+  }
+  .filter__price {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 990px) {
+    .facets__open {
+      display: none;
+    }
+    .facets-drawer:not([open]) {
+      display: block;
+      position: static;
+      width: auto;
+      height: auto;
+      max-height: none;
+      background: transparent;
+      margin: 0;
+      overflow: visible;
+    }
+    .facets-drawer:not([open]) .facets__header,
+    .facets-drawer:not([open]) .facets__apply {
+      display: none;
+    }
+    .facets-drawer:not([open]) .facets__list {
+      padding: 0;
+      overflow: visible;
+    }
+    .facets-drawer:not([open]) .facets__footer {
+      padding: 12px 0 0;
+      border: none;
+      justify-content: flex-start;
+    }
+    .collection-layout--horizontal .facets-drawer:not([open]) .facets {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .collection-layout--horizontal .facets-drawer:not([open]) .facets__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 0 1 auto;
+    }
+    .collection-layout--horizontal .facets-drawer:not([open]) .facets__footer {
+      padding: 0;
+    }
+    .collection-layout--horizontal .filter {
+      position: relative;
+      border: none;
+    }
+    .collection-layout--horizontal .filter__summary {
+      min-height: 44px;
+      padding: 0 16px 0 20px;
+      padding-inline: 20px 16px;
+      border-radius: var(--button-radius);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      font-size: 0.875rem;
+    }
+    .collection-layout--horizontal .filter__panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      inset-inline-start: 0;
+      z-index: 10;
+      min-width: 260px;
+      max-height: 360px;
+      overflow-y: auto;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      box-shadow: 0 16px 40px rgba(28, 26, 23, 0.1);
+    }
+    .collection-layout--vertical {
+      grid-template-columns: 260px minmax(0, 1fr);
+      grid-template-areas: 'filters bar' 'filters products';
+      column-gap: 40px;
+      align-items: start;
+    }
+    .collection-layout--vertical .facets-drawer:not([open]) {
+      position: sticky;
+      top: calc(var(--header-height) + 20px);
+    }
+    .collection-layout--no-filters {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'bar' 'products';
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection products",
+  "tag": "section",
+  "class": "main-collection-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "checkbox", "id": "show_eyebrow", "label": "Show eyebrow", "default": true },
+    { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
+    { "type": "checkbox", "id": "show_image", "label": "Show collection image", "default": false },
+    { "type": "header", "content": "Grid" },
+    { "type": "range", "id": "products_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 },
+    {
+      "type": "select",
+      "id": "pagination_style",
+      "label": "More products",
+      "options": [
+        { "value": "button", "label": "Load more button" },
+        { "value": "infinite", "label": "Load as shoppers scroll" },
+        { "value": "numbers", "label": "Page numbers" }
+      ],
+      "default": "button"
+    },
+    { "type": "range", "id": "columns_desktop", "label": "Columns on desktop", "min": 2, "max": 5, "step": 1, "default": 4 },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    { "type": "header", "content": "Filtering and sorting" },
+    { "type": "checkbox", "id": "enable_filtering", "label": "Enable filtering", "info": "Customize filters with the Shopify Search & Discovery app", "default": true },
+    {
+      "type": "select",
+      "id": "filter_layout",
+      "label": "Filter layout on desktop",
+      "options": [
+        { "value": "horizontal", "label": "Dropdowns above products" },
+        { "value": "vertical", "label": "Sidebar" }
+      ],
+      "default": "horizontal",
+      "info": "On mobile, filters always open in a drawer"
+    },
+    { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+    { "type": "checkbox", "id": "show_grid_switch", "label": "Let shoppers change columns", "default": true },
+    { "type": "header", "content": "Promo tile" },
+    { "type": "paragraph", "content": "A photo tile placed between products on the first page." },
+    { "type": "checkbox", "id": "show_promo", "label": "Show promo tile", "default": false },
+    { "type": "image_picker", "id": "promo_image", "label": "Image" },
+    { "type": "text", "id": "promo_eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "promo_heading", "label": "Heading", "default": "The new collection" },
+    { "type": "text", "id": "promo_link_label", "label": "Button label", "default": "Shop now" },
+    { "type": "url", "id": "promo_link", "label": "Button link" },
+    { "type": "range", "id": "promo_position", "label": "Position in the grid", "min": 1, "max": 12, "step": 1, "default": 3 },
+    {
+      "type": "select",
+      "id": "promo_size",
+      "label": "Tile size",
+      "options": [
+        { "value": "single", "label": "One product wide" },
+        { "value": "wide", "label": "Two products wide" }
+      ],
+      "default": "wide"
+    },
+    { "type": "color_scheme", "id": "promo_scheme", "label": "Color scheme without image", "default": "scheme-4" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "small" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,81 @@
+{% doc %}
+  Renders a flexible row or column that holds other blocks.
+
+  @example
+  {% content_for 'block', type: 'group', id: 'group' %}
+{% enddoc %}
+
+<div
+  class="group-block {{ block.settings.direction }}"
+  style="--group-gap: {{ block.settings.gap }}px; --group-align: {{ block.settings.alignment }};"
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .group-block {
+    display: flex;
+    gap: var(--group-gap);
+    width: 100%;
+  }
+  .group-block--row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: var(--group-align);
+  }
+  .group-block--column {
+    flex-direction: column;
+    align-items: var(--group-align);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Group",
+  "tag": null,
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "Direction",
+      "options": [
+        { "value": "group-block--row", "label": "Row" },
+        { "value": "group-block--column", "label": "Column" }
+      ],
+      "default": "group-block--row"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "flex-start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "End" },
+        { "value": "space-between", "label": "Space between" }
+      ],
+      "default": "flex-start"
+    },
+    { "type": "range", "id": "gap", "label": "Gap", "min": 0, "max": 48, "step": 2, "unit": "px", "default": 12 }
+  ],
+  "presets": [
+    {
+      "name": "Button row",
+      "category": "Layout",
+      "settings": { "direction": "group-block--row", "gap": 12 },
+      "blocks": [
+        { "type": "button", "settings": { "label": "Shop new in", "style": "button--primary" } },
+        { "type": "button", "settings": { "label": "Find your bag", "style": "button--secondary" } }
+      ]
+    },
+    {
+      "name": "Column",
+      "category": "Layout",
+      "settings": { "direction": "group-block--column", "gap": 16 }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,167 @@
+{% doc %}
+  Renders one sticker on the drop hero. Shoppers can drag it around with a mouse or finger.
+{% enddoc %}
+
+{%- liquid
+  assign sticker_text = block.settings.text | strip
+  assign sticker_classes = 'sticker sticker--' | append: block.settings.shape
+  if block.settings.image != blank
+    assign sticker_classes = 'sticker sticker--image'
+  else
+    assign sticker_classes = sticker_classes | append: ' color-' | append: block.settings.color_scheme
+  endif
+  unless block.settings.show_mobile
+    assign sticker_classes = sticker_classes | append: ' sticker--desktop'
+  endunless
+-%}
+
+{%- if block.settings.image != blank or sticker_text != blank -%}
+  <div
+    class="{{ sticker_classes }}"
+    data-sticker
+    aria-hidden="true"
+    style="--x: {{ block.settings.x }}%; --y: {{ block.settings.y }}%; --rotate: {{ block.settings.rotate }}deg; --sticker-size: {{ block.settings.size }}px;"
+    {{ block.shopify_attributes }}
+  >
+    {%- if block.settings.image != blank -%}
+      {%- capture sticker_sizes -%}{{ block.settings.size }}px{%- endcapture -%}
+      {{
+        block.settings.image
+        | image_url: width: 600
+        | image_tag: loading: 'lazy', widths: '200, 400, 600', sizes: sticker_sizes, alt: '', draggable: 'false'
+      }}
+    {%- else -%}
+      <span class="sticker__text">{{ sticker_text | escape }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .sticker {
+    --shift-x: -50%;
+    position: absolute;
+    inset-inline-start: var(--x);
+    top: var(--y);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    translate: calc(var(--shift-x) + var(--dx, 0px)) calc(-50% + var(--dy, 0px));
+    rotate: var(--rotate);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(var(--sticker-size) * 0.15);
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-align: center;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+    transition: scale 0.2s ease, box-shadow 0.2s ease;
+  }
+  [dir='rtl'] .sticker {
+    --shift-x: 50%;
+  }
+  .sticker.is-dragging {
+    cursor: grabbing;
+    scale: 1.07;
+  }
+  .sticker--pill {
+    padding: 0.55em 1.05em;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.7);
+    white-space: nowrap;
+  }
+  .sticker--circle {
+    width: var(--sticker-size);
+    aspect-ratio: 1;
+    padding: 0.7em;
+    border-radius: 50%;
+    box-shadow: 0 14px 30px -14px rgb(0 0 0 / 0.7);
+  }
+  .sticker--star {
+    width: var(--sticker-size);
+    aspect-ratio: 1;
+    padding: 1.4em;
+    font-size: calc(var(--sticker-size) * 0.13);
+    clip-path: polygon(50% 0%, 60.1% 12.3%, 75% 6.7%, 77.6% 22.4%, 93.3% 25%, 87.7% 39.9%, 100% 50%, 87.7% 60.1%, 93.3% 75%, 77.6% 77.6%, 75% 93.3%, 60.1% 87.7%, 50% 100%, 39.9% 87.7%, 25% 93.3%, 22.4% 77.6%, 6.7% 75%, 12.3% 60.1%, 0% 50%, 12.3% 39.9%, 6.7% 25%, 22.4% 22.4%, 25% 6.7%, 39.9% 12.3%);
+  }
+  .sticker--tape {
+    padding: 0.6em 1.5em;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    font-family: var(--font-label);
+    font-size: calc(var(--sticker-size) * 0.11);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    clip-path: polygon(0 8%, 3% 0, 97% 4%, 100% 0, 98% 50%, 100% 100%, 96% 94%, 4% 100%, 0 92%, 2% 50%);
+  }
+  .sticker--box {
+    padding: 0.7em 0.9em;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-sm);
+    box-shadow: 6px 6px 0 currentColor;
+  }
+  .sticker--image {
+    width: var(--sticker-size);
+    background: none;
+    filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.45));
+  }
+  .sticker--image img {
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+  }
+  @media (max-width: 749px) {
+    .sticker {
+      font-size: calc(var(--sticker-size) * 0.11);
+    }
+    .sticker--circle,
+    .sticker--star,
+    .sticker--image {
+      width: calc(var(--sticker-size) * 0.72);
+    }
+    .sticker--desktop {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sticker {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Sticker",
+  "tag": null,
+  "settings": [
+    { "type": "paragraph", "content": "Shoppers can drag stickers around with a mouse or a finger." },
+    { "type": "text", "id": "text", "label": "Text", "default": "New in" },
+    { "type": "image_picker", "id": "image", "label": "Image instead of text", "info": "A PNG with a clear background works best" },
+    {
+      "type": "select",
+      "id": "shape",
+      "label": "Shape",
+      "options": [
+        { "value": "pill", "label": "Pill" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "star", "label": "Star burst" },
+        { "value": "tape", "label": "Tape" },
+        { "value": "box", "label": "Box" }
+      ],
+      "default": "pill"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-6" },
+    { "type": "range", "id": "size", "label": "Size", "min": 60, "max": 260, "step": 4, "unit": "px", "default": 120 },
+    { "type": "range", "id": "x", "label": "Horizontal position", "info": "0 is the start edge, 100 is the end edge", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 72 },
+    { "type": "range", "id": "y", "label": "Vertical position", "info": "0 is the top, 100 is the bottom", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 30 },
+    { "type": "range", "id": "rotate", "label": "Tilt", "min": -30, "max": 30, "step": 1, "unit": "°", "default": -8 },
+    { "type": "checkbox", "id": "show_mobile", "label": "Show on mobile", "default": true }
+  ],
+  "presets": [{ "name": "Sticker" }]
+}
+{% endschema %}

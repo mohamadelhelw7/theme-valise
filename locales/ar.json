@@ -1,0 +1,388 @@
+{
+  "general": {
+    "meta": {
+      "tags": "الوسم \"{{ tags }}\"",
+      "page": "صفحة {{ page }}"
+    },
+    "accessibility": {
+      "skip_to_content": "انتقل إلى المحتوى",
+      "close": "إغلاق",
+      "loading": "جارٍ التحميل",
+      "back_to_top": "العودة للأعلى"
+    },
+    "errors": {
+      "generic": "حدث خطأ ما. حاول مرة أخرى."
+    },
+    "header": {
+      "menu": "القائمة",
+      "main_nav": "القائمة الرئيسية",
+      "account": "حسابي",
+      "cart": "السلة",
+      "view_all": "تسوق كل {{ title }}",
+      "bag": "الحقيبة"
+    },
+    "search": {
+      "title": "بحث",
+      "label": "ابحث في المتجر",
+      "placeholder": "ابحث عن المنتجات",
+      "submit": "بحث",
+      "no_results": "لا توجد نتائج. جرّب كلمة بحث أخرى.",
+      "no_results_for": "لا توجد نتائج لـ \"{{ terms }}\"",
+      "search_for": "ابحث عن \"{{ terms }}\"",
+      "products": "المنتجات",
+      "collections_pages": "المجموعات والصفحات",
+      "articles": "المقالات",
+      "results_count": {
+        "zero": "لا توجد نتائج لـ \"{{ terms }}\"",
+        "one": "نتيجة واحدة لـ \"{{ terms }}\"",
+        "two": "نتيجتان لـ \"{{ terms }}\"",
+        "few": "{{ count }} نتائج لـ \"{{ terms }}\"",
+        "many": "{{ count }} نتيجة لـ \"{{ terms }}\"",
+        "other": "{{ count }} نتيجة لـ \"{{ terms }}\""
+      }
+    },
+    "pagination": {
+      "label": "التنقل بين الصفحات",
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "page": "صفحة {{ number }}"
+    },
+    "breadcrumbs": {
+      "label": "مسار التنقل",
+      "home": "الرئيسية"
+    },
+    "localization": {
+      "language": "اللغة",
+      "country": "الدولة أو المنطقة",
+      "update": "تحديث"
+    },
+    "whatsapp": {
+      "chat": "تواصل معنا على واتساب",
+      "missing_number": "أضف رقم واتساب من إعدادات الثيم > واتساب أو داخل هذا القسم."
+    },
+    "placeholder": {
+      "image": "أضف صورة",
+      "text_only": "لا توجد صورة بعد، لذلك يظهر هذا القسم كنص فقط. أضف صورة من إعداداته."
+    },
+    "slider": {
+      "previous": "السابق",
+      "next": "التالي",
+      "play": "تشغيل العرض",
+      "pause": "إيقاف العرض مؤقتًا"
+    },
+    "cursor": {
+      "view": "عرض",
+      "drag": "اسحب"
+    },
+    "tab_bar": {
+      "label": "اختصارات",
+      "home": "الرئيسية",
+      "shop": "تسوق"
+    }
+  },
+  "newsletter": {
+    "label": "البريد الإلكتروني",
+    "placeholder": "بريدك الإلكتروني",
+    "button": "اشترك",
+    "success": "شكرًا لاشتراكك!"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "أضف إلى السلة",
+      "add_title_to_cart": "أضف {{ title }} إلى السلة",
+      "choose_options": "اختر الخيارات",
+      "choose_options_for": "اختر خيارات {{ title }}",
+      "added": "تمت الإضافة إلى السلة",
+      "sold_out": "نفدت الكمية",
+      "unavailable": "غير متوفر",
+      "new": "جديد",
+      "save_amount": "وفّر {{ amount }}",
+      "gallery": "صور المنتج",
+      "view_media": "عرض الصورة {{ number }}",
+      "zoom": "فتح الصورة {{ number }} بملء الشاشة",
+      "previous_image": "الصورة السابقة",
+      "next_image": "الصورة التالية",
+      "quantity": "الكمية",
+      "quantity_decrease": "تقليل الكمية",
+      "quantity_increase": "زيادة الكمية",
+      "taxes_included": "شامل الضرائب.",
+      "taxes_excluded": "تُحسب الضرائب عند الدفع.",
+      "placeholder_title": "منتجك",
+      "placeholder_type": "الفئة",
+      "price": {
+        "regular_price": "السعر الأصلي",
+        "sale_price": "سعر الخصم",
+        "from_price": "يبدأ من {{ price }}"
+      },
+      "fit_note_hint": "أضف ملاحظة عن المقاس، مثل: طول العارضة 175 سم وترتدي مقاس S.",
+      "size_added": "تمت إضافة المقاس [size] إلى السلة",
+      "quick_sizes": "إضافة سريعة لمقاسات {{ title }}",
+      "add_size": "أضف المقاس {{ size }} إلى السلة"
+    },
+    "quick_view": {
+      "title": "عرض سريع",
+      "open": "عرض سريع لـ {{ title }}",
+      "full_details": "عرض كل التفاصيل"
+    },
+    "inventory": {
+      "in": "متوفر",
+      "low": "الكمية محدودة",
+      "low_count": {
+        "zero": "نفدت الكمية",
+        "one": "بقيت قطعة واحدة فقط",
+        "two": "بقيت قطعتان فقط",
+        "few": "بقيت {{ count }} قطع فقط",
+        "many": "بقيت {{ count }} قطعة فقط",
+        "other": "بقيت {{ count }} قطعة فقط"
+      },
+      "out": "غير متوفر حاليًا",
+      "backorder": "متاح للطلب ويُشحن قريبًا"
+    },
+    "delivery": {
+      "estimate": "اطلب الآن واستلمه بين [start] و[end]",
+      "deliver_to": "التوصيل إلى",
+      "choose_area": "اختر محافظتك",
+      "add_details": "أضف مدة التوصيل والرسوم"
+    },
+    "size_finder": {
+      "height": "الطول (سم)",
+      "weight": "الوزن (كجم)",
+      "fit": "كيف تحب المقاس؟",
+      "true_to_size": "مقاسي المعتاد",
+      "oversized": "واسع (أوفرسايز)",
+      "submit": "اعرف مقاسي",
+      "result": "مقاسك: {{ size }}",
+      "pick": "اختر {{ size }}",
+      "no_match": "اكتب طولك ووزنك لتعرف مقاسك.",
+      "editor_empty": "مساعد المقاس: أضف جدول المقاسات في إعدادات هذا القسم لتفعيله."
+    },
+    "bag_size": {
+      "heading": "المقاسات",
+      "cm": "سم",
+      "in": "بوصة",
+      "diagram": "رسم للحقيبة بمقاساتها",
+      "width": "العرض",
+      "height": "الارتفاع",
+      "depth": "العمق",
+      "strap_drop": "طول الحزام",
+      "capacity": "السعة",
+      "weight": "الوزن",
+      "fits": "تتسع لـ",
+      "fit_phone": "الهاتف",
+      "fit_wallet": "المحفظة",
+      "fit_keys": "المفاتيح",
+      "fit_sunglasses": "النظارة الشمسية",
+      "fit_bottle": "زجاجة مياه",
+      "fit_tablet": "تابلت",
+      "fit_a4": "أوراق مقاس A4",
+      "fit_laptop_13": "لابتوب ١٣ بوصة",
+      "fit_laptop_15": "لابتوب من ١٥ إلى ١٦ بوصة",
+      "carry": "طرق الحمل",
+      "carry_hand": "باليد",
+      "carry_shoulder": "على الكتف",
+      "carry_crossbody": "كروس على الجسم",
+      "carry_backpack": "كحقيبة ظهر",
+      "carry_waist": "حول الخصر",
+      "carry_clutch": "كحقيبة كلاتش",
+      "hint": "أضف مقاسات الحقيبة، أو اربطها بحقول المنتج الإضافية، لتظهر هنا."
+    },
+    "personalize": {
+      "add": "أضف الأحرف الأولى",
+      "field": "الأحرف الأولى",
+      "hint": {
+        "zero": "بدون أحرف",
+        "one": "حرف واحد كحد أقصى",
+        "two": "حرفان كحد أقصى",
+        "few": "حتى {{ count }} أحرف",
+        "many": "حتى {{ count }} حرفًا",
+        "other": "حتى {{ count }} حرف"
+      }
+    }
+  },
+  "collections": {
+    "eyebrow": "مجموعة",
+    "empty": "لا توجد منتجات تطابق هذه الفلاتر.",
+    "sort_by": "ترتيب حسب",
+    "product_count": {
+      "zero": "لا توجد منتجات",
+      "one": "منتج واحد",
+      "two": "منتجان",
+      "few": "{{ count }} منتجات",
+      "many": "{{ count }} منتجًا",
+      "other": "{{ count }} منتج"
+    },
+    "filters": {
+      "title": "الفلاتر",
+      "from": "من",
+      "to": "إلى",
+      "clear": "مسح الكل",
+      "apply": "عرض النتائج"
+    },
+    "grid": {
+      "label": "عدد الأعمدة",
+      "columns": {
+        "zero": "{{ count }} أعمدة",
+        "one": "عمود واحد",
+        "two": "عمودان",
+        "few": "{{ count }} أعمدة",
+        "many": "{{ count }} عمودًا",
+        "other": "{{ count }} عمود"
+      }
+    },
+    "load_more": {
+      "button": "عرض المزيد",
+      "showing": "عرض {{ shown }} من {{ total }}"
+    }
+  },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلتك فارغة.",
+    "continue_shopping": "متابعة التسوق",
+    "checkout": "إتمام الطلب",
+    "view_cart": "عرض السلة",
+    "update": "تحديث السلة",
+    "subtotal": "الإجمالي الفرعي",
+    "taxes_and_shipping": "تُحسب الضرائب والشحن عند الدفع.",
+    "remove": "حذف",
+    "quantity": "الكمية",
+    "decrease": "تقليل كمية {{ title }}",
+    "increase": "زيادة كمية {{ title }}",
+    "note": "ملاحظات الطلب",
+    "upsell_add": "أضف",
+    "free_shipping_remaining": "باقي {{ amount }} وتحصل على شحن مجاني",
+    "free_shipping_unlocked": "مبروك! حصلت على شحن مجاني",
+    "free_shipping_progress": "التقدم نحو الشحن المجاني"
+  },
+  "sections": {
+    "bundle": {
+      "total": "سعر المجموعة",
+      "save": "وفّر {{ percent }}%",
+      "unavailable": "المجموعة غير متوفرة",
+      "placeholder_step": "منتج الخطوة {{ number }}",
+      "placeholder_hint": "اختر المنتجات من محرر الثيم"
+    },
+    "reviews": {
+      "verified": "مشترٍ موثّق",
+      "rating": "{{ rating }} من 5 نجوم",
+      "count": {
+        "zero": "لا توجد تقييمات",
+        "one": "تقييم واحد",
+        "two": "تقييمان",
+        "few": "{{ count }} تقييمات",
+        "many": "{{ count }} تقييمًا",
+        "other": "{{ count }} تقييم"
+      },
+      "no_rating": "يظهر تقييم النجوم هنا بعد أن يحصل المنتج على تقييمات."
+    },
+    "fbt": {
+      "this_item": "هذا المنتج",
+      "total": "السعر الإجمالي",
+      "add": "أضف المختار إلى السلة",
+      "add_count": "أضف {{ count }} إلى السلة",
+      "empty": "حدد المنتجات المكمّلة من تطبيق Search & Discovery، أو اختر المنتجات يدويًا."
+    },
+    "countdown": {
+      "label": "الوقت المتبقي",
+      "days": "يوم",
+      "hours": "ساعة",
+      "minutes": "دقيقة",
+      "seconds": "ثانية",
+      "invalid": "تأكد من صيغة تاريخ الانتهاء: YYYY-MM-DD و HH:MM.",
+      "days_short": "ي",
+      "hours_short": "س",
+      "minutes_short": "د",
+      "seconds_short": "ث"
+    },
+    "more_products": {
+      "view_all": "عرض الكل"
+    },
+    "slideshow": {
+      "slide": "شريحة",
+      "slide_of": "الشريحة {{ number }} من {{ total }}",
+      "carousel": "عرض الشرائح",
+      "go_to": "الانتقال إلى الشريحة {{ number }}",
+      "next": "الشريحة التالية"
+    },
+    "set_builder": {
+      "add": "أضف إلى المجموعة",
+      "added": "تمت الإضافة",
+      "remove": "إزالة من المجموعة",
+      "total": "الإجمالي"
+    },
+    "finder": {
+      "restart": "ابدأ من جديد",
+      "previous": "السؤال السابق",
+      "next": "السؤال التالي",
+      "closest": "لا يوجد تطابق كامل بعد. إليك أقرب القطع لإجاباتك."
+    },
+    "shop_the_look": {
+      "show": "عرض المنتج: {{ title }}"
+    },
+    "blog_posts": {
+      "placeholder_title": "عنوان مقالك",
+      "placeholder_excerpt": "اكتب مقالًا في مدونتك وسيظهر هنا."
+    },
+    "social_gallery": {
+      "open": "افتح حسابنا على إنستغرام"
+    },
+    "logo_strip": {
+      "add_logo": "أضف شعارًا"
+    },
+    "video": {
+      "play": "تشغيل الفيديو",
+      "pause": "إيقاف الفيديو"
+    },
+    "popup": {
+      "code_label": "الكود الخاص بك",
+      "copy": "نسخ",
+      "copied": "تم النسخ"
+    },
+    "photo_trail": {
+      "hint_mouse": "حرّك الماوس",
+      "hint_touch": "اضغط في أي مكان"
+    }
+  },
+  "contact": {
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "message": "رسالتك",
+    "send": "إرسال",
+    "success": "شكرًا لتواصلك معنا. سنرد عليك قريبًا."
+  },
+  "blogs": {
+    "empty": "لا توجد مقالات بعد."
+  },
+  "templates": {
+    "404": {
+      "title": "الصفحة غير موجودة",
+      "subtext": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+    },
+    "password": {
+      "login": "الدخول بكلمة المرور",
+      "password": "كلمة المرور",
+      "enter": "دخول"
+    }
+  },
+  "gift_card": {
+    "title": "بطاقة هدية بقيمة {{ value }}",
+    "heading": "بطاقة هدية بقيمة {{ value }}",
+    "balance": "الرصيد المتبقي: {{ value }}",
+    "code": "كود بطاقة الهدية",
+    "expired": "منتهية الصلاحية",
+    "apple_wallet": "أضف إلى Apple Wallet",
+    "shop_link": "ابدأ التسوق",
+    "print": "طباعة"
+  },
+  "saved": {
+    "title": "المحفوظات",
+    "save": "احفظ {{ title }}",
+    "unsave": "أزل {{ title }} من المحفوظات",
+    "save_label": "احفظ",
+    "saved_label": "محفوظ",
+    "added": "تم الحفظ",
+    "removed": "تمت الإزالة من المحفوظات",
+    "empty": "لا يوجد شيء محفوظ بعد. اضغط على القلب في أي قطعة لتحفظها هنا.",
+    "browse": "ابدأ التسوق"
+  }
+}

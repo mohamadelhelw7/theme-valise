@@ -1,0 +1,95 @@
+{% doc %}
+  Renders a compact product row with an add button, used for cart upsells.
+
+  @param {product} product - The product to suggest
+
+  @example
+  {% render 'upsell-item', product: product %}
+{% enddoc %}
+
+{%- assign upsell_variant = product.selected_or_first_available_variant -%}
+{%- if product.available -%}
+  <div class="upsell-item" data-upsell-item>
+    <a href="{{ product.url }}" class="upsell-item__media" tabindex="-1" aria-hidden="true">
+      {%- if product.featured_media -%}
+        {{ product.featured_media | image_url: width: 160 | image_tag: loading: 'lazy', alt: '' }}
+      {%- endif -%}
+    </a>
+    <div class="upsell-item__info">
+      <a href="{{ product.url }}" class="upsell-item__title">{{ product.title | escape }}</a>
+      {% render 'price', product: product %}
+    </div>
+    {%- form 'product', product, data-product-form: '', novalidate: 'novalidate', class: 'upsell-item__form' -%}
+      {%- if product.has_only_default_variant -%}
+        <input type="hidden" name="id" value="{{ upsell_variant.id }}">
+      {%- else -%}
+        <label class="visually-hidden" for="Upsell-{{ product.id }}">{{ 'products.product.choose_options' | t }}</label>
+        <select id="Upsell-{{ product.id }}" name="id" class="select upsell-item__select">
+          {%- for v in product.variants -%}
+            <option value="{{ v.id }}" {% if v.id == upsell_variant.id %}selected{% endif %} {% unless v.available %}disabled{% endunless %}>
+              {{- v.title | escape -}}
+            </option>
+          {%- endfor -%}
+        </select>
+      {%- endif -%}
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="button button--secondary button--small" aria-label="{{ 'products.product.add_title_to_cart' | t: title: product.title | escape }}">
+        {{- 'cart.upsell_add' | t -}}
+      </button>
+      <p class="form-message form-message--error" data-form-error role="alert" hidden></p>
+    {%- endform -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .upsell-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 6px 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+  }
+  .upsell-item__media {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--tint-1);
+    grid-row: span 2;
+  }
+  .upsell-item__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .upsell-item__info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+  }
+  .upsell-item__title {
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .upsell-item__form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .upsell-item__select {
+    min-height: 40px;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8125rem;
+  }
+  .upsell-item__form .form-message {
+    flex-basis: 100%;
+  }
+{% endstylesheet %}

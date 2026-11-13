@@ -1,0 +1,245 @@
+{% doc %}
+  Renders the desktop header navigation with dropdown or mega menu panels.
+
+  @param {linklist} menu - The menu to render
+  @param {string} [menu_style] - dropdown or mega
+  @param {image} [mega_image] - Optional promo image in mega menu panels
+  @param {string} [mega_image_link] - Link for the promo image
+  @param {string} [mega_image_caption] - Caption under the promo image
+
+  @example
+  {% render 'header-nav', menu: section.settings.menu, menu_style: 'mega' %}
+{% enddoc %}
+
+{%- if menu != blank -%}
+  <nav class="site-nav" aria-label="{{ 'general.header.main_nav' | t }}">
+    <ul class="site-nav__list" role="list">
+      {%- for link in menu.links -%}
+        <li class="site-nav__item">
+          {%- if link.links != blank -%}
+            {%- assign is_mega = false -%}
+            {%- if menu_style == 'mega' -%}
+              {%- assign is_mega = true -%}
+            {%- endif -%}
+            <details class="site-nav__dropdown{% if is_mega %} site-nav__dropdown--mega{% endif %}" data-escape-close data-click-outside>
+              <summary class="site-nav__link{% if link.child_active %} site-nav__link--active{% endif %}">
+                {{ link.title | escape }}
+                {% render 'icon', icon: 'chevron-down' %}
+              </summary>
+              {%- if is_mega -%}
+                <div class="site-nav__mega">
+                  <div class="site-nav__mega-inner page-width">
+                    <ul class="site-nav__mega-columns" role="list">
+                      {%- for child in link.links -%}
+                        <li class="site-nav__mega-column">
+                          <a href="{{ child.url }}" class="site-nav__mega-title">{{ child.title | escape }}</a>
+                          {%- if child.links != blank -%}
+                            <ul class="site-nav__mega-list" role="list">
+                              {%- for grandchild in child.links -%}
+                                <li>
+                                  <a
+                                    href="{{ grandchild.url }}"
+                                    class="site-nav__sublink"
+                                    {% if grandchild.current %}
+                                      aria-current="page"
+                                    {% endif %}
+                                  >
+                                    {{- grandchild.title | escape -}}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                    {%- if mega_image != blank -%}
+                      <a href="{{ mega_image_link | default: link.url }}" class="site-nav__mega-promo">
+                        <span class="media-tile site-nav__mega-media">
+                          {{ mega_image | image_url: width: 800 | image_tag: loading: 'lazy', widths: '400, 600, 800', sizes: '320px', alt: '' }}
+                        </span>
+                        {%- if mega_image_caption != blank -%}
+                          <span class="site-nav__mega-caption">{{ mega_image_caption | escape }}</span>
+                        {%- endif -%}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- else -%}
+                <ul class="site-nav__submenu" role="list">
+                  {%- for child in link.links -%}
+                    <li>
+                      <a
+                        class="site-nav__sublink"
+                        href="{{ child.url }}"
+                        {% if child.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {{- child.title | escape -}}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </details>
+          {%- else -%}
+            <a
+              class="site-nav__link"
+              href="{{ link.url }}"
+              {% if link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- link.title | escape -}}
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+{%- endif -%}
+
+{% stylesheet %}
+  .site-nav {
+    flex: 1;
+    display: flex;
+    justify-content: var(--nav-align, center);
+    min-width: 0;
+  }
+  .site-header--center .site-nav {
+    justify-content: flex-start;
+  }
+  .site-nav__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 28px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+  }
+  .site-nav__link::-webkit-details-marker {
+    display: none;
+  }
+  .site-nav__link[aria-current='page'],
+  .site-nav__link--active {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+  .site-nav__link .icon {
+    width: 16px;
+    height: 16px;
+    transition: rotate 0.2s ease;
+  }
+  .site-nav__dropdown[open] > .site-nav__link .icon {
+    rotate: 180deg;
+  }
+  .site-nav__dropdown {
+    position: relative;
+  }
+  .site-nav__dropdown--mega {
+    position: static;
+  }
+  .site-nav__submenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    inset-inline-start: -16px;
+    min-width: 230px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    list-style: none;
+    margin: 0;
+    box-shadow: 0 16px 40px rgba(28, 26, 23, 0.1);
+    animation: nav-drop 0.2s ease;
+  }
+  .site-nav__sublink {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+  .site-nav__submenu .site-nav__sublink:hover {
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  }
+  .site-nav__mega {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 30px 50px -40px rgba(0, 0, 0, 0.45);
+    animation: nav-drop 0.22s ease;
+  }
+  .site-nav__mega-inner {
+    display: flex;
+    gap: 48px;
+    padding-top: 32px;
+    padding-bottom: 36px;
+  }
+  .site-nav__mega-columns {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav__mega-title {
+    display: block;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+  .site-nav__mega-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav__mega-list .site-nav__sublink {
+    padding: 6px 0;
+    color: var(--color-body);
+  }
+  .site-nav__mega-list .site-nav__sublink:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .site-nav__mega-promo {
+    width: 300px;
+    flex: none;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .site-nav__mega-media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+  }
+  .site-nav__mega-caption {
+    font-weight: 600;
+  }
+  @keyframes nav-drop {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+{% endstylesheet %}

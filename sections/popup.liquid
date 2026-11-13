@@ -1,0 +1,625 @@
+{%- liquid
+  assign show_here = true
+  if section.settings.pages == 'home' and request.page_type != 'index'
+    assign show_here = false
+  endif
+  assign dialog_id = 'Popup-' | append: section.id
+  assign title_id = 'PopupTitle-' | append: section.id
+  assign form_id = 'PopupForm-' | append: section.id
+  assign email_id = 'PopupEmail-' | append: section.id
+  assign heading_parts = section.settings.heading | escape | newline_to_br | split: '*'
+  assign popup_layout = section.settings.layout
+  if section.settings.position == 'corner'
+    assign popup_layout = 'stacked'
+  endif
+-%}
+
+{%- if section.settings.enable or request.design_mode -%}
+  <site-popup
+    data-section="{{ section.id }}"
+    data-enabled="{{ section.settings.enable }}"
+    data-allowed="{{ show_here }}"
+    data-trigger="{{ section.settings.trigger }}"
+    data-delay="{{ section.settings.delay }}"
+    data-scroll="{{ section.settings.scroll_percent }}"
+    data-frequency="{{ section.settings.frequency }}"
+    data-mobile="{{ section.settings.show_mobile }}"
+    data-position="{{ section.settings.position }}"
+  >
+    <dialog
+      id="{{ dialog_id }}"
+      class="modal popup popup--{{ popup_layout }} popup--{{ section.settings.position }} popup--image-{{ section.settings.image_position }} color-{{ section.settings.color_scheme }}"
+      aria-labelledby="{{ title_id }}"
+    >
+      <button type="button" class="icon-button popup__close" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+        {% render 'icon', icon: 'close' %}
+      </button>
+      <div class="popup__inner">
+        {%- if section.settings.image != blank -%}
+          <div class="popup__media popup__media--{{ section.settings.image_shape }}">
+            {{
+              section.settings.image
+              | image_url: width: 1000
+              | image_tag: widths: '400, 600, 800, 1000', sizes: '(min-width: 750px) 430px, 100vw', loading: 'lazy', alt: ''
+            }}
+          </div>
+        {%- endif -%}
+        <div class="popup__content">
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="eyebrow popup__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+          <h2 id="{{ title_id }}" class="h2 popup__heading">
+            {%- for part in heading_parts -%}
+              {%- assign odd = forloop.index0 | modulo: 2 -%}
+              {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+            {%- endfor -%}
+          </h2>
+          {%- if section.settings.text != blank -%}
+            <div class="popup__text rte">{{ section.settings.text }}</div>
+          {%- endif -%}
+
+          {%- if section.settings.content == 'newsletter' -%}
+            {%- form 'customer', id: form_id, class: 'popup__form', data-popup-form: '' -%}
+              <input type="hidden" name="contact[tags]" value="newsletter, popup">
+              {%- if form.posted_successfully? -%}
+                <div class="popup__success" data-popup-success role="status">
+                  <p class="popup__success-text">{{ 'newsletter.success' | t }}</p>
+                  {%- if section.settings.discount_code != blank -%}
+                    <div class="popup__code">
+                      <span class="popup__code-label">{{ 'sections.popup.code_label' | t }}</span>
+                      <code data-popup-code>{{ section.settings.discount_code | escape }}</code>
+                      <button type="button" class="button button--secondary button--small" data-popup-copy data-copied="{{ 'sections.popup.copied' | t }}">
+                        {{- 'sections.popup.copy' | t -}}
+                      </button>
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- else -%}
+                {%- if form.errors -%}
+                  <p class="popup__error" role="alert">
+                    {{ form.errors.translated_fields.email | capitalize }}
+                    {{ form.errors.messages.email }}
+                  </p>
+                {%- endif -%}
+                <div class="popup__row">
+                  <label for="{{ email_id }}" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+                  <input
+                    id="{{ email_id }}"
+                    type="email"
+                    name="contact[email]"
+                    class="field__input popup__input"
+                    value="{{ form.email }}"
+                    placeholder="{{ 'newsletter.placeholder' | t }}"
+                    autocomplete="email"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    required
+                  >
+                  <button type="submit" class="button button--primary">
+                    {%- if section.settings.submit_label != blank -%}
+                      {{- section.settings.submit_label | escape -}}
+                    {%- else -%}
+                      {{- 'newsletter.button' | t -}}
+                    {%- endif -%}
+                  </button>
+                </div>
+              {%- endif -%}
+            {%- endform -%}
+          {%- else -%}
+            {%- if section.settings.discount_code != blank -%}
+              <div class="popup__code">
+                <span class="popup__code-label">{{ 'sections.popup.code_label' | t }}</span>
+                <code data-popup-code>{{ section.settings.discount_code | escape }}</code>
+                <button type="button" class="button button--secondary button--small" data-popup-copy data-copied="{{ 'sections.popup.copied' | t }}">
+                  {{- 'sections.popup.copy' | t -}}
+                </button>
+              </div>
+            {%- endif -%}
+            {%- if section.settings.button_label != blank -%}
+              <a class="button button--primary popup__button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+                {{- section.settings.button_label | escape -}}
+              </a>
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if section.settings.dismiss_label != blank -%}
+            <button type="button" class="popup__dismiss" data-modal-close>{{ section.settings.dismiss_label | escape }}</button>
+          {%- endif -%}
+        </div>
+      </div>
+    </dialog>
+  </site-popup>
+{%- endif -%}
+
+{% javascript %}
+  class SitePopup extends HTMLElement {
+    connectedCallback() {
+      this.dialog = this.querySelector('dialog');
+      if (!this.dialog) return;
+      this.key = `theme:popup:${this.dataset.section}`;
+      this.corner = this.dataset.position === 'corner';
+      this.dialog.addEventListener('close', () => this.remember());
+      this.addEventListener('click', (event) => {
+        const copy = event.target.closest('[data-popup-copy]');
+        if (copy) this.copy(copy);
+      });
+      this.querySelector('[data-popup-form]')?.addEventListener('submit', () => this.write('session', `${this.key}:sent`, '1'));
+      this.onKey = (event) => {
+        if (event.key === 'Escape' && this.corner && this.dialog.open) this.close();
+      };
+      document.addEventListener('keydown', this.onKey);
+
+      if (window.Shopify && window.Shopify.designMode) {
+        this.onSelect = (event) => {
+          if (event.detail && event.detail.sectionId === this.dataset.section) this.open();
+        };
+        this.onDeselect = (event) => {
+          if (event.detail && event.detail.sectionId === this.dataset.section) this.close();
+        };
+        document.addEventListener('shopify:section:select', this.onSelect);
+        document.addEventListener('shopify:section:deselect', this.onDeselect);
+        return;
+      }
+
+      if (this.dataset.enabled !== 'true') return;
+      if (this.querySelector('[data-popup-success]') && this.read('session', `${this.key}:sent`)) {
+        this.write('local', `${this.key}:joined`, '1');
+        this.write('session', `${this.key}:sent`, null);
+        this.open();
+        return;
+      }
+      if (this.dataset.allowed !== 'true') return;
+      if (this.dataset.mobile !== 'true' && window.matchMedia('(max-width: 749px)').matches) return;
+      if (this.read('local', `${this.key}:joined`)) return;
+      const days = Number(this.dataset.frequency) || 0;
+      if (days === 0) {
+        if (this.read('session', `${this.key}:seen`)) return;
+      } else {
+        const last = Number(this.read('local', `${this.key}:seen`)) || 0;
+        if (last && Date.now() - last < days * 86400000) return;
+      }
+      this.arm();
+    }
+
+    disconnectedCallback() {
+      clearTimeout(this.timer);
+      document.removeEventListener('keydown', this.onKey);
+      if (this.onSelect) document.removeEventListener('shopify:section:select', this.onSelect);
+      if (this.onDeselect) document.removeEventListener('shopify:section:deselect', this.onDeselect);
+      if (this.onScroll) window.removeEventListener('scroll', this.onScroll);
+      if (this.onLeave) document.removeEventListener('mouseout', this.onLeave);
+    }
+
+    read(type, key) {
+      try {
+        return window[`${type}Storage`].getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    write(type, key, value) {
+      try {
+        const store = window[`${type}Storage`];
+        if (value === null) store.removeItem(key);
+        else store.setItem(key, value);
+      } catch (error) {
+        return null;
+      }
+      return value;
+    }
+
+    remember() {
+      this.write('local', `${this.key}:seen`, String(Date.now()));
+      this.write('session', `${this.key}:seen`, '1');
+    }
+
+    arm() {
+      const trigger = this.dataset.trigger;
+      const delay = (Number(this.dataset.delay) || 0) * 1000;
+      const canHover = window.matchMedia('(hover: hover)').matches;
+      if (trigger === 'scroll') {
+        const target = (Number(this.dataset.scroll) || 40) / 100;
+        this.onScroll = () => {
+          const max = document.documentElement.scrollHeight - window.innerHeight;
+          if (max > 0 && window.scrollY / max >= target) {
+            window.removeEventListener('scroll', this.onScroll);
+            this.open();
+          }
+        };
+        window.addEventListener('scroll', this.onScroll, { passive: true });
+        return;
+      }
+      if (trigger === 'exit' && canHover) {
+        this.onLeave = (event) => {
+          if (event.relatedTarget || event.clientY > 0) return;
+          document.removeEventListener('mouseout', this.onLeave);
+          this.open();
+        };
+        this.timer = setTimeout(() => document.addEventListener('mouseout', this.onLeave), 3000);
+        return;
+      }
+      this.timer = setTimeout(() => this.open(), delay);
+    }
+
+    open() {
+      if (this.dialog.open) return;
+      if (!(window.Shopify && window.Shopify.designMode) && document.querySelector('dialog.modal[open]')) {
+        this.timer = setTimeout(() => this.open(), 4000);
+        return;
+      }
+      if (this.corner) {
+        this.dialog.classList.remove('is-closing');
+        this.dialog.show();
+        return;
+      }
+      if (window.theme && typeof window.theme.openModal === 'function') window.theme.openModal(this.dialog);
+      else this.dialog.showModal();
+    }
+
+    close() {
+      if (!this.dialog.open) return;
+      if (window.theme && typeof window.theme.closeModal === 'function') window.theme.closeModal(this.dialog);
+      else this.dialog.close();
+    }
+
+    copy(button) {
+      const code = this.querySelector('[data-popup-code]');
+      if (!code) return;
+      const done = () => {
+        const label = button.textContent;
+        button.textContent = button.dataset.copied;
+        setTimeout(() => {
+          button.textContent = label;
+        }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code.textContent.trim()).then(done, () => this.select(code));
+      } else {
+        this.select(code);
+      }
+    }
+
+    select(element) {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }
+  if (!customElements.get('site-popup')) customElements.define('site-popup', SitePopup);
+{% endjavascript %}
+
+{% stylesheet %}
+  .popup {
+    width: min(880px, calc(100vw - 32px));
+    max-height: min(92dvh, 720px);
+    overflow: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 40px 90px -40px rgb(0 0 0 / 0.55);
+  }
+  .popup--stacked,
+  .popup:not(:has(.popup__media)) {
+    width: min(500px, calc(100vw - 32px));
+  }
+  .popup__close {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 10px;
+    z-index: 3;
+    background: var(--color-bg);
+  }
+  .popup__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    min-height: 100%;
+  }
+  .popup--stacked .popup__inner,
+  .popup:not(:has(.popup__media)) .popup__inner {
+    grid-template-columns: 1fr;
+  }
+  .popup--image-end .popup__media {
+    order: 2;
+  }
+  .popup__media {
+    position: relative;
+    min-height: 260px;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .popup__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .popup--stacked .popup__media {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+  .popup__media--rounded {
+    margin: 14px;
+    border-radius: var(--radius-lg);
+  }
+  .popup__media--arch {
+    margin: 22px 22px 0;
+    border-radius: 999px 999px 0 0;
+  }
+  .popup--stacked .popup__media--arch {
+    width: 60%;
+    aspect-ratio: 4 / 5;
+    justify-self: center;
+  }
+  .popup__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 16px;
+    padding: clamp(28px, 4vw, 52px);
+  }
+  .popup--stacked .popup__content {
+    align-items: center;
+    text-align: center;
+  }
+  .popup__heading em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+  .heading-accent-color .popup__heading em {
+    font-style: normal;
+  }
+  .popup__text {
+    color: var(--color-body);
+  }
+  .popup__form {
+    width: 100%;
+  }
+  .popup__row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .popup__input {
+    width: 100%;
+  }
+  .popup__error {
+    margin-bottom: 8px;
+    color: var(--color-sale);
+    font-size: 0.875rem;
+  }
+  .popup__success {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .popup__success-text {
+    font-weight: 600;
+  }
+  .popup__code {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 12px 14px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+  .popup__code-label {
+    font-size: 0.75rem;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    color: var(--color-muted);
+  }
+  .popup__code code {
+    font-family: inherit;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .popup__dismiss {
+    padding: 0;
+    min-height: 44px;
+    border: 0;
+    background: none;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+  .popup--corner {
+    position: fixed;
+    inset: auto;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    inset-inline-end: 16px;
+    margin: 0;
+    width: min(380px, calc(100vw - 32px));
+    z-index: 40;
+  }
+  .popup--corner[open] {
+    animation: popup-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .popup--corner.is-closing {
+    animation: popup-sink 0.3s ease forwards;
+  }
+  .popup--corner .popup__content {
+    padding: 26px 22px 20px;
+  }
+  .popup--corner .popup__heading {
+    font-size: calc(1.5rem * var(--heading-scale));
+  }
+  @keyframes popup-rise {
+    from {
+      opacity: 0;
+      translate: 0 30px;
+    }
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+  @keyframes popup-sink {
+    to {
+      opacity: 0;
+      translate: 0 30px;
+    }
+  }
+  .popup--overlay .popup__inner {
+    grid-template-columns: 1fr;
+  }
+  .popup--overlay .popup__media {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border-radius: 0;
+    min-height: 0;
+  }
+  .popup--overlay .popup__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.65), rgb(0 0 0 / 0.2));
+  }
+  .popup--overlay .popup__content {
+    position: relative;
+    z-index: 1;
+    min-height: 460px;
+    justify-content: flex-end;
+    color: #fff;
+  }
+  .popup--overlay .popup__text,
+  .popup--overlay .popup__eyebrow,
+  .popup--overlay .popup__dismiss {
+    color: rgb(255 255 255 / 0.85);
+  }
+  @media (max-width: 749px) {
+    .popup__inner {
+      grid-template-columns: 1fr;
+    }
+    .popup--image-end .popup__media {
+      order: 0;
+    }
+    .popup__media {
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+    }
+    .popup__media--arch {
+      width: 56%;
+      aspect-ratio: 4 / 5;
+      justify-self: center;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Popup",
+  "tag": "div",
+  "class": "popup-section",
+  "enabled_on": { "groups": ["footer"] },
+  "settings": [
+    { "type": "checkbox", "id": "enable", "label": "Show popup on your store", "info": "Select this section in the editor to preview it", "default": true },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    {
+      "type": "select",
+      "id": "content",
+      "label": "Content",
+      "options": [
+        { "value": "newsletter", "label": "Email signup" },
+        { "value": "button", "label": "Message with a button" }
+      ],
+      "default": "newsletter"
+    },
+    { "type": "header", "content": "When it appears" },
+    {
+      "type": "select",
+      "id": "trigger",
+      "label": "Open the popup",
+      "options": [
+        { "value": "delay", "label": "After a few seconds" },
+        { "value": "scroll", "label": "After scrolling down the page" },
+        { "value": "exit", "label": "When leaving the page" }
+      ],
+      "default": "delay",
+      "info": "Leaving the page is detected on computers. Phones use the delay instead."
+    },
+    { "type": "range", "id": "delay", "label": "Delay", "min": 0, "max": 60, "step": 1, "unit": "s", "default": 8 },
+    { "type": "range", "id": "scroll_percent", "label": "Scroll distance", "min": 10, "max": 90, "step": 5, "unit": "%", "default": 40 },
+    { "type": "range", "id": "frequency", "label": "Show again after", "min": 0, "max": 30, "step": 1, "unit": "d", "default": 7, "info": "0 shows it once per visit. Shoppers who sign up don't see it again." },
+    {
+      "type": "select",
+      "id": "pages",
+      "label": "Pages",
+      "options": [
+        { "value": "all", "label": "Every page" },
+        { "value": "home", "label": "Homepage only" }
+      ],
+      "default": "all"
+    },
+    { "type": "checkbox", "id": "show_mobile", "label": "Show on phones", "default": true },
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        { "value": "center", "label": "Center of the screen" },
+        { "value": "corner", "label": "Bottom corner" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Style",
+      "options": [
+        { "value": "split", "label": "Image beside the text" },
+        { "value": "stacked", "label": "Image above the text" },
+        { "value": "overlay", "label": "Text over the image" }
+      ],
+      "default": "split",
+      "info": "The bottom corner always uses Image above the text"
+    },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "end", "label": "End" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "image_shape",
+      "label": "Image shape",
+      "options": [
+        { "value": "square", "label": "Fill the side" },
+        { "value": "rounded", "label": "Rounded frame" },
+        { "value": "arch", "label": "Arched frame" }
+      ],
+      "default": "square"
+    },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The list" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "info": "Wrap words in *asterisks* for the accent style", "default": "Join our *list*" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Be the first to hear about new bags.</p>" },
+    { "type": "text", "id": "submit_label", "label": "Signup button label", "info": "Defaults to Subscribe" },
+    {
+      "type": "text",
+      "id": "discount_code",
+      "label": "Discount code",
+      "info": "Optional. Create the code in Discounts first. With email signup, it shows after the shopper signs up."
+    },
+    { "type": "text", "id": "button_label", "label": "Button label", "info": "Used with Message with a button", "default": "Shop now" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "text", "id": "dismiss_label", "label": "Close link label", "default": "No thanks" }
+  ],
+  "presets": [{ "name": "Popup" }]
+}
+{% endschema %}

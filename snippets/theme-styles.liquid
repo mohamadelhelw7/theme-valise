@@ -1,0 +1,223 @@
+{% doc %}
+  Outputs font faces, global CSS custom properties and color scheme classes built from theme settings.
+  Font keys map to bundled fonts declared in the font-faces snippet, or to the Shopify font picker.
+
+  @example
+  {% render 'theme-styles' %}
+{% enddoc %}
+
+{%- liquid
+  assign sans_fallback = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+
+  assign heading_picker = false
+  case settings.heading_font_source
+    when 'josefin_sans'
+      assign heading_family = "'Theme Josefin Sans'"
+      assign heading_fallback = "'Futura', 'Century Gothic', " | append: sans_fallback
+    when 'newsreader'
+      assign heading_family = "'Theme Newsreader'"
+      assign heading_fallback = "Georgia, 'Times New Roman', serif"
+    when 'marcellus'
+      assign heading_family = "'Theme Marcellus'"
+      assign heading_fallback = "'Optima', Candara, Georgia, serif"
+    else
+      assign heading_picker = true
+      assign heading_font = settings.type_heading_font | font_modify: 'weight', settings.heading_weight | default: settings.type_heading_font
+      assign heading_family = heading_font.family | prepend: '"' | append: '"'
+      assign heading_fallback = heading_font.fallback_families
+  endcase
+
+  assign body_picker = false
+  assign body_weight = 400
+  case settings.body_font_source
+    when 'figtree'
+      assign body_family = "'Theme Figtree'"
+      assign body_fallback = sans_fallback
+    else
+      assign body_picker = true
+      assign body_font = settings.type_body_font
+      assign body_family = body_font.family | prepend: '"' | append: '"'
+      assign body_fallback = body_font.fallback_families
+      assign body_weight = body_font.weight
+  endcase
+
+  case settings.arabic_heading_font
+    when 'plex_arabic'
+      assign arabic_heading = "'Theme IBM Plex Sans Arabic', "
+    when 'markazi'
+      assign arabic_heading = "'Theme Markazi Text', "
+    else
+      assign arabic_heading = ''
+  endcase
+
+  case settings.arabic_body_font
+    when 'plex_arabic'
+      assign arabic_body = "'Theme IBM Plex Sans Arabic', "
+    else
+      assign arabic_body = ''
+  endcase
+
+  case settings.label_font_source
+    when 'heading'
+      assign label_family = heading_family
+      assign label_fallback = heading_fallback
+      assign label_arabic = arabic_heading
+    else
+      assign label_family = body_family
+      assign label_fallback = body_fallback
+      assign label_arabic = arabic_body
+  endcase
+
+  assign heading_ls = settings.heading_letter_spacing | divided_by: 100.0
+  assign label_ls = settings.label_letter_spacing | divided_by: 100.0
+  assign button_ls = settings.button_letter_spacing | divided_by: 100.0
+  assign heading_scale = settings.heading_scale | divided_by: 100.0
+  assign heading_lh = settings.heading_line_height | divided_by: 100.0
+
+  case settings.badge_shape
+    when 'square'
+      assign badge_radius = '0px'
+    when 'rounded'
+      assign badge_radius = '4px'
+    else
+      assign badge_radius = '999px'
+  endcase
+-%}
+
+{% render 'font-faces', heading_font: settings.heading_font_source, body_font: settings.body_font_source %}
+
+{% style %}
+  {%- if body_picker -%}
+    {%- liquid
+      assign body_font_medium = body_font | font_modify: 'weight', '500'
+      assign body_font_bold = body_font | font_modify: 'weight', 'bold'
+      assign body_font_italic = body_font | font_modify: 'style', 'italic'
+    -%}
+    {{ body_font | font_face: font_display: 'swap' }}
+    {{ body_font_medium | font_face: font_display: 'swap' }}
+    {{ body_font_bold | font_face: font_display: 'swap' }}
+    {{ body_font_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if heading_picker -%}
+    {{ heading_font | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  :root {
+    --font-body: {{ body_family }}, {{ arabic_body }}{{ body_fallback }};
+    --font-body-weight: {{ body_weight }};
+    --font-heading: {{ heading_family }}, {{ arabic_heading }}{{ heading_fallback }};
+    --font-heading-weight: {{ settings.heading_weight }};
+    --font-label: {{ label_family }}, {{ label_arabic }}{{ label_fallback }};
+    --grain: {{ settings.grain_amount | divided_by: 100.0 }};
+    --heading-scale: {{ heading_scale }};
+    --heading-ls: {{ heading_ls }}em;
+    --heading-lh: {{ heading_lh }};
+    --heading-case: {% if settings.heading_uppercase %}uppercase{% else %}none{% endif %};
+    --body-size: {{ settings.body_size }}px;
+    --label-case: {% if settings.label_uppercase %}uppercase{% else %}none{% endif %};
+    --label-ls: {{ label_ls }}em;
+
+    --page-width: {{ settings.page_width }}px;
+    --gutter: {{ settings.page_gutter }}px;
+    --grid-gap: {{ settings.grid_gap }}px;
+    --section-gap: {{ settings.section_spacing }}px;
+    --space-none: 0px;
+    --space-small: var(--grid-gap);
+    --space-medium: calc(var(--section-gap) * 0.5);
+    --space-large: var(--section-gap);
+
+    --radius-lg: {{ settings.radius_large }}px;
+    --radius-md: {{ settings.radius_medium }}px;
+    --radius-sm: {{ settings.radius_small }}px;
+    --input-radius: {{ settings.input_radius }}px;
+    --button-radius: {{ settings.button_radius }}px;
+    --button-height: {{ settings.button_height }}px;
+    --button-weight: {{ settings.button_weight }};
+    --button-case: {% if settings.button_uppercase %}uppercase{% else %}none{% endif %};
+    --button-ls: {{ button_ls }}em;
+    --badge-radius: {{ badge_radius }};
+
+    --color-sale: {{ settings.color_sale }};
+    --color-badge: {{ settings.color_badge }};
+    --color-badge-text: {{ settings.color_badge_text }};
+    --tint-1: {{ settings.color_tint_1 }};
+    --tint-2: {{ settings.color_tint_2 }};
+    --tint-3: {{ settings.color_tint_3 }};
+    --tint-4: {{ settings.color_tint_4 }};
+
+    --card-ratio: {{ settings.card_image_ratio }};
+    --card-image-padding: {{ settings.card_image_padding }}px;
+    --card-title-lines: {{ settings.card_title_lines }};
+    --card-title-case: {% if settings.card_title_case == 'uppercase' %}uppercase{% else %}none{% endif %};
+    --card-title-ls: {% if settings.card_title_case == 'uppercase' %}0.12em{% else %}0em{% endif %};
+    --card-title-size: {% if settings.card_title_case == 'uppercase' %}0.75rem{% else %}0.9375rem{% endif %};
+    --reveal-duration: {{ settings.animation_duration }}ms;
+    --header-height: 80px;
+  }
+
+  @media (max-width: 749px) {
+    :root {
+      --gutter: {{ settings.page_gutter_mobile }}px;
+      --grid-gap: {{ settings.grid_gap_mobile }}px;
+      --space-medium: calc(var(--section-gap) * 0.35);
+      --space-large: calc(var(--section-gap) * 0.6);
+    }
+  }
+
+  {%- liquid
+    assign root_scheme_id = ''
+    for scheme in settings.color_schemes
+      if forloop.first
+        assign root_scheme_id = scheme.id
+      endif
+      if scheme.id == 'scheme-1'
+        assign root_scheme_id = 'scheme-1'
+      endif
+    endfor
+  -%}
+
+  {% for scheme in settings.color_schemes -%}
+    {%- assign s = scheme.settings -%}
+    {%- liquid
+      assign ph_ink = s.accent
+      assign ph_contrast = s.accent | color_contrast: s.background
+      if ph_contrast < 2.5
+        assign ph_ink = s.text
+      endif
+      assign ph_brightness = s.background | color_brightness
+    -%}
+    {% if scheme.id == root_scheme_id %}:root,{% endif %}
+    .color-{{ scheme.id }} {
+      --color-bg: {{ s.background }};
+      --color-bg-gradient: {% if s.background_gradient != blank %}{{ s.background_gradient }}{% else %}{{ s.background }}{% endif %};
+      --color-surface: {{ s.surface }};
+      --color-text: {{ s.text }};
+      --color-body: color-mix(in srgb, {{ s.text }} 84%, {{ s.background }});
+      --color-muted: {{ s.text_muted }};
+      --color-border: {{ s.border }};
+      --color-accent: {{ s.accent }};
+      --color-accent-contrast: {{ s.on_accent }};
+      --color-ph-ink: {{ ph_ink }};
+      --ph-glow: {% if ph_brightness > 128 %}rgb(255 255 255 / 0.62){% else %}rgb(255 255 255 / 0.07){% endif %};
+      --color-button: {{ s.button }};
+      --color-button-text: {{ s.button_label }};
+      --color-button-2: {{ s.secondary_button_label }};
+      --color-overlay: color-mix(in srgb, {{ s.text }} 45%, transparent);
+    }
+  {% endfor %}
+
+  {%- capture scheme_selectors -%}
+    {%- for scheme in settings.color_schemes -%}.color-{{ scheme.id }}{%- unless forloop.last -%}, {% endunless -%}{%- endfor -%}
+  {%- endcapture -%}
+  {{ scheme_selectors }} {
+    background: var(--color-bg-gradient);
+    color: var(--color-text);
+  }
+{%- if settings.page_transitions != 'none' -%}
+    @media (prefers-reduced-motion: no-preference) {
+      @view-transition {
+        navigation: auto;
+      }
+    }
+  {%- endif -%}
+{% endstyle %}

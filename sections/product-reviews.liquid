@@ -1,0 +1,287 @@
+{%- liquid
+  assign review_product = section.settings.product | default: product
+  assign rating = review_product.metafields.reviews.rating.value
+  assign rating_count = review_product.metafields.reviews.rating_count.value | default: 0
+-%}
+
+<section
+  id="{{ section.settings.anchor | default: 'reviews' | handleize }}"
+  class="section color-{{ section.settings.color_scheme }} product-reviews"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <card-slider class="page-width">
+    <div class="product-reviews__header">
+      <div class="section-header__titles">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+        {%- endif -%}
+        <h2 class="h2">{{ section.settings.heading | escape }}</h2>
+      </div>
+
+      {%- if rating != blank -%}
+        {%- liquid
+          assign scale = rating.scale_max | default: 5
+          assign rating_value = rating.rating | times: 1.0
+          assign rounded = rating_value | round
+        -%}
+        <div class="product-reviews__summary">
+          <span class="product-reviews__score">{{ rating_value | round: 1 }}</span>
+          <div>
+            <span class="stars" role="img" aria-label="{{ 'sections.reviews.rating' | t: rating: rating_value }}">
+              {%- for i in (1..scale) -%}
+                {%- if i <= rounded -%}
+                  {% render 'icon', icon: 'star' %}
+                {%- else -%}
+                  <span class="review-card__star-off">{% render 'icon', icon: 'star' %}</span>
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+            {%- if rating_count > 0 -%}
+              <p class="product-reviews__count">{{ 'sections.reviews.count' | t: count: rating_count }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}
+        <a href="{{ section.settings.button_link }}" class="button button--secondary">{{ section.settings.button_label | escape }}</a>
+      {%- endif -%}
+      {%- if section.settings.layout == 'slider' -%}
+        {% render 'slider-buttons' %}
+      {%- endif -%}
+    </div>
+
+    <div
+      class="product-reviews__grid product-reviews__grid--{{ section.settings.layout }}{% if section.settings.layout == 'slider' %} slider-track{% endif %}"
+      {% if section.settings.layout == 'slider' %}
+        data-slider-track
+      {% endif %}
+    >
+      {% content_for 'blocks' %}
+    </div>
+  </card-slider>
+</section>
+
+{% stylesheet %}
+  .product-reviews {
+    scroll-margin-top: 100px;
+  }
+  .product-reviews__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px 32px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .product-reviews__summary {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-inline-start: auto;
+  }
+  .product-reviews__score {
+    font-family: var(--font-heading);
+    font-size: 2.75rem;
+    font-weight: var(--font-heading-weight);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .product-reviews__count {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    margin-top: 4px;
+  }
+  .product-reviews__grid--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--grid-gap);
+  }
+  .product-reviews__grid--list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid-gap);
+    max-width: 860px;
+  }
+  .product-reviews__grid--list .review-card {
+    flex-direction: row;
+  }
+  .product-reviews__grid--list .review-card__media {
+    width: 200px;
+    flex: none;
+    aspect-ratio: auto;
+  }
+  @media (max-width: 749px) {
+    .product-reviews__summary {
+      margin-inline-start: 0;
+    }
+    .product-reviews__grid--list .review-card {
+      flex-direction: column;
+    }
+    .product-reviews__grid--list .review-card__media {
+      width: 100%;
+      aspect-ratio: 5 / 4;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product reviews",
+  "tag": "div",
+  "class": "product-reviews-section",
+  "blocks": [
+    {
+      "type": "_review"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add review blocks by hand, or add your review app's block here. The rating summary reads the reviews.rating metafield that most review apps fill in."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Reviews"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "What customers say"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "info": "On product pages this uses the current product automatically"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "slider",
+          "label": "Slider with arrows"
+        },
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "list",
+          "label": "List"
+        }
+      ],
+      "default": "slider"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Write a review"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Section ID",
+      "info": "The star rating block links here",
+      "default": "reviews"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product reviews",
+      "blocks": [
+        {
+          "type": "_review",
+          "settings": {
+            "show_image": false
+          }
+        },
+        {
+          "type": "_review",
+          "settings": {
+            "show_image": false
+          }
+        },
+        {
+          "type": "_review",
+          "settings": {
+            "show_image": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

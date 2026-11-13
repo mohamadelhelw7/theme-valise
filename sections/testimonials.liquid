@@ -1,0 +1,174 @@
+{%- liquid
+  assign is_slider = false
+  if section.settings.layout == 'slider'
+    assign is_slider = true
+  endif
+-%}
+
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <card-slider class="page-width">
+    {% render 'section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      description: section.settings.description,
+      alignment: section.settings.header_alignment,
+      slider: is_slider
+    %}
+    <div
+      class="testimonials{% if is_slider %} slider-track{% elsif section.settings.layout == 'mosaic' %} testimonials--mosaic{% else %} testimonials--grid{% endif %}"
+      style="--slider-cols: {{ section.settings.columns }}; --testimonial-cols: {{ section.settings.columns }};"
+      {% if is_slider %}
+        data-slider-track
+      {% endif %}
+    >
+      {% content_for 'blocks' %}
+    </div>
+  </card-slider>
+</section>
+
+{% stylesheet %}
+  .testimonials--mosaic {
+    columns: var(--testimonial-cols);
+    column-gap: var(--grid-gap);
+    max-width: 1180px;
+    margin-inline: auto;
+  }
+  .testimonials--mosaic > * {
+    break-inside: avoid;
+    margin-bottom: var(--grid-gap);
+  }
+  .testimonials--mosaic .review-card {
+    position: relative;
+    height: auto;
+    color: #fff;
+    background: #1b1b1b;
+  }
+  .testimonials--mosaic .review-card:not(:has(.review-card__media)) {
+    color: var(--color-text);
+    background: var(--color-surface);
+  }
+  .testimonials--mosaic .review-card__media {
+    aspect-ratio: 4 / 5;
+  }
+  .testimonials--mosaic > :nth-child(3n + 2) .review-card__media {
+    aspect-ratio: 1;
+  }
+  .testimonials--mosaic > :nth-child(4n + 3) .review-card__media {
+    aspect-ratio: 3 / 4;
+  }
+  .testimonials--mosaic .review-card__media img {
+    transition: scale 0.8s ease;
+  }
+  .testimonials--mosaic .review-card:hover .review-card__media img {
+    scale: 1.04;
+  }
+  .testimonials--mosaic .review-card:has(.review-card__media) .review-card__body {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 64px 20px 18px;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.5) 60%, transparent);
+  }
+  .testimonials--mosaic .review-card:has(.review-card__media) :is(.review-card__quote, .review-card__verified, .review-card__product) {
+    color: inherit;
+  }
+  .testimonials--mosaic .review-card:has(.review-card__media) .review-card__quote {
+    opacity: 0.92;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .testimonials--mosaic .review-card:has(.review-card__media) .review-card__footer {
+    border-top-color: rgb(255 255 255 / 0.25);
+  }
+  @media (max-width: 989px) {
+    .testimonials--mosaic {
+      columns: 2;
+    }
+  }
+  @media (max-width: 549px) {
+    .testimonials--mosaic {
+      columns: 1;
+    }
+  }
+  .testimonials--grid {
+    display: grid;
+    grid-template-columns: repeat(var(--testimonial-cols), minmax(0, 1fr));
+    gap: var(--grid-gap);
+  }
+  @media (max-width: 989px) {
+    .testimonials--grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 749px) {
+    .testimonials--grid {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+    }
+    .testimonials--grid > * {
+      flex: 0 0 85%;
+      scroll-snap-align: start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Reviews",
+  "tag": "div",
+  "class": "testimonials-section",
+  "max_blocks": 12,
+  "blocks": [{ "type": "_review" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Loved by our customers" },
+    { "type": "inline_richtext", "id": "description", "label": "Description" },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split with accent line" }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "slider", "label": "Slider with arrows" },
+        { "value": "grid", "label": "Grid" },
+        { "value": "mosaic", "label": "Photo mosaic" }
+      ],
+      "default": "slider"
+    },
+    { "type": "range", "id": "columns", "label": "Cards per row on desktop", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Reviews",
+      "blocks": [
+        { "type": "_review", "settings": { "author": "Customer name" } },
+        { "type": "_review", "settings": { "author": "Customer name" } },
+        { "type": "_review", "settings": { "author": "Customer name" } },
+        { "type": "_review", "settings": { "author": "Customer name" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

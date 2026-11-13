@@ -1,0 +1,62 @@
+{% doc %}
+  Renders a Save button that adds the product to the shopper's saved items.
+
+  @example
+  {% content_for 'block', type: 'save-button', id: 'save' %}
+{% enddoc %}
+
+{%- if settings.wishlist_enable and product != blank -%}
+  <div class="save-button-block{% if block.settings.full_width %} save-button-block--full{% endif %}" {{ block.shopify_attributes }}>
+    <button
+      type="button"
+      class="button {{ block.settings.style }} save-button"
+      data-save="{{ product.handle }}"
+      data-save-title="{{ product.title | escape }}"
+      aria-pressed="false"
+      aria-label="{{ 'saved.save' | t: title: product.title | escape }}"
+    >
+      {% render 'icon', icon: 'heart', class: 'save-button__icon' %}
+      <span data-save-text>{{ 'saved.save_label' | t }}</span>
+    </button>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .save-button-block--full .save-button {
+    width: 100%;
+  }
+  .save-button {
+    gap: 10px;
+  }
+  .save-button__icon {
+    width: 18px;
+    height: 18px;
+  }
+  .save-button[aria-pressed='true'] .save-button__icon {
+    fill: currentColor;
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Save button",
+  "tag": null,
+  "settings": [
+    { "type": "paragraph", "content": "Shows when Theme settings > Saved items is on." },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "button--secondary", "label": "Outline" },
+        { "value": "button--primary", "label": "Solid" },
+        { "value": "button--link", "label": "Text link" }
+      ],
+      "default": "button--secondary"
+    },
+    { "type": "checkbox", "id": "full_width", "label": "Full width", "default": true }
+  ],
+  "presets": [{ "name": "Save button", "category": "Product" }]
+}
+{% endschema %}

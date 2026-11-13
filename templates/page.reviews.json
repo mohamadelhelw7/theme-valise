@@ -1,0 +1,112 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "content_width": 760,
+        "padding_bottom": "none"
+      }
+    },
+    "reviews": {
+      "type": "testimonials",
+      "blocks": {
+        "r1": {
+          "type": "_review",
+          "settings": {
+            "color": "#EAD9CF"
+          }
+        },
+        "r2": {
+          "type": "_review",
+          "settings": {
+            "color": "#DCE1D2"
+          }
+        },
+        "r3": {
+          "type": "_review",
+          "settings": {
+            "color": "#C9B8A6"
+          }
+        },
+        "r4": {
+          "type": "_review",
+          "settings": {
+            "color": "#F2E2C4"
+          }
+        },
+        "r5": {
+          "type": "_review",
+          "settings": {
+            "color": "#EAD9CF"
+          }
+        },
+        "r6": {
+          "type": "_review",
+          "settings": {
+            "color": "#DCE1D2"
+          }
+        }
+      },
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6"
+      ],
+      "settings": {
+        "heading": "Loved by our customers",
+        "padding_top": "medium",
+        "padding_bottom": "none"
+      }
+    },
+    "cta": {
+      "type": "custom-section",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Tried something you love?",
+            "alignment": "center",
+            "size": "h2",
+            "tag": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Tell us how it went. Your review helps others find their bag.</p>",
+            "alignment": "center"
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "Shop bestsellers",
+            "link": "shopify://collections/all",
+            "style": "button--primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "alignment": "custom-section--center",
+        "panel": true,
+        "gap": 20,
+        "padding_top": "large",
+        "padding_bottom": "none",
+        "panel_scheme": "scheme-4"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "reviews",
+    "cta"
+  ]
+}

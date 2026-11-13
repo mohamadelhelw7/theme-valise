@@ -1,0 +1,130 @@
+<section
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <div class="page-width">
+    {% render 'section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      description: section.settings.description,
+      alignment: section.settings.header_alignment
+    %}
+    <story-stack class="stories" data-no-reveal>
+      {% content_for 'blocks' %}
+    </story-stack>
+  </div>
+</section>
+
+{% stylesheet %}
+  story-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .story-card__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    transform-origin: top center;
+    transform: scale(calc(1 - var(--cover, 0) * 0.06));
+    filter: brightness(calc(1 - var(--cover, 0) * 0.18));
+    box-shadow: 0 -24px 60px -48px rgb(0 0 0 / 0.55);
+  }
+  .story-card--image-end .story-card__media {
+    order: 2;
+  }
+  .story-card__media {
+    position: relative;
+    min-height: 320px;
+    background: var(--color-surface);
+  }
+  .story-card__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .story-card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 18px;
+    padding: clamp(28px, 5vw, 72px);
+  }
+  .story-card__heading em {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+  .heading-accent-color .story-card__heading em {
+    font-style: normal;
+  }
+  .story-card__text {
+    max-width: 44ch;
+    color: var(--color-body);
+  }
+  @media (min-width: 750px) {
+    .story-card {
+      position: sticky;
+      top: calc(var(--header-height, 0px) + 24px + var(--i) * 20px);
+    }
+    .story-card__inner {
+      min-height: min(70vh, 620px);
+    }
+  }
+  @media (max-width: 749px) {
+    .story-card__inner {
+      grid-template-columns: 1fr;
+    }
+    .story-card--image-end .story-card__media {
+      order: 0;
+    }
+    .story-card__media {
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Stacking stories",
+  "tag": "div",
+  "class": "stacked-stories-section",
+  "max_blocks": 6,
+  "blocks": [{ "type": "_story-card" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "On desktop the cards stick and stack over each other as shoppers scroll. Give each card its own color scheme." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "inline_richtext", "id": "description", "label": "Description" },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "split", "label": "Split with accent line" }
+      ],
+      "default": "center"
+    },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [
+    {
+      "name": "Stacking stories",
+      "blocks": [
+        { "type": "_story-card", "settings": { "color_scheme": "scheme-4", "eyebrow": "The materials", "heading": "Chosen to\n*last*", "button_label": "Discover" } },
+        { "type": "_story-card", "settings": { "color_scheme": "scheme-3", "image_position": "end", "eyebrow": "The size", "heading": "Find the right\n*size*", "text": "<p>Every bag shows its measurements and what fits inside on its page.</p>", "button_label": "Size guide" } },
+        { "type": "_story-card", "settings": { "color_scheme": "scheme-5", "eyebrow": "New in", "heading": "New bags,\n*every* season", "text": "<p>Sign up to hear about new bags first.</p>", "button_label": "Shop the drop" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

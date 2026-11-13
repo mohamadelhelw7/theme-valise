@@ -1,0 +1,70 @@
+{% doc %}
+  Renders a fine line drawing of a bag for frames without a photo. Lines use
+  currentColor, and the dashed lines are the stitching.
+
+  @param {string} name - tote, crossbody, backpack, clutch, bucket, satchel, weekender or wallet
+
+  @example
+  {% render 'placeholder-art', name: 'tote' %}
+{% enddoc %}
+
+<svg class="bag-art bag-art--{{ name | default: 'tote' }}" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+  {%- case name -%}
+    {%- when 'crossbody' -%}
+      <path class="bag-art__strap" d="M30 60 C30 22 44 12 60 12 C76 12 90 22 90 60"/>
+      <circle cx="30" cy="60" r="2.4"/>
+      <circle cx="90" cy="60" r="2.4"/>
+      <path d="M24 60 H96 V98 C96 101 94 103 91 103 H29 C26 103 24 101 24 98 Z"/>
+      <path d="M24 60 H96 V80 C84 88 72 92 60 92 C48 92 36 88 24 80 Z"/>
+      <path class="bag-art__stitch" d="M28 64 H92 V78 C81 85 70 88 60 88 C50 88 39 85 28 78 Z"/>
+      <circle cx="60" cy="86" r="3.4"/>
+    {%- when 'backpack' -%}
+      <path d="M52 24 C52 14 68 14 68 24"/>
+      <path d="M32 38 C32 28 40 24 48 24 H72 C80 24 88 28 88 38 V100 C88 104 85 106 81 106 H39 C35 106 32 104 32 100 Z"/>
+      <path d="M42 76 H78 V96 C78 98 76 100 74 100 H46 C44 100 42 98 42 96 Z"/>
+      <path class="bag-art__stitch" d="M45 80 H75 V95 C75 96 74 97 73 97 H47 C46 97 45 96 45 95 Z"/>
+      <path d="M32 40 C32 31 40 27 48 27 H72 C80 27 88 31 88 40 V58 C76 64 44 64 32 58 Z"/>
+      <path class="bag-art__stitch" d="M36 42 C36 34 42 31 48 31 H72 C78 31 84 34 84 42 V55 C72 60 48 60 36 55 Z"/>
+      <path d="M48 61 V70 M72 61 V70"/>
+      <path d="M45 70 H51 V77 H45 Z M69 70 H75 V77 H69 Z"/>
+    {%- when 'clutch' -%}
+      <path d="M16 48 H104 V92 C104 94 102 96 100 96 H20 C18 96 16 94 16 92 Z"/>
+      <path class="bag-art__stitch" d="M20 52 H100 V92 H20 Z"/>
+      <path d="M16 48 H104 L64 76 C61.5 77.6 58.5 77.6 56 76 Z"/>
+      <circle cx="60" cy="73" r="3"/>
+    {%- when 'bucket' -%}
+      <path class="bag-art__strap" d="M43 46 C43 12 77 12 77 46"/>
+      <path d="M34 48 C34 70 34 92 40 102 C42 105 46 106 50 106 H70 C74 106 78 105 80 102 C86 92 86 70 86 48 Z"/>
+      <path d="M34 48 C34 43 86 43 86 48 C86 53 34 53 34 48 Z"/>
+      <path d="M38 55 C50 61 70 61 82 55"/>
+      <path class="bag-art__stitch" d="M44 52.5 L45.5 58.5 M52 53.8 L52.8 60 M60 54.2 V60.4 M68 53.8 L67.2 60"/>
+      <path d="M75 59 L72 74 M75 59 L78 73"/>
+      <path class="bag-art__stitch" d="M38 96 C52 100 68 100 82 96"/>
+    {%- when 'satchel' -%}
+      <path d="M46 50 V42 C46 30 74 30 74 42 V50"/>
+      <path d="M22 50 H98 C100 50 101 52 101 54 L97 102 C97 104 95 106 93 106 H27 C25 106 23 104 23 102 L19 54 C19 52 20 50 22 50 Z"/>
+      <path class="bag-art__stitch" d="M26 82 L25 100 H95 L94 82"/>
+      <path d="M21 52 H99 L98 72 C86 77 34 77 22 72 Z"/>
+      <path class="bag-art__stitch" d="M25 56 H95 L94.4 69 C83 72.6 37 72.6 25.6 69 Z"/>
+      <path d="M56 70 H64 C65 70 66 71 66 72 V78 C66 79 65 80 64 80 H56 C55 80 54 79 54 78 V72 C54 71 55 70 56 70 Z"/>
+      <circle cx="60" cy="75" r="1.4"/>
+    {%- when 'weekender' -%}
+      <path d="M44 46 C44 28 76 28 76 46"/>
+      <path d="M14 62 C14 52 22 46 32 46 H88 C98 46 106 52 106 62 V94 C106 99 102 102 97 102 H23 C18 102 14 99 14 94 Z"/>
+      <path d="M26 48 C20 58 20 90 26 101 M94 48 C100 58 100 90 94 101"/>
+      <path d="M28 54 H92 M84 54 V61"/>
+      <path class="bag-art__stitch" d="M30 94 H90"/>
+      <path d="M40 46 V54 H48 V46 M72 46 V54 H80 V46"/>
+    {%- when 'wallet' -%}
+      <path d="M24 40 H96 C98 40 100 42 100 44 V86 C100 88 98 90 96 90 H24 C22 90 20 88 20 86 V44 C20 42 22 40 24 40 Z"/>
+      <path class="bag-art__stitch" d="M24 44 H96 V86 H24 Z"/>
+      <path d="M80 52 H100 V72 H80 C76 72 73 69 73 66 V58 C73 55 76 52 80 52 Z"/>
+      <circle cx="86" cy="62" r="3"/>
+    {%- else -%}
+      <path class="bag-art__strap" d="M54 52 C54 26 82 26 82 52"/>
+      <path d="M38 52 C38 26 66 26 66 52"/>
+      <path d="M26 52 H94 L88 106 H32 Z"/>
+      <path class="bag-art__stitch" d="M30.5 57 H89.5 L84.5 101.5 H35.5 Z"/>
+      <path d="M35 52 V60 H41 V52 M63 52 V60 H69 V52"/>
+  {%- endcase -%}
+</svg>

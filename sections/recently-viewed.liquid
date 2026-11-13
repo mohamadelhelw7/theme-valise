@@ -1,0 +1,69 @@
+<recently-viewed
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+  data-limit="{{ section.settings.limit }}"
+  {% unless request.design_mode %}
+    hidden
+  {% endunless %}
+>
+  <card-slider class="page-width">
+    {% render 'section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      alignment: section.settings.header_alignment,
+      slider: true
+    %}
+    <ul
+      class="slider-track slider-track--products"
+      role="list"
+      data-slider-track
+      data-recent-track
+      style="--slider-cols: {{ section.settings.columns }};"
+    >
+      {%- if request.design_mode -%}
+        {%- for i in (1..section.settings.columns) -%}
+          <li>{% render 'product-card', product: blank, index: i %}</li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </card-slider>
+</recently-viewed>
+
+{% stylesheet %}
+  recently-viewed {
+    display: block;
+  }
+  recently-viewed[hidden] {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Recently viewed",
+  "tag": "div",
+  "class": "recently-viewed-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "Shows the products a shopper opened most recently on this device. It stays hidden until they have viewed a product." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Recently viewed" },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading layout",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "start"
+    },
+    { "type": "range", "id": "limit", "label": "Products", "min": 2, "max": 10, "step": 1, "default": 6 },
+    { "type": "range", "id": "columns", "label": "Products in view", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "none" }
+  ],
+  "presets": [{ "name": "Recently viewed" }]
+}
+{% endschema %}

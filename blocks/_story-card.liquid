@@ -1,0 +1,79 @@
+{% doc %}
+  Renders one card in Stacking stories: a photo beside a heading, text and button, in its own color scheme.
+  On desktop the cards stick and stack over each other as shoppers scroll.
+{% enddoc %}
+
+{%- liquid
+  assign card_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign card_index = forloop.index0
+      break
+    endif
+  endfor
+  assign fallback_product = collections.all.products[card_index]
+  assign story_image = block.settings.image | default: fallback_product.featured_image
+  assign heading_parts = block.settings.heading | escape | newline_to_br | split: '*'
+-%}
+
+<article class="story-card story-card--image-{{ block.settings.image_position }}" style="--i: {{ card_index }};" {{ block.shopify_attributes }}>
+  <div class="story-card__inner color-{{ block.settings.color_scheme }}">
+    <div class="story-card__media">
+      {%- if story_image != blank -%}
+        {{
+          story_image
+          | image_url: width: 1400
+          | image_tag: widths: '500, 800, 1100, 1400', sizes: '(min-width: 750px) 50vw, 100vw', loading: 'lazy', alt: ''
+        }}
+      {%- else -%}
+        {%- assign ph_n = card_index | plus: 1 -%}{% render 'media-placeholder', kind: 'lifestyle', index: ph_n %}
+      {%- endif -%}
+    </div>
+    <div class="story-card__content">
+      {%- if block.settings.eyebrow != blank -%}
+        <p class="eyebrow">{{ block.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      {%- if block.settings.heading != blank -%}
+        <h3 class="story-card__heading h1">
+          {%- for part in heading_parts -%}
+            {%- assign odd = forloop.index0 | modulo: 2 -%}
+            {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+          {%- endfor -%}
+        </h3>
+      {%- endif -%}
+      {%- if block.settings.text != blank -%}
+        <div class="story-card__text rte">{{ block.settings.text }}</div>
+      {%- endif -%}
+      {%- if block.settings.button_label != blank -%}
+        <a class="button button--primary" href="{{ block.settings.button_link | default: routes.all_products_collection_url }}">{{ block.settings.button_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Story card",
+  "tag": null,
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-4" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to a product photo" },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "end", "label": "End" }
+      ],
+      "default": "start"
+    },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The fabric" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "info": "Wrap words in *asterisks* for the accent style", "default": "Heavy cotton,\n*soft* feel" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Describe the materials you use and how they feel and age.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Discover" },
+    { "type": "url", "id": "button_link", "label": "Button link" }
+  ],
+  "presets": [{ "name": "Story card" }]
+}
+{% endschema %}

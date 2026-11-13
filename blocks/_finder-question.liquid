@@ -1,0 +1,49 @@
+{% doc %}
+  Renders one question of the product finder. Each answer line can name a product tag
+  after a vertical bar, for example "Work | work". Answers without a tag don't filter.
+{% enddoc %}
+
+{%- assign lines = block.settings.answers | newline_to_br | split: '<br />' -%}
+
+<fieldset class="finder__step" data-finder-step {{ block.shopify_attributes }}>
+  <legend class="finder__question">{{ block.settings.question | escape }}</legend>
+  {%- if block.settings.hint != blank -%}
+    <p class="finder__hint">{{ block.settings.hint | escape }}</p>
+  {%- endif -%}
+  <div class="finder__options">
+    {%- for line in lines -%}
+      {%- liquid
+        assign parts = line | strip | split: '|'
+        assign answer_label = parts[0] | strip
+        assign answer_tag = parts[1] | strip | handleize
+        if answer_label == blank
+          continue
+        endif
+      -%}
+      <label class="finder__option">
+        <input type="radio" name="Finder-{{ block.id }}" value="{{ answer_tag }}">
+        <span class="finder__option-label">{{ answer_label | escape }}</span>
+        {% render 'icon', icon: 'arrow' %}
+      </label>
+    {%- endfor -%}
+  </div>
+</fieldset>
+
+{% schema %}
+{
+  "name": "Question",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "question", "label": "Question", "default": "Where will you carry it?" },
+    { "type": "text", "id": "hint", "label": "Hint" },
+    {
+      "type": "textarea",
+      "id": "answers",
+      "label": "Answers",
+      "info": "One per line. Add a product tag after a vertical bar to filter, for example: Work | work",
+      "default": "Work | work\nEvery day | everyday\nEvenings | evening\nTravel | travel"
+    }
+  ],
+  "presets": [{ "name": "Question" }]
+}
+{% endschema %}

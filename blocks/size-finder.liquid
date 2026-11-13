@@ -1,0 +1,194 @@
+{% doc %}
+  Renders a size finder. Shoppers enter their height and weight, and it suggests a size from the
+  table in the block settings. The suggestion can be remembered and highlighted on product cards.
+  Hidden until a size table is added.
+
+  @example
+  {% content_for 'block', type: 'size-finder', id: 'size-finder' %}
+{% enddoc %}
+
+{%- assign table = block.settings.table | strip -%}
+
+{%- if table != blank -%}
+  <size-finder
+    class="size-finder"
+    data-table="{{ table | escape }}"
+    data-result="{{ 'products.size_finder.result' | t: size: '[size]' | escape }}"
+    data-pick="{{ 'products.size_finder.pick' | t: size: '[size]' | escape }}"
+    data-none="{{ 'products.size_finder.no_match' | t | escape }}"
+    data-remember="{{ block.settings.remember }}"
+    {{ block.shopify_attributes }}
+  >
+    <details class="size-finder__details"{% if block.settings.start_open %} open{% endif %}>
+      <summary class="size-finder__toggle">
+        {% render 'icon', icon: 'ruler', class: 'size-finder__icon' %}
+        <span class="size-finder__label">{{ block.settings.label | escape }}</span>
+        <span class="size-finder__mine" data-size-mine hidden></span>
+        {% render 'icon', icon: 'chevron-down', class: 'size-finder__chevron' %}
+      </summary>
+      <form class="size-finder__form" data-size-form novalidate>
+        <div class="size-finder__fields">
+          <label class="size-finder__field">
+            <span>{{ 'products.size_finder.height' | t }}</span>
+            <input type="text" inputmode="decimal" name="height" class="field__input" placeholder="175" autocomplete="off" required>
+          </label>
+          <label class="size-finder__field">
+            <span>{{ 'products.size_finder.weight' | t }}</span>
+            <input type="text" inputmode="decimal" name="weight" class="field__input" placeholder="70" autocomplete="off" required>
+          </label>
+        </div>
+        {%- if block.settings.ask_fit -%}
+          <fieldset class="size-finder__fit">
+            <legend>{{ 'products.size_finder.fit' | t }}</legend>
+            <label><input type="radio" name="fit" value="true" checked> {{ 'products.size_finder.true_to_size' | t }}</label>
+            <label><input type="radio" name="fit" value="oversized"> {{ 'products.size_finder.oversized' | t }}</label>
+          </fieldset>
+        {%- endif -%}
+        <button type="submit" class="button button--primary button--small">{{ 'products.size_finder.submit' | t }}</button>
+        <div class="size-finder__result" data-size-result role="status" aria-live="polite"></div>
+        {%- if block.settings.note != blank -%}
+          <p class="size-finder__note">{{ block.settings.note | escape }}</p>
+        {%- endif -%}
+      </form>
+    </details>
+  </size-finder>
+{%- elsif request.design_mode -%}
+  <p class="size-finder__empty" {{ block.shopify_attributes }}>{{ 'products.size_finder.editor_empty' | t }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  .size-finder__details {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .size-finder__toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+  }
+  .size-finder__toggle::-webkit-details-marker {
+    display: none;
+  }
+  .size-finder__icon,
+  .size-finder__chevron {
+    flex: none;
+    width: 18px;
+    height: 18px;
+  }
+  .size-finder__label {
+    flex: 1;
+  }
+  .size-finder__chevron {
+    transition: rotate 0.25s ease;
+  }
+  .size-finder__details[open] .size-finder__chevron {
+    rotate: 180deg;
+  }
+  .size-finder__mine {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font: 700 0.6875rem/1 var(--font-label);
+    letter-spacing: 0.06em;
+  }
+  .size-finder__mine[hidden] {
+    display: none;
+  }
+  .size-finder__form {
+    display: grid;
+    gap: 14px;
+    padding: 0 16px 16px;
+  }
+  .size-finder__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .size-finder__field {
+    display: grid;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .size-finder__fit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0.875rem;
+  }
+  .size-finder__fit legend {
+    width: 100%;
+    margin-bottom: 6px;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+  .size-finder__fit label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .size-finder__fit input {
+    accent-color: var(--color-accent);
+  }
+  .size-finder__form > .button {
+    justify-self: start;
+  }
+  .size-finder__result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .size-finder__result:empty {
+    display: none;
+  }
+  .size-finder__answer {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 1.375rem;
+    text-transform: var(--heading-case);
+  }
+  .size-finder__note,
+  .size-finder__empty {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .size-finder__empty {
+    padding: 12px 14px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Size finder",
+  "tag": null,
+  "settings": [
+    { "type": "paragraph", "content": "Shoppers type their height and weight and see their size. It stays hidden until you add your size table." },
+    { "type": "text", "id": "label", "label": "Label", "default": "Find my size" },
+    {
+      "type": "textarea",
+      "id": "table",
+      "label": "Size table",
+      "info": "One size per line: size | height in cm | weight in kg. For example: M | 170-178 | 62-72. Use the size names from your products."
+    },
+    { "type": "checkbox", "id": "ask_fit", "label": "Ask if they want an oversized fit", "info": "Oversized picks one size up", "default": true },
+    { "type": "checkbox", "id": "remember", "label": "Remember the shopper's size", "info": "Their size gets a mark on product cards and size buttons", "default": true },
+    { "type": "checkbox", "id": "start_open", "label": "Start open", "default": false },
+    { "type": "text", "id": "note", "label": "Note under the result", "default": "Between sizes? Check the size guide." }
+  ],
+  "presets": [{ "name": "Size finder", "category": "Product" }]
+}
+{% endschema %}

@@ -1,0 +1,19 @@
+{% doc %}
+  Outputs a money amount using the Price format theme setting.
+
+  @param {number} amount - Amount in the store's subunit (cents)
+  @param {boolean} [with_code] - Always include the currency code
+
+  @example
+  {% render 'format-money', amount: product.price %}
+{% enddoc %}
+
+{%- liquid
+  if with_code or settings.currency_format == 'with_code'
+    echo amount | money_with_currency
+  elsif settings.currency_format == 'no_decimals'
+    echo amount | money_without_trailing_zeros
+  else
+    echo amount | money
+  endif
+-%}

@@ -1,0 +1,65 @@
+{% doc %}
+  Renders a rich text block with selectable text style.
+
+  @example
+  {% content_for 'block', type: 'text', id: 'text' %}
+{% enddoc %}
+
+<div
+  class="text-block rte {{ block.settings.style }}"
+  style="--text-align: {{ block.settings.alignment }}; --text-max: {{ block.settings.max_width }}px;"
+  {{ block.shopify_attributes }}
+>
+  {{ block.settings.text }}
+</div>
+
+{% stylesheet %}
+  .text-block {
+    text-align: var(--text-align);
+    max-width: var(--text-max);
+    color: var(--color-body);
+    line-height: 1.6;
+  }
+  .text-block[style*='center'] {
+    margin-inline: auto;
+  }
+  .text-block--large {
+    font-size: 1.0625rem;
+  }
+  .text-block--body {
+    font-size: 1rem;
+  }
+  .text-block--small {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Bags for every day and every evening, in shapes that stay useful for years.</p>"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "text-block--large", "label": "Large" },
+        { "value": "text-block--body", "label": "Body" },
+        { "value": "text-block--small", "label": "Small" }
+      ],
+      "default": "text-block--large"
+    },
+    { "type": "text_alignment", "id": "alignment", "label": "Alignment", "default": "left" },
+    { "type": "range", "id": "max_width", "label": "Max width", "min": 240, "max": 900, "step": 20, "unit": "px", "default": 440 }
+  ],
+  "presets": [{ "name": "Text", "category": "Text" }]
+}
+{% endschema %}

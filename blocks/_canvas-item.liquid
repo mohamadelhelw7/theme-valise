@@ -1,0 +1,79 @@
+{% doc %}
+  Renders one photo on the drag gallery canvas. Falls back to a product from the store.
+{% enddoc %}
+
+{%- liquid
+  assign item_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign item_index = forloop.index0
+      break
+    endif
+  endfor
+  assign item_number = item_index | plus: 1
+  assign item_product = block.settings.product
+  if item_product == blank and block.settings.image == blank
+    assign item_product = collections.all.products[item_index]
+  endif
+  assign item_image = block.settings.image | default: item_product.featured_image
+  assign item_link = block.settings.link | default: item_product.url
+  assign item_caption = block.settings.caption | default: item_product.title
+-%}
+
+{%- capture item_inner -%}
+  <span class="canvas-item__media">
+    {%- if item_image != blank -%}
+      {{
+        item_image
+        | image_url: width: 900
+        | image_tag: loading: 'lazy', widths: '360, 600, 900', sizes: '(min-width: 990px) 340px, 62vw', alt: '', draggable: 'false'
+      }}
+    {%- else -%}
+      {% render 'media-placeholder', kind: 'product', index: item_number, label: item_caption %}
+    {%- endif -%}
+  </span>
+  <span class="canvas-item__meta">
+    <span class="canvas-item__number">{% if item_number < 10 %}0{% endif %}{{ item_number }}</span>
+    {%- if item_caption != blank -%}
+      <span class="canvas-item__caption">{{ item_caption | escape }}</span>
+    {%- endif -%}
+    {%- if item_product != blank and block.settings.show_price -%}
+      <span class="canvas-item__price">{% render 'format-money', amount: item_product.price %}</span>
+    {%- endif -%}
+  </span>
+{%- endcapture -%}
+
+<li class="canvas-item canvas-item--{{ block.settings.shape }}" {{ block.shopify_attributes }}>
+  {%- if item_link != blank -%}
+    <a class="canvas-item__inner" href="{{ item_link }}" draggable="false">{{ item_inner }}</a>
+  {%- else -%}
+    <div class="canvas-item__inner">{{ item_inner }}</div>
+  {%- endif -%}
+</li>
+
+{% schema %}
+{
+  "name": "Photo",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to the product photo" },
+    { "type": "product", "id": "product", "label": "Product", "info": "Links the photo to the product and shows its price" },
+    { "type": "url", "id": "link", "label": "Link", "info": "Used instead of the product link" },
+    { "type": "text", "id": "caption", "label": "Caption", "info": "Defaults to the product title" },
+    { "type": "checkbox", "id": "show_price", "label": "Show the product price", "default": true },
+    {
+      "type": "select",
+      "id": "shape",
+      "label": "Shape",
+      "options": [
+        { "value": "portrait", "label": "Portrait" },
+        { "value": "square", "label": "Square" },
+        { "value": "tall", "label": "Tall" },
+        { "value": "wide", "label": "Wide (two columns)" }
+      ],
+      "default": "portrait"
+    }
+  ],
+  "presets": [{ "name": "Photo" }]
+}
+{% endschema %}

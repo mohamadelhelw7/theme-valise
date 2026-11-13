@@ -1,0 +1,1337 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Valise",
+    "theme_version": "1.0.0",
+    "theme_author": "Mohamed Elhelw",
+    "theme_documentation_url": "https://github.com/mohamadelhelw7/theme-valise",
+    "theme_support_url": "https://github.com/mohamadelhelw7/theme-valise"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Color schemes control backgrounds, text and buttons. Pick a scheme on any section. Scheme 1 is used for the page background."
+      },
+      {
+        "type": "color_scheme_group",
+        "id": "color_schemes",
+        "definition": [
+          {
+            "type": "color",
+            "id": "background",
+            "label": "Background",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color_background",
+            "id": "background_gradient",
+            "label": "Background gradient",
+            "info": "Replaces the solid background when set"
+          },
+          {
+            "type": "color",
+            "id": "surface",
+            "label": "Cards and panels",
+            "default": "#F3F3F1"
+          },
+          {
+            "type": "color",
+            "id": "text",
+            "label": "Text",
+            "default": "#141414"
+          },
+          {
+            "type": "color",
+            "id": "text_muted",
+            "label": "Secondary text",
+            "default": "#5F5F5F"
+          },
+          {
+            "type": "color",
+            "id": "border",
+            "label": "Borders",
+            "default": "#E4E4E1"
+          },
+          {
+            "type": "color",
+            "id": "accent",
+            "label": "Accent",
+            "default": "#141414"
+          },
+          {
+            "type": "color",
+            "id": "on_accent",
+            "label": "Text on accent",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "id": "button",
+            "label": "Button",
+            "default": "#141414"
+          },
+          {
+            "type": "color",
+            "id": "button_label",
+            "label": "Button text",
+            "default": "#FFFFFF"
+          },
+          {
+            "type": "color",
+            "id": "secondary_button_label",
+            "label": "Outline button",
+            "default": "#141414"
+          }
+        ],
+        "role": {
+          "text": "text",
+          "background": {
+            "solid": "background",
+            "gradient": "background_gradient"
+          },
+          "links": "accent",
+          "icons": "accent",
+          "primary_button": "button",
+          "on_primary_button": "button_label",
+          "primary_button_border": "button",
+          "secondary_button": "background",
+          "on_secondary_button": "secondary_button_label",
+          "secondary_button_border": "secondary_button_label"
+        }
+      },
+      {
+        "type": "header",
+        "content": "Badges"
+      },
+      {
+        "type": "color",
+        "id": "color_sale",
+        "label": "Sale price and badge",
+        "default": "#B3261E"
+      },
+      {
+        "type": "color",
+        "id": "color_badge",
+        "label": "New badge",
+        "default": "#141414"
+      },
+      {
+        "type": "color",
+        "id": "color_badge_text",
+        "label": "Badge text",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "header",
+        "content": "Image tints",
+        "info": "Soft colors shown behind images and placeholders."
+      },
+      {
+        "type": "color",
+        "id": "color_tint_1",
+        "label": "Tint 1",
+        "default": "#F2F2F0"
+      },
+      {
+        "type": "color",
+        "id": "color_tint_2",
+        "label": "Tint 2",
+        "default": "#EFEFEC"
+      },
+      {
+        "type": "color",
+        "id": "color_tint_3",
+        "label": "Tint 3",
+        "default": "#F3F2EF"
+      },
+      {
+        "type": "color",
+        "id": "color_tint_4",
+        "label": "Tint 4",
+        "default": "#EDEDEA"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Headings"
+      },
+      {
+        "type": "select",
+        "id": "heading_font_source",
+        "label": "Heading font",
+        "options": [
+          {
+            "value": "josefin_sans",
+            "label": "Josefin Sans"
+          },
+          {
+            "value": "newsreader",
+            "label": "Newsreader"
+          },
+          {
+            "value": "marcellus",
+            "label": "Marcellus"
+          },
+          {
+            "value": "picker",
+            "label": "Choose from font library"
+          }
+        ],
+        "default": "josefin_sans",
+        "info": "The named fonts are bundled with the theme."
+      },
+      {
+        "type": "font_picker",
+        "id": "type_heading_font",
+        "label": "Font library heading font",
+        "info": "Used when Heading font is set to font library",
+        "default": "inter_n6"
+      },
+      {
+        "type": "select",
+        "id": "heading_weight",
+        "label": "Heading weight",
+        "options": [
+          {
+            "value": "300",
+            "label": "Light"
+          },
+          {
+            "value": "400",
+            "label": "Regular"
+          },
+          {
+            "value": "500",
+            "label": "Medium"
+          },
+          {
+            "value": "600",
+            "label": "Semibold"
+          },
+          {
+            "value": "700",
+            "label": "Bold"
+          },
+          {
+            "value": "800",
+            "label": "Extra bold"
+          }
+        ],
+        "default": "300"
+      },
+      {
+        "type": "range",
+        "id": "heading_scale",
+        "label": "Heading size",
+        "min": 80,
+        "max": 130,
+        "step": 5,
+        "unit": "%",
+        "default": 100
+      },
+      {
+        "type": "range",
+        "id": "heading_letter_spacing",
+        "label": "Heading letter spacing",
+        "min": -6,
+        "max": 20,
+        "step": 1,
+        "default": 18
+      },
+      {
+        "type": "range",
+        "id": "heading_line_height",
+        "label": "Heading line height",
+        "min": 85,
+        "max": 130,
+        "step": 5,
+        "unit": "%",
+        "default": 115
+      },
+      {
+        "type": "checkbox",
+        "id": "heading_uppercase",
+        "label": "Uppercase headings",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "heading_accent",
+        "label": "Accent words in headings",
+        "info": "Words wrapped in *asterisks* in a heading",
+        "options": [
+          {
+            "value": "italic",
+            "label": "Italic in accent color"
+          },
+          {
+            "value": "color",
+            "label": "Accent color"
+          }
+        ],
+        "default": "color"
+      },
+      {
+        "type": "header",
+        "content": "Body"
+      },
+      {
+        "type": "select",
+        "id": "body_font_source",
+        "label": "Body font",
+        "options": [
+          {
+            "value": "figtree",
+            "label": "Figtree"
+          },
+          {
+            "value": "picker",
+            "label": "Choose from font library"
+          }
+        ],
+        "default": "figtree"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Font library body font",
+        "default": "inter_n4",
+        "info": "Used when Body font is set to font library"
+      },
+      {
+        "type": "range",
+        "id": "body_size",
+        "label": "Body text size",
+        "min": 14,
+        "max": 18,
+        "step": 1,
+        "unit": "px",
+        "default": 15
+      },
+      {
+        "type": "select",
+        "id": "label_font_source",
+        "label": "Labels, prices and buttons",
+        "options": [
+          {
+            "value": "body",
+            "label": "Same as body text"
+          },
+          {
+            "value": "heading",
+            "label": "Same as headings"
+          }
+        ],
+        "default": "body",
+        "info": "Font for eyebrows, tabs, prices and buttons"
+      },
+      {
+        "type": "header",
+        "content": "Labels"
+      },
+      {
+        "type": "checkbox",
+        "id": "label_uppercase",
+        "label": "Uppercase labels and announcements",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "label_letter_spacing",
+        "label": "Label letter spacing",
+        "min": 0,
+        "max": 20,
+        "step": 2,
+        "default": 14
+      },
+      {
+        "type": "header",
+        "content": "Arabic"
+      },
+      {
+        "type": "select",
+        "id": "arabic_heading_font",
+        "label": "Arabic headings",
+        "options": [
+          {
+            "value": "plex_arabic",
+            "label": "IBM Plex Sans Arabic"
+          },
+          {
+            "value": "markazi",
+            "label": "Markazi Text"
+          },
+          {
+            "value": "system",
+            "label": "Device default"
+          }
+        ],
+        "default": "plex_arabic"
+      },
+      {
+        "type": "select",
+        "id": "arabic_body_font",
+        "label": "Arabic text",
+        "options": [
+          {
+            "value": "plex_arabic",
+            "label": "IBM Plex Sans Arabic"
+          },
+          {
+            "value": "system",
+            "label": "Device default"
+          }
+        ],
+        "default": "plex_arabic",
+        "info": "Arabic fonts are bundled and only load when a page shows Arabic text."
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "label": "Page width",
+        "min": 1000,
+        "max": 1600,
+        "step": 20,
+        "unit": "px",
+        "default": 1440
+      },
+      {
+        "type": "range",
+        "id": "page_gutter",
+        "label": "Side margins on desktop",
+        "min": 16,
+        "max": 64,
+        "step": 4,
+        "unit": "px",
+        "default": 40
+      },
+      {
+        "type": "range",
+        "id": "page_gutter_mobile",
+        "label": "Side margins on mobile",
+        "min": 12,
+        "max": 32,
+        "step": 2,
+        "unit": "px",
+        "default": 16
+      },
+      {
+        "type": "range",
+        "id": "section_spacing",
+        "label": "Space between sections",
+        "info": "Sections set to Large use this value. Medium is half of it.",
+        "min": 48,
+        "max": 160,
+        "step": 8,
+        "unit": "px",
+        "default": 112
+      },
+      {
+        "type": "range",
+        "id": "grid_gap",
+        "label": "Gap between cards on desktop",
+        "min": 8,
+        "max": 32,
+        "step": 2,
+        "unit": "px",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "grid_gap_mobile",
+        "label": "Gap between cards on mobile",
+        "min": 6,
+        "max": 20,
+        "step": 2,
+        "unit": "px",
+        "default": 12
+      },
+      {
+        "type": "header",
+        "content": "Missing photos"
+      },
+      {
+        "type": "select",
+        "id": "placeholder_style",
+        "label": "Frames without a photo",
+        "info": "What shows until you add photos. Drawings use each color scheme's text color.",
+        "options": [
+          {
+            "value": "drawings",
+            "label": "Bag drawings"
+          },
+          {
+            "value": "plain",
+            "label": "Plain tint"
+          }
+        ],
+        "default": "drawings"
+      },
+      {
+        "type": "checkbox",
+        "id": "placeholder_text_heroes",
+        "label": "Show heroes as text only when they have no photo",
+        "info": "Applies to Drop hero, Hero and Image with text. Add a photo to switch back.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Corners and buttons",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Corner radius"
+      },
+      {
+        "type": "range",
+        "id": "radius_large",
+        "label": "Large panels",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "radius_medium",
+        "label": "Cards",
+        "min": 0,
+        "max": 32,
+        "step": 2,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "radius_small",
+        "label": "Small elements",
+        "min": 0,
+        "max": 24,
+        "step": 2,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "input_radius",
+        "label": "Inputs",
+        "min": 0,
+        "max": 30,
+        "step": 2,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "header",
+        "content": "Buttons"
+      },
+      {
+        "type": "range",
+        "id": "button_radius",
+        "label": "Button corners",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "button_height",
+        "label": "Button height",
+        "min": 40,
+        "max": 60,
+        "step": 2,
+        "unit": "px",
+        "default": 48
+      },
+      {
+        "type": "select",
+        "id": "button_weight",
+        "label": "Button text weight",
+        "options": [
+          {
+            "value": "500",
+            "label": "Medium"
+          },
+          {
+            "value": "600",
+            "label": "Semibold"
+          },
+          {
+            "value": "700",
+            "label": "Bold"
+          }
+        ],
+        "default": "500"
+      },
+      {
+        "type": "checkbox",
+        "id": "button_uppercase",
+        "label": "Uppercase button text",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "button_letter_spacing",
+        "label": "Button letter spacing",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "default": 16
+      },
+      {
+        "type": "checkbox",
+        "id": "button_glow",
+        "label": "Glow around main buttons",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "hard_shadows",
+        "label": "Hard shadows",
+        "info": "Thick outlines and a solid offset shadow on buttons, fields, product photos and tiles",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "Product cards",
+    "settings": [
+      {
+        "type": "select",
+        "id": "card_style",
+        "label": "Card style",
+        "options": [
+          {
+            "value": "card",
+            "label": "Filled card"
+          },
+          {
+            "value": "outline",
+            "label": "Outlined card"
+          },
+          {
+            "value": "plain",
+            "label": "No card"
+          }
+        ],
+        "default": "plain"
+      },
+      {
+        "type": "select",
+        "id": "card_image_ratio",
+        "label": "Image shape",
+        "options": [
+          {
+            "value": "1",
+            "label": "Square"
+          },
+          {
+            "value": "0.8",
+            "label": "Portrait"
+          },
+          {
+            "value": "0.75",
+            "label": "Tall"
+          },
+          {
+            "value": "1.25",
+            "label": "Landscape"
+          }
+        ],
+        "default": "1"
+      },
+      {
+        "type": "select",
+        "id": "card_image_shape",
+        "label": "Photo shape",
+        "options": [
+          {
+            "value": "square",
+            "label": "Square corners"
+          },
+          {
+            "value": "rounded",
+            "label": "Rounded corners"
+          },
+          {
+            "value": "arch",
+            "label": "Arched top"
+          }
+        ],
+        "default": "square"
+      },
+      {
+        "type": "select",
+        "id": "card_image_fit",
+        "label": "Image fit",
+        "options": [
+          {
+            "value": "cover",
+            "label": "Fill the frame"
+          },
+          {
+            "value": "contain",
+            "label": "Show the whole photo"
+          }
+        ],
+        "default": "contain"
+      },
+      {
+        "type": "range",
+        "id": "card_image_padding",
+        "label": "Padding around photo",
+        "info": "Used with Show the whole photo",
+        "min": 0,
+        "max": 40,
+        "step": 4,
+        "unit": "px",
+        "default": 24
+      },
+      {
+        "type": "checkbox",
+        "id": "card_blend_images",
+        "label": "Blend white photo backgrounds",
+        "info": "Makes product photos shot on white blend into the card tint. Helps mixed photos look consistent.",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "card_hover",
+        "label": "Hover effect",
+        "options": [
+          {
+            "value": "second_image",
+            "label": "Show second photo"
+          },
+          {
+            "value": "browse",
+            "label": "Browse photos with the pointer"
+          },
+          {
+            "value": "zoom",
+            "label": "Zoom"
+          },
+          {
+            "value": "none",
+            "label": "None"
+          }
+        ],
+        "default": "second_image",
+        "info": "Browse photos shows up to 4 photos with small lines under them"
+      },
+      {
+        "type": "select",
+        "id": "card_text_align",
+        "label": "Text alignment",
+        "options": [
+          {
+            "value": "start",
+            "label": "Start"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          }
+        ],
+        "default": "center"
+      },
+      {
+        "type": "range",
+        "id": "card_title_lines",
+        "label": "Title lines",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "default": 2
+      },
+      {
+        "type": "select",
+        "id": "card_title_case",
+        "label": "Product name style",
+        "options": [
+          {
+            "value": "none",
+            "label": "Regular"
+          },
+          {
+            "value": "uppercase",
+            "label": "Spaced capitals"
+          }
+        ],
+        "default": "uppercase"
+      },
+      {
+        "type": "header",
+        "content": "Card details"
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_type",
+        "label": "Show product type",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_vendor",
+        "label": "Show vendor",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_rating",
+        "label": "Show star rating",
+        "info": "Uses the rating your review app saves",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_swatches",
+        "label": "Show color swatches",
+        "info": "Pointing at a swatch shows that color's photo. Tapping it also opens that color.",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "swatch_option_names",
+        "label": "Color option names",
+        "info": "Options with these names show as swatches. Separate with commas.",
+        "default": "Color, Colour, اللون"
+      },
+      {
+        "type": "checkbox",
+        "id": "card_quick_sizes",
+        "label": "Show sizes on product cards",
+        "info": "Tapping a size adds it to the bag",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "size_option_names",
+        "label": "Size option names",
+        "info": "Options with these names show as size buttons. Separate with commas.",
+        "default": "Size, المقاس"
+      },
+      {
+        "type": "header",
+        "content": "Shopping from cards"
+      },
+      {
+        "type": "select",
+        "id": "card_quick_add",
+        "label": "Quick add",
+        "options": [
+          {
+            "value": "icon",
+            "label": "Round button on photo"
+          },
+          {
+            "value": "button",
+            "label": "Full button under card"
+          },
+          {
+            "value": "none",
+            "label": "Off"
+          }
+        ],
+        "default": "icon"
+      },
+      {
+        "type": "checkbox",
+        "id": "card_quick_view",
+        "label": "Enable quick view",
+        "info": "Products with options open in a popup instead of a new page",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Badges"
+      },
+      {
+        "type": "select",
+        "id": "badge_position",
+        "label": "Badge position",
+        "options": [
+          {
+            "value": "start",
+            "label": "Top start"
+          },
+          {
+            "value": "end",
+            "label": "Top end"
+          },
+          {
+            "value": "center",
+            "label": "Top center"
+          }
+        ],
+        "default": "center"
+      },
+      {
+        "type": "select",
+        "id": "badge_shape",
+        "label": "Badge shape",
+        "options": [
+          {
+            "value": "pill",
+            "label": "Pill"
+          },
+          {
+            "value": "rounded",
+            "label": "Rounded"
+          },
+          {
+            "value": "square",
+            "label": "Square"
+          }
+        ],
+        "default": "square"
+      },
+      {
+        "type": "select",
+        "id": "badge_style",
+        "label": "Badge style",
+        "options": [
+          {
+            "value": "solid",
+            "label": "Solid color"
+          },
+          {
+            "value": "soft",
+            "label": "Soft"
+          },
+          {
+            "value": "outline",
+            "label": "Outline"
+          },
+          {
+            "value": "text",
+            "label": "Text only"
+          }
+        ],
+        "default": "text"
+      },
+      {
+        "type": "select",
+        "id": "sale_badge_style",
+        "label": "Sale badge shows",
+        "options": [
+          {
+            "value": "percent",
+            "label": "Percent off"
+          },
+          {
+            "value": "amount",
+            "label": "Amount saved"
+          },
+          {
+            "value": "text",
+            "label": "Text"
+          }
+        ],
+        "default": "text"
+      },
+      {
+        "type": "text",
+        "id": "sale_badge_text",
+        "label": "Sale badge text",
+        "default": "Sale"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_soldout_badge",
+        "label": "Show sold out badge",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "new_tag",
+        "label": "Tag that shows the New badge",
+        "default": "new"
+      },
+      {
+        "type": "checkbox",
+        "id": "card_hover_video",
+        "label": "Play the product video on hover",
+        "info": "For products that have a video. Computers only.",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Saved items",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Shoppers tap a heart to save products and find them later in the Saved drawer. The list is kept on the shopper's device."
+      },
+      {
+        "type": "checkbox",
+        "id": "wishlist_enable",
+        "label": "Let shoppers save products",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_save_button",
+        "label": "Show a heart on product cards",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "After adding to cart",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Open cart drawer"
+          },
+          {
+            "value": "page",
+            "label": "Go to cart page"
+          },
+          {
+            "value": "checkout",
+            "label": "Go straight to checkout"
+          }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_notes",
+        "label": "Enable order notes",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_show_payment_icons",
+        "label": "Show payment icons in cart",
+        "default": true
+      },
+      {
+        "type": "paragraph",
+        "content": "Free shipping bar and cart upsells are set in the Cart drawer section."
+      }
+    ]
+  },
+  {
+    "name": "Animations",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "animate_sections",
+        "label": "Reveal sections on scroll",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "animation_style",
+        "label": "Reveal style",
+        "options": [
+          {
+            "value": "fade-up",
+            "label": "Fade up"
+          },
+          {
+            "value": "fade",
+            "label": "Fade"
+          },
+          {
+            "value": "zoom",
+            "label": "Zoom in"
+          }
+        ],
+        "default": "fade-up"
+      },
+      {
+        "type": "range",
+        "id": "animation_duration",
+        "label": "Reveal duration",
+        "min": 300,
+        "max": 1200,
+        "step": 100,
+        "unit": "ms",
+        "default": 900
+      },
+      {
+        "type": "checkbox",
+        "id": "animate_stagger",
+        "label": "Stagger cards and grid items",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "image_reveal",
+        "label": "Photos as they appear",
+        "options": [
+          {
+            "value": "none",
+            "label": "Same as sections"
+          },
+          {
+            "value": "curtain",
+            "label": "Wipe in from the bottom"
+          }
+        ],
+        "default": "curtain"
+      },
+      {
+        "type": "checkbox",
+        "id": "scramble_headings",
+        "label": "Scramble section headings as they appear",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_cursor",
+        "label": "Custom cursor on computers",
+        "info": "Turns into a View bubble over products",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "grain",
+        "label": "Film grain over the page",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "grain_amount",
+        "label": "Grain strength",
+        "min": 2,
+        "max": 20,
+        "step": 1,
+        "unit": "%",
+        "default": 7
+      },
+      {
+        "type": "checkbox",
+        "id": "card_hover_lift",
+        "label": "Lift cards on hover",
+        "default": true
+      },
+      {
+        "type": "paragraph",
+        "content": "Animations are skipped for visitors who turn on reduced motion in their device settings."
+      },
+      {
+        "type": "header",
+        "content": "Page transitions"
+      },
+      {
+        "type": "select",
+        "id": "page_transitions",
+        "label": "Page transitions",
+        "info": "Works in Chrome, Edge and Safari. Other browsers change pages normally.",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "fade",
+            "label": "Fade"
+          },
+          {
+            "value": "rise",
+            "label": "Rise"
+          }
+        ],
+        "default": "fade"
+      },
+      {
+        "type": "checkbox",
+        "id": "photo_morph",
+        "label": "Product photo flies from the card to the product page",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "back_to_top",
+        "label": "Back to top button with scroll progress",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "WhatsApp",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "whatsapp_enable",
+        "label": "Show floating WhatsApp button",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_number",
+        "label": "WhatsApp number",
+        "info": "With country code, digits only. Example: 201001234567",
+        "placeholder": "201001234567"
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_message",
+        "label": "Prefilled message",
+        "default": "Hi! I have a question."
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_label",
+        "label": "Button label",
+        "info": "Leave empty to show only the icon"
+      },
+      {
+        "type": "select",
+        "id": "whatsapp_position",
+        "label": "Position",
+        "options": [
+          {
+            "value": "end",
+            "label": "Bottom end"
+          },
+          {
+            "value": "start",
+            "label": "Bottom start"
+          }
+        ],
+        "default": "end"
+      },
+      {
+        "type": "checkbox",
+        "id": "whatsapp_mobile",
+        "label": "Show on mobile",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "whatsapp_desktop",
+        "label": "Show on desktop",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Language and currency",
+    "settings": [
+      {
+        "type": "select",
+        "id": "text_direction",
+        "label": "Text direction",
+        "options": [
+          {
+            "value": "auto",
+            "label": "Automatic (right to left for Arabic)"
+          },
+          {
+            "value": "ltr",
+            "label": "Always left to right"
+          },
+          {
+            "value": "rtl",
+            "label": "Always right to left"
+          }
+        ],
+        "default": "auto"
+      },
+      {
+        "type": "select",
+        "id": "currency_format",
+        "label": "Price format",
+        "options": [
+          {
+            "value": "default",
+            "label": "Store default"
+          },
+          {
+            "value": "with_code",
+            "label": "With currency code"
+          },
+          {
+            "value": "no_decimals",
+            "label": "Hide .00"
+          }
+        ],
+        "default": "no_decimals",
+        "info": "The currency symbol itself is set in Settings > General > Store currency."
+      }
+    ]
+  },
+  {
+    "name": "Search and navigation",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "predictive_search",
+        "label": "Show results while typing",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "show_breadcrumbs",
+        "label": "Show breadcrumbs on product and collection pages",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram",
+        "placeholder": "https://instagram.com/"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok",
+        "label": "TikTok",
+        "placeholder": "https://tiktok.com/@"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook",
+        "label": "Facebook",
+        "placeholder": "https://facebook.com/"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube",
+        "label": "YouTube",
+        "placeholder": "https://youtube.com/@"
+      }
+    ]
+  },
+  {
+    "name": "Favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon image",
+        "info": "Shown at 32 x 32px"
+      }
+    ]
+  }
+]

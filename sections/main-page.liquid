@@ -1,0 +1,74 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: 0px; --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width main-page" style="--page-content-width: {{ section.settings.content_width }}px;">
+    <div class="page-title-block">
+      <h1 class="h1">{{ page.title | escape }}</h1>
+    </div>
+    <div class="main-page__content rte">
+      {{ page.content }}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .main-page {
+    max-width: calc(var(--page-content-width) + 48px);
+  }
+  .main-page__content {
+    color: var(--color-body);
+    line-height: 1.7;
+  }
+  .main-page__content h2,
+  .main-page__content h3 {
+    color: var(--color-text);
+    margin-top: 1.6em;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Page",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content width",
+      "min": 560,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 760
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    }
+  ]
+}
+{% endschema %}

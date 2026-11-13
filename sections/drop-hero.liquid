@@ -1,0 +1,666 @@
+{%- liquid
+  assign layout = section.settings.layout
+  assign hero_image = section.settings.image | default: collections.all.products.first.featured_image
+  assign hero_alt = section.settings.image.alt | default: section.settings.heading | remove: '*' | escape
+  assign heading_lines = section.settings.heading | escape | newline_to_br | split: '<br />'
+  assign auto_text = false
+  if settings.placeholder_text_heroes and layout != 'type' and section.settings.video == blank and hero_image == blank
+    assign layout = 'type'
+    assign auto_text = true
+  endif
+  assign hero_classes = 'drop-hero drop-hero--' | append: layout | append: ' drop-hero--' | append: section.settings.height | append: ' drop-hero--heading-' | append: section.settings.heading_style | append: ' drop-hero--align-' | append: section.settings.alignment
+  if layout == 'split' and section.settings.offset_shadow
+    assign hero_classes = hero_classes | append: ' drop-hero--shadow'
+  endif
+  if auto_text
+    assign hero_classes = hero_classes | append: ' drop-hero--auto-text'
+  endif
+  assign end_date = section.settings.drop_date | strip
+  assign end_time = section.settings.drop_time | strip | default: '20:00'
+  assign end_iso = end_date | append: 'T' | append: end_time | append: ':00' | append: section.settings.timezone
+  assign timer_label = section.settings.countdown_label
+  if timer_label == blank
+    assign timer_label = 'sections.countdown.label' | t
+  endif
+  assign countdown_align = 'flex-start'
+  if section.settings.alignment == 'center'
+    assign countdown_align = 'center'
+  endif
+-%}
+
+<div
+  class="{{ hero_classes }} color-{{ section.settings.color_scheme }}"
+  style="--overlay: {{ section.settings.overlay | divided_by: 100.0 }}; --hero-text: {{ section.settings.text_color }}; --drop-scale: {{ section.settings.heading_size | divided_by: 100.0 }};"
+  data-no-reveal
+>
+  {%- unless layout == 'type' -%}
+    <div class="drop-hero__media">
+      {%- if section.settings.video != blank -%}
+        {{
+          section.settings.video
+          | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata', image_size: '1600x', class: 'drop-hero__video'
+        }}
+      {%- elsif hero_image != blank -%}
+        <picture>
+          {%- if section.settings.image_mobile -%}
+            <source
+              media="(max-width: 749px)"
+              srcset="{{ section.settings.image_mobile | image_url: width: 750 }} 750w, {{ section.settings.image_mobile | image_url: width: 1100 }} 1100w"
+            >
+          {%- endif -%}
+          {%- if layout == 'split' -%}
+            {%- assign media_sizes = '(min-width: 750px) 50vw, 100vw' -%}
+          {%- else -%}
+            {%- assign media_sizes = '100vw' -%}
+          {%- endif -%}
+          {{
+            hero_image
+            | image_url: width: 2400
+            | image_tag:
+              widths: '750, 1100, 1500, 1920, 2400',
+              sizes: media_sizes,
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: hero_alt,
+              class: 'drop-hero__image'
+          }}
+        </picture>
+      {%- else -%}
+        {% render 'media-placeholder', kind: 'hero' %}
+      {%- endif -%}
+    </div>
+    {%- if layout == 'full' -%}
+      <div class="drop-hero__overlay" aria-hidden="true"></div>
+    {%- endif -%}
+  {%- endunless -%}
+  {%- if auto_text -%}
+    <div class="drop-hero__texture" aria-hidden="true"></div>
+    {%- if request.design_mode -%}
+      <p class="text-only-hint">{{ 'general.placeholder.text_only' | t }}</p>
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="drop-hero__content page-width">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="drop-hero__eyebrow">
+        {%- if section.settings.live_dot -%}<span class="drop-hero__dot" aria-hidden="true"></span>{%- endif -%}
+        {{- section.settings.eyebrow | escape -}}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h2 class="drop-hero__heading">
+        {%- for line in heading_lines -%}
+          {%- liquid
+            assign line_text = line | strip
+            assign plain = line_text | remove: '*'
+            assign parts = line_text | split: '*'
+          -%}
+          <span
+            class="drop-hero__line{% if section.settings.heading_style == 'glitch' %} glitch{% endif %}"
+            {% if section.settings.heading_style == 'glitch' %}
+              data-text="{{ plain }}"
+            {% endif %}
+            style="--line: {{ forloop.index0 }};"
+          >
+            {%- for part in parts -%}
+              {%- assign odd = forloop.index0 | modulo: 2 -%}
+              {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+            {%- endfor -%}
+          </span>
+        {%- endfor -%}
+      </h2>
+    {%- endif -%}
+
+    <div class="drop-hero__body">
+      {%- if section.settings.text != blank -%}
+        <p class="drop-hero__text">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_countdown and end_date != blank -%}
+        <countdown-timer
+          class="countdown countdown--inline drop-hero__countdown"
+          data-end="{{ end_iso }}"
+          data-expired="message"
+          style="--countdown-align: {{ countdown_align }};"
+        >
+          {%- if section.settings.countdown_label != blank -%}
+            <p class="countdown__heading">{{ section.settings.countdown_label | escape }}</p>
+          {%- endif -%}
+          <div
+            class="countdown__clock"
+            data-countdown-clock
+            role="timer"
+            aria-label="{{ timer_label | escape }}"
+            hidden
+          >
+            {%- assign units = 'days,hours,minutes,seconds' | split: ',' -%}
+            {%- for unit in units -%}
+              <div class="countdown__unit">
+                <span class="countdown__value" data-unit="{{ unit }}">00</span>
+                <span class="countdown__label">
+                  {%- case unit -%}
+                    {%- when 'days' -%}{{ 'sections.countdown.days' | t }}
+                    {%- when 'hours' -%}{{ 'sections.countdown.hours' | t }}
+                    {%- when 'minutes' -%}{{ 'sections.countdown.minutes' | t }}
+                    {%- else -%}{{ 'sections.countdown.seconds' | t }}
+                  {%- endcase -%}
+                </span>
+              </div>
+              {%- unless forloop.last -%}
+                <span class="countdown__sep" aria-hidden="true">:</span>
+              {%- endunless -%}
+            {%- endfor -%}
+          </div>
+          <p class="countdown__done" data-countdown-done hidden>{{ section.settings.live_message | escape }}</p>
+          <p class="countdown__invalid" data-countdown-invalid hidden>{{ 'sections.countdown.invalid' | t }}</p>
+        </countdown-timer>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank or section.settings.button2_label != blank -%}
+        <div class="drop-hero__buttons">
+          {%- if section.settings.button_label != blank -%}
+            <a class="button button--primary" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.button2_label != blank -%}
+            <a class="button button--secondary drop-hero__button-alt" href="{{ section.settings.button2_link | default: routes.collections_url }}">
+              {{- section.settings.button2_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_notify -%}
+        {%- assign form_id = 'DropNotify-' | append: section.id -%}
+        {%- assign email_id = 'DropNotifyEmail-' | append: section.id -%}
+        {%- form 'customer', id: form_id, class: 'drop-hero__notify' -%}
+          <input
+            type="hidden"
+            name="contact[tags]"
+            value="newsletter{% if section.settings.notify_tag != blank %},{{ section.settings.notify_tag | escape }}{% endif %}"
+          >
+          {%- if form.posted_successfully? -%}
+            <p class="drop-hero__message" role="status">{{ section.settings.notify_success | escape }}</p>
+          {%- else -%}
+            {%- if section.settings.notify_heading != blank -%}
+              <p class="drop-hero__notify-heading">{{ section.settings.notify_heading | escape }}</p>
+            {%- endif -%}
+            {%- if form.errors -%}
+              <p class="drop-hero__message drop-hero__message--error" role="alert">
+                {{ form.errors.translated_fields.email | capitalize }}
+                {{ form.errors.messages.email }}
+              </p>
+            {%- endif -%}
+            <div class="drop-hero__notify-row">
+              <label for="{{ email_id }}" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+              <input
+                id="{{ email_id }}"
+                type="email"
+                name="contact[email]"
+                class="field__input drop-hero__input"
+                value="{{ form.email }}"
+                placeholder="{{ 'newsletter.placeholder' | t }}"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                required
+              >
+              <button type="submit" class="button button--accent">{{ section.settings.notify_button | escape }}</button>
+            </div>
+          {%- endif -%}
+        {%- endform -%}
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- if section.settings.show_badge and section.settings.badge_text != blank -%}
+    {% render 'spin-badge',
+      id: section.id,
+      text: section.settings.badge_text,
+      center: section.settings.badge_center,
+      style: section.settings.badge_style,
+      size: section.settings.badge_size,
+      class: 'drop-hero__badge'
+    %}
+  {%- endif -%}
+
+  <sticker-field class="drop-hero__stickers">
+    {% content_for 'blocks' %}
+  </sticker-field>
+</div>
+
+{% stylesheet %}
+  .drop-hero {
+    --hero-h: 100svh;
+    position: relative;
+    display: grid;
+    min-height: max(var(--hero-h), 560px);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .drop-hero--large {
+    --hero-h: 86svh;
+  }
+  .drop-hero--medium {
+    --hero-h: 70svh;
+  }
+  .drop-hero--auto {
+    min-height: 0;
+  }
+  .drop-hero__media {
+    position: relative;
+    overflow: hidden;
+  }
+  .drop-hero__media img,
+  .drop-hero__media video,
+  .drop-hero__media .placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .drop-hero--full .drop-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .drop-hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to top, rgb(0 0 0 / calc(var(--overlay) + 0.2)), rgb(0 0 0 / calc(var(--overlay) * 0.5)) 60%, rgb(0 0 0 / calc(var(--overlay) * 0.3)));
+  }
+  .drop-hero__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: clamp(16px, 2.4vw, 28px);
+    padding-block: clamp(96px, 12vw, 140px) clamp(32px, 5vw, 64px);
+  }
+  .drop-hero--full .drop-hero__content {
+    color: var(--hero-text);
+  }
+  .drop-hero--align-center .drop-hero__content {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .drop-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 7px 14px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font: 700 0.75rem/1 var(--font-label);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .drop-hero__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
+    animation: drop-dot 1.6s ease-out infinite;
+  }
+  @keyframes drop-dot {
+    70% {
+      box-shadow: 0 0 0 10px transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+  .drop-hero__heading {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-size: calc(clamp(3.25rem, 12vw, 12rem) * var(--drop-scale) * var(--heading-scale));
+    line-height: 0.86;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+  .drop-hero--align-center .drop-hero__heading {
+    align-items: center;
+  }
+  .drop-hero__line {
+    display: block;
+    animation: drop-line 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--line) * 90ms + 120ms);
+  }
+  .drop-hero__line.glitch {
+    display: inline-block;
+    width: fit-content;
+  }
+  .drop-hero__line em {
+    font-style: normal;
+    color: var(--color-accent);
+  }
+  .drop-hero--heading-outline .drop-hero__line:nth-child(even) {
+    color: transparent;
+    -webkit-text-stroke: max(1.5px, 0.018em) currentColor;
+  }
+  .drop-hero--heading-outline .drop-hero__heading {
+    color: inherit;
+  }
+  .drop-hero--heading-outline .drop-hero__line:nth-child(even) em {
+    color: transparent;
+    -webkit-text-stroke-color: var(--color-accent);
+  }
+  @keyframes drop-line {
+    from {
+      opacity: 0;
+      transform: translateY(45%) skewY(4deg);
+    }
+  }
+  .drop-hero__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: inherit;
+    max-width: 560px;
+  }
+  .drop-hero__text {
+    margin: 0;
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    opacity: 0.86;
+  }
+  .drop-hero__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .drop-hero--full .drop-hero__button-alt {
+    border-color: var(--hero-text);
+    color: var(--hero-text);
+  }
+  .drop-hero__countdown .countdown__value {
+    font-family: var(--font-label);
+  }
+  .drop-hero__notify {
+    width: 100%;
+    max-width: 460px;
+  }
+  .drop-hero__notify-heading {
+    margin: 0 0 10px;
+    font: 700 0.75rem/1.2 var(--font-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .drop-hero__notify-row {
+    display: flex;
+    gap: 8px;
+  }
+  .drop-hero__input {
+    flex: 1;
+    min-width: 0;
+  }
+  .drop-hero--full .drop-hero__input {
+    background: rgb(0 0 0 / 0.35);
+    border-color: color-mix(in srgb, var(--hero-text) 55%, transparent);
+    color: var(--hero-text);
+  }
+  .drop-hero--full .drop-hero__input::placeholder {
+    color: color-mix(in srgb, var(--hero-text) 70%, transparent);
+  }
+  .drop-hero__message {
+    margin: 0;
+    font-weight: 600;
+  }
+  .drop-hero__message--error {
+    color: #ff8a8f;
+  }
+  .drop-hero__badge {
+    position: absolute;
+    top: clamp(84px, 10vw, 120px);
+    inset-inline-end: clamp(16px, 5vw, 64px);
+    z-index: 1;
+  }
+  .drop-hero--full .drop-hero__badge:not(.spin-badge--accent) {
+    color: var(--hero-text);
+  }
+  .drop-hero__stickers {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    pointer-events: none;
+  }
+
+  .drop-hero--split {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+  .drop-hero--split .drop-hero__media {
+    grid-column: 2;
+    grid-row: 1;
+    margin: clamp(80px, 9vw, 112px) clamp(16px, 4vw, 48px) clamp(24px, 4vw, 48px) 0;
+    border-radius: var(--radius-lg);
+  }
+  .drop-hero--shadow .drop-hero__media {
+    overflow: visible;
+  }
+  .drop-hero--shadow .drop-hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--color-accent);
+    translate: 14px 14px;
+  }
+  [dir='rtl'] .drop-hero--shadow .drop-hero__media::after {
+    translate: -14px 14px;
+  }
+  .drop-hero--shadow .drop-hero__media > * {
+    border-radius: inherit;
+    overflow: hidden;
+  }
+  .drop-hero--split .drop-hero__content {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-content: center;
+  }
+  .drop-hero--split .drop-hero__body {
+    max-width: min(480px, 44%);
+  }
+  .drop-hero--split .drop-hero__heading {
+    mix-blend-mode: difference;
+    color: #fff;
+  }
+  .drop-hero--split .drop-hero__line em {
+    color: inherit;
+  }
+
+  .drop-hero--type .drop-hero__content {
+    justify-content: center;
+  }
+  .drop-hero__texture {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: var(
+      --text-only-texture,
+      radial-gradient(circle, color-mix(in srgb, var(--color-ph-ink, var(--color-accent)) 30%, transparent) 0 1.3px, transparent 2px),
+      radial-gradient(60% 50% at 85% 100%, color-mix(in srgb, var(--color-ph-ink, var(--color-accent)) 18%, transparent), transparent 70%)
+    );
+    background-size: var(--text-only-texture-size, 9px 9px, auto);
+    -webkit-mask-image: var(--text-only-mask, linear-gradient(150deg, #000 0%, transparent 45%, transparent 60%, #000 100%));
+    mask-image: var(--text-only-mask, linear-gradient(150deg, #000 0%, transparent 45%, transparent 60%, #000 100%));
+    pointer-events: none;
+  }
+  .drop-hero--type .drop-hero__heading {
+    font-size: calc(clamp(3.75rem, 15vw, 15rem) * var(--drop-scale) * var(--heading-scale));
+  }
+
+  @media (max-width: 749px) {
+    .drop-hero__content {
+      padding-block: 104px 32px;
+    }
+    .drop-hero__badge {
+      --badge-size: 84px !important;
+      top: 88px;
+    }
+    .drop-hero__notify-row {
+      flex-direction: column;
+    }
+    .drop-hero--split {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      min-height: 0;
+    }
+    .drop-hero--split .drop-hero__media {
+      grid-column: 1;
+      grid-row: 1;
+      aspect-ratio: 4 / 5;
+      margin: 88px 16px 0;
+    }
+    .drop-hero--split .drop-hero__content {
+      grid-column: 1;
+      grid-row: 2;
+      margin-top: -18vw;
+      padding-block: 0 32px;
+    }
+    .drop-hero--split .drop-hero__body {
+      max-width: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drop-hero__line,
+    .drop-hero__dot {
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Drop hero",
+  "tag": "section",
+  "class": "drop-hero-section",
+  "max_blocks": 6,
+  "blocks": [{ "type": "_sticker" }],
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "full", "label": "Photo fills the screen" },
+        { "value": "split", "label": "Headline over a side photo" },
+        { "value": "type", "label": "Big type, no photo" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height",
+      "options": [
+        { "value": "full", "label": "Full screen" },
+        { "value": "large", "label": "Large" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "auto", "label": "Fit content" }
+      ],
+      "default": "full"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "start"
+    },
+    { "type": "header", "content": "Photo or video" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to your first product photo" },
+    { "type": "image_picker", "id": "image_mobile", "label": "Image on mobile" },
+    { "type": "video", "id": "video", "label": "Video", "info": "Plays muted on a loop instead of the image" },
+    { "type": "range", "id": "overlay", "label": "Darken the photo", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 35 },
+    { "type": "color", "id": "text_color", "label": "Text over the photo", "default": "#FFFFFF" },
+    { "type": "checkbox", "id": "offset_shadow", "label": "Accent block behind the side photo", "default": true },
+    { "type": "header", "content": "Headline" },
+    { "type": "text", "id": "eyebrow", "label": "Label", "default": "The edit" },
+    { "type": "checkbox", "id": "live_dot", "label": "Show a blinking dot in the label", "default": true },
+    { "type": "textarea", "id": "heading", "label": "Heading", "info": "Short words on separate lines look best. Wrap a word in *stars* to color it.", "default": "New\n*season*" },
+    {
+      "type": "select",
+      "id": "heading_style",
+      "label": "Heading style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "Every second line outlined" },
+        { "value": "glitch", "label": "Glitch" }
+      ],
+      "default": "glitch"
+    },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 60, "max": 140, "step": 5, "unit": "%", "default": 100 },
+    { "type": "text", "id": "text", "label": "Text", "default": "Totes, crossbody bags and backpacks for every day." },
+    { "type": "text", "id": "button_label", "label": "First button label", "default": "Shop now" },
+    { "type": "url", "id": "button_link", "label": "First button link", "info": "Defaults to all products" },
+    { "type": "text", "id": "button2_label", "label": "Second button label", "default": "Lookbook" },
+    { "type": "url", "id": "button2_link", "label": "Second button link", "info": "Defaults to all collections" },
+    { "type": "header", "content": "Drop countdown" },
+    { "type": "checkbox", "id": "show_countdown", "label": "Show a countdown", "default": false },
+    { "type": "text", "id": "countdown_label", "label": "Countdown label", "default": "Sale ends in" },
+    { "type": "text", "id": "drop_date", "label": "Drop date", "info": "Format YYYY-MM-DD, for example 2026-12-31", "default": "2026-12-31" },
+    { "type": "text", "id": "drop_time", "label": "Drop time", "info": "24 hour format HH:MM, for example 20:00", "default": "20:00" },
+    {
+      "type": "select",
+      "id": "timezone",
+      "label": "Time zone",
+      "options": [
+        { "value": "+02:00", "label": "Egypt winter time (UTC+2)" },
+        { "value": "+03:00", "label": "Egypt summer time, Saudi Arabia (UTC+3)" },
+        { "value": "+04:00", "label": "UAE (UTC+4)" },
+        { "value": "+01:00", "label": "UTC+1" },
+        { "value": "Z", "label": "UTC" }
+      ],
+      "default": "+02:00"
+    },
+    { "type": "text", "id": "live_message", "label": "Message when the countdown ends", "default": "The new collection is here" },
+    { "type": "header", "content": "Drop alerts" },
+    { "type": "checkbox", "id": "show_notify", "label": "Show an email sign up", "info": "Emails are saved to your customers list", "default": false },
+    { "type": "text", "id": "notify_heading", "label": "Sign up heading", "default": "Hear about new arrivals" },
+    { "type": "text", "id": "notify_button", "label": "Button label", "default": "Notify me" },
+    { "type": "text", "id": "notify_tag", "label": "Customer tag", "info": "Added to everyone who signs up here, so you can email them when new bags arrive", "default": "new-arrivals" },
+    { "type": "text", "id": "notify_success", "label": "Message after signing up", "default": "You're on the list." },
+    { "type": "header", "content": "Spinning badge" },
+    { "type": "checkbox", "id": "show_badge", "label": "Show the badge", "default": true },
+    { "type": "text", "id": "badge_text", "label": "Text around the circle", "info": "About 20 to 30 characters fits best", "default": "New season • New bags • " },
+    { "type": "text", "id": "badge_center", "label": "Center text", "default": "01" },
+    {
+      "type": "select",
+      "id": "badge_style",
+      "label": "Badge style",
+      "options": [
+        { "value": "plain", "label": "Text only" },
+        { "value": "outline", "label": "Outline" },
+        { "value": "accent", "label": "Accent fill" }
+      ],
+      "default": "accent"
+    },
+    { "type": "range", "id": "badge_size", "label": "Badge size", "min": 80, "max": 200, "step": 4, "unit": "px", "default": 128 },
+    { "type": "header", "content": "Stickers" },
+    { "type": "paragraph", "content": "Add stickers as blocks. Shoppers can drag them around the hero." }
+  ],
+  "presets": [
+    {
+      "name": "Drop hero",
+      "blocks": [
+        { "type": "_sticker", "settings": { "text": "New in", "shape": "pill", "color_scheme": "scheme-6", "x": 74, "y": 62, "rotate": -8 } },
+        { "type": "_sticker", "settings": { "text": "New", "shape": "star", "color_scheme": "scheme-5", "size": 112, "x": 88, "y": 78, "rotate": 12 } }
+      ]
+    }
+  ]
+}
+{% endschema %}

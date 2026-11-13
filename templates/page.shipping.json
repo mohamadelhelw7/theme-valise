@@ -1,0 +1,45 @@
+{
+  "sections": {
+    "main": { "type": "main-page", "settings": { "content_width": 760, "padding_bottom": "none" } },
+    "zones": {
+      "type": "custom-section",
+      "blocks": {
+        "heading": { "type": "heading", "settings": { "heading": "Delivery times and fees", "alignment": "left", "size": "h2", "tag": "h2" } },
+        "zones": {
+          "type": "delivery-info",
+          "settings": {
+            "style": "boxed",
+            "show_estimate": false,
+            "min_days": 1,
+            "max_days": 4,
+            "cutoff_hour": 14,
+            "skip_friday": true,
+            "skip_saturday": false,
+            "skip_sunday": false,
+            "zone_layout": "table"
+          },
+          "blocks": {
+            "zone_cairo": { "type": "_delivery-zone", "settings": { "zone_name": "Cairo and Giza", "governorates": "Cairo, Giza" } },
+            "zone_delta": {
+              "type": "_delivery-zone",
+              "settings": { "zone_name": "Alexandria and Delta", "governorates": "Alexandria, Qalyubia, Sharqia, Dakahlia, Gharbia, Monufia, Beheira, Kafr El Sheikh, Damietta" }
+            },
+            "zone_canal": { "type": "_delivery-zone", "settings": { "zone_name": "Canal cities", "governorates": "Port Said, Ismailia, Suez" } },
+            "zone_upper": {
+              "type": "_delivery-zone",
+              "settings": { "zone_name": "Upper Egypt", "governorates": "Faiyum, Beni Suef, Minya, Asyut, Sohag, Qena, Luxor, Aswan" }
+            },
+            "zone_remote": {
+              "type": "_delivery-zone",
+              "settings": { "zone_name": "Remote areas", "governorates": "Red Sea, New Valley, Matrouh, North Sinai, South Sinai" }
+            }
+          },
+          "block_order": ["zone_cairo", "zone_delta", "zone_canal", "zone_upper", "zone_remote"]
+        }
+      },
+      "block_order": ["heading", "zones"],
+      "settings": { "alignment": "custom-section--left", "panel": false, "panel_scheme": "scheme-2", "gap": 24, "padding_top": "medium", "padding_bottom": "none" }
+    }
+  },
+  "order": ["main", "zones"]
+}

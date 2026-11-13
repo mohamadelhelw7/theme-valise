@@ -1,0 +1,175 @@
+<div class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width">
+    <div
+      class="custom-section {{ section.settings.alignment }}{% if section.settings.panel %} custom-section--panel color-{{ section.settings.panel_scheme }}{% endif %}"
+      style="--cs-gap: {{ section.settings.gap }}px;"
+    >
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cs-gap);
+  }
+  .custom-section--center {
+    align-items: center;
+    text-align: center;
+  }
+  .custom-section--left {
+    align-items: flex-start;
+  }
+  .custom-section--panel {
+    border-radius: var(--radius-lg);
+    padding: clamp(32px, 6vw, 72px) clamp(20px, 5vw, 64px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom content",
+  "tag": "section",
+  "class": "custom-section-wrapper",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "custom-section--left",
+          "label": "Left"
+        },
+        {
+          "value": "custom-section--center",
+          "label": "Center"
+        }
+      ],
+      "default": "custom-section--center"
+    },
+    {
+      "type": "checkbox",
+      "id": "panel",
+      "label": "Show as colored panel",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "panel_scheme",
+      "label": "Panel color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Space between blocks",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom content",
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "Our promise",
+            "alignment": "center"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Made to be carried, day after day",
+            "alignment": "center",
+            "size": "h1"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "<p>Tell your brand story in a few short lines.</p>",
+            "alignment": "center"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "label": "Our story",
+            "style": "button--primary"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

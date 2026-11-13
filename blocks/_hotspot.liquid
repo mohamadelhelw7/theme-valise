@@ -1,0 +1,32 @@
+{% doc %}
+  Renders the product card for one hotspot in Shop the look. The dot itself is drawn by the section.
+{% enddoc %}
+
+{%- liquid
+  assign spot_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign spot_index = forloop.index0
+      break
+    endif
+  endfor
+  assign spot_product = block.settings.product | default: collections.all.products[spot_index]
+  assign spot_number = spot_index | plus: 1
+-%}
+
+<div class="look__item" data-look-item {% if spot_index > 0 %}hidden{% endif %} {{ block.shopify_attributes }}>
+  {% render 'product-card', product: spot_product, index: spot_number %}
+</div>
+
+{% schema %}
+{
+  "name": "Product dot",
+  "tag": null,
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product", "info": "Defaults to one of your products" },
+    { "type": "range", "id": "x", "label": "Position from the left", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
+    { "type": "range", "id": "y", "label": "Position from the top", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 }
+  ],
+  "presets": [{ "name": "Product dot" }]
+}
+{% endschema %}

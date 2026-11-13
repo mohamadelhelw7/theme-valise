@@ -1,0 +1,31 @@
+{% doc %}
+  Renders the Saved drawer. It lists the products a shopper saved with a heart button.
+  The list lives on the shopper's device and is filled by the saved-drawer element in theme.js.
+
+  @example
+  {% render 'saved-drawer' %}
+{% enddoc %}
+
+<saved-drawer>
+  <dialog id="SavedDrawer" class="modal drawer saved-drawer color-scheme-1" aria-labelledby="SavedDrawerTitle">
+    <div class="saved-drawer__inner">
+      <div class="saved-drawer__header">
+        <h2 id="SavedDrawerTitle" class="h3">
+          {{ 'saved.title' | t }}
+          <span class="saved-drawer__count">(<span data-saved-count>0</span>)</span>
+        </h2>
+        <button type="button" class="icon-button" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+          {% render 'icon', icon: 'close' %}
+        </button>
+      </div>
+      <div class="saved-drawer__body">
+        <ul class="saved-drawer__grid" role="list" data-saved-list></ul>
+        <div class="saved-drawer__empty" data-saved-empty>
+          {% render 'icon', icon: 'heart', class: 'saved-drawer__empty-icon' %}
+          <p>{{ 'saved.empty' | t }}</p>
+          <a class="button button--primary" href="{{ routes.all_products_collection_url }}">{{ 'saved.browse' | t }}</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</saved-drawer>

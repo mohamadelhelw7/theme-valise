@@ -1,0 +1,153 @@
+{% doc %}
+  Renders a Size guide link that opens a side drawer with a size table, an optional page and notes.
+  The table is written as plain text: one row per line, cells separated by a vertical bar.
+{% enddoc %}
+
+{%- liquid
+  assign dialog_id = 'SizeGuide-' | append: block.id
+  assign title_id = 'SizeGuideTitle-' | append: block.id
+  assign table_rows = block.settings.table | escape | newline_to_br | split: '<br />'
+-%}
+
+<div class="size-guide" {{ block.shopify_attributes }}>
+  <button type="button" class="size-guide__open" data-modal-open="{{ dialog_id }}" aria-haspopup="dialog" aria-controls="{{ dialog_id }}">
+    {% render 'icon', icon: 'ruler' %}
+    <span>{{ block.settings.label | escape }}</span>
+  </button>
+</div>
+
+<dialog id="{{ dialog_id }}" class="modal drawer size-guide__drawer" aria-labelledby="{{ title_id }}">
+  <div class="size-guide__inner">
+    <div class="size-guide__header">
+      <h2 id="{{ title_id }}" class="h3">{{ block.settings.heading | escape }}</h2>
+      <button type="button" class="icon-button" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+        {% render 'icon', icon: 'close' %}
+      </button>
+    </div>
+
+    {%- if block.settings.intro != blank -%}
+      <div class="size-guide__intro rte">{{ block.settings.intro }}</div>
+    {%- endif -%}
+
+    {%- if block.settings.table != blank -%}
+      <div class="size-guide__table-wrap">
+        <table class="size-guide__table">
+          {%- for row in table_rows -%}
+            {%- assign row_clean = row | strip -%}
+            {%- if row_clean == blank -%}{%- continue -%}{%- endif -%}
+            {%- assign cells = row_clean | split: '|' -%}
+            <tr>
+              {%- for cell in cells -%}
+                {%- if forloop.parentloop.first -%}
+                  <th scope="col">{{ cell | strip }}</th>
+                {%- elsif forloop.first -%}
+                  <th scope="row">{{ cell | strip }}</th>
+                {%- else -%}
+                  <td>{{ cell | strip }}</td>
+                {%- endif -%}
+              {%- endfor -%}
+            </tr>
+          {%- endfor -%}
+        </table>
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.page != blank -%}
+      <div class="size-guide__page rte">{{ block.settings.page.content }}</div>
+    {%- endif -%}
+
+    {%- if block.settings.notes != blank -%}
+      <div class="size-guide__notes rte">{{ block.settings.notes }}</div>
+    {%- endif -%}
+  </div>
+</dialog>
+
+{% stylesheet %}
+  .size-guide__open {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+  .size-guide__open .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .size-guide__drawer {
+    width: min(560px, 94vw);
+  }
+  .size-guide__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 20px 24px calc(32px + env(safe-area-inset-bottom));
+  }
+  .size-guide__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .size-guide__intro,
+  .size-guide__notes {
+    color: var(--color-body);
+    font-size: 0.9375rem;
+  }
+  .size-guide__table-wrap {
+    overflow-x: auto;
+  }
+  .size-guide__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .size-guide__table th,
+  .size-guide__table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: start;
+    white-space: nowrap;
+  }
+  .size-guide__table thead th,
+  .size-guide__table tr:first-child th {
+    font-size: 0.75rem;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  .size-guide__table th[scope='row'] {
+    font-weight: 600;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Size guide",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Link label", "default": "Size guide" },
+    { "type": "text", "id": "heading", "label": "Drawer heading", "default": "Size guide" },
+    { "type": "richtext", "id": "intro", "label": "Intro", "default": "<p>Compare the measurements below with a bag you already own.</p>" },
+    {
+      "type": "textarea",
+      "id": "table",
+      "label": "Size table",
+      "info": "One row per line. Separate cells with a vertical bar. The first row is the header. Replace [cm] with your measurements.",
+      "default": "Size | Width | Height | Depth\nMini | [cm] | [cm] | [cm]\nSmall | [cm] | [cm] | [cm]\nMedium | [cm] | [cm] | [cm]\nLarge | [cm] | [cm] | [cm]"
+    },
+    { "type": "page", "id": "page", "label": "Or show a page", "info": "Use a page if your size chart has images or several tables" },
+    { "type": "richtext", "id": "notes", "label": "Notes" }
+  ],
+  "presets": [{ "name": "Size guide" }]
+}
+{% endschema %}

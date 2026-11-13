@@ -1,0 +1,91 @@
+{% doc %}
+  Renders one delivery area row inside the Delivery estimate block.
+
+  @example
+  {% content_for 'block', type: '_delivery-zone', id: 'zone' %}
+{% enddoc %}
+
+<div
+  class="delivery-zone"
+  data-zone-name="{{ block.settings.zone_name | escape }}"
+  data-governorates="{{ block.settings.governorates | escape }}"
+  data-time="{{ block.settings.time | escape }}"
+  data-fee="{{ block.settings.fee | escape }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="delivery-zone__name">
+    <strong>{{ block.settings.zone_name | escape }}</strong>
+    {%- if block.settings.governorates != blank -%}
+      <span class="delivery-zone__areas">{{ block.settings.governorates | escape }}</span>
+    {%- endif -%}
+  </div>
+  <div class="delivery-zone__meta">
+    {%- if block.settings.time != blank -%}
+      <span>{{ block.settings.time | escape }}</span>
+    {%- endif -%}
+    {%- if block.settings.fee != blank -%}
+      <span class="delivery-zone__fee">{{ block.settings.fee | escape }}</span>
+    {%- endif -%}
+    {%- if block.settings.time == blank and block.settings.fee == blank and request.design_mode -%}
+      <span class="delivery-zone__hint">{{ 'products.delivery.add_details' | t }}</span>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .delivery-zone {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px 16px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .delivery-zone:first-child {
+    border-top: none;
+  }
+  .delivery-zone__name {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1 1 200px;
+  }
+  .delivery-zone__areas {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .delivery-zone__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: 0.875rem;
+    text-align: end;
+  }
+  .delivery-zone__fee {
+    font-weight: 600;
+  }
+  .delivery-zone__hint {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Area",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "zone_name", "label": "Area name", "default": "Cairo and Giza" },
+    {
+      "type": "textarea",
+      "id": "governorates",
+      "label": "Governorates or cities",
+      "info": "Separate with commas. Shoppers pick from these in the dropdown.",
+      "default": "Cairo, Giza"
+    },
+    { "type": "text", "id": "time", "label": "Delivery time", "placeholder": "1 to 2 business days" },
+    { "type": "text", "id": "fee", "label": "Delivery fee", "placeholder": "50 EGP or Free" }
+  ],
+  "presets": [{ "name": "Area" }]
+}
+{% endschema %}

@@ -1,0 +1,61 @@
+{% doc %}
+  Renders a section header: eyebrow, heading, optional description, plus optional
+  tabs at the start and a link or slider arrows at the end.
+  The split layout puts the heading and description side by side with an accent line between them.
+
+  @param {string} [eyebrow] - Small label above the heading
+  @param {string} [heading] - Heading text
+  @param {string} [heading_id] - Id for the heading element
+  @param {string} [description] - Rich text shown beside or under the heading
+  @param {string} [alignment] - start, center or split
+  @param {string} [link_url] - Link at the end of the header
+  @param {string} [link_label] - Link label
+  @param {boolean} [slider] - Show slider arrows at the end
+  @param {string} [start] - Extra markup for the start slot, such as tabs
+
+  @example
+  {% render 'section-header', heading: section.settings.heading, alignment: 'split', slider: true %}
+{% enddoc %}
+
+{%- liquid
+  assign header_alignment = alignment | default: 'start'
+  assign has_end = false
+  if slider or link_url != blank
+    assign has_end = true
+  endif
+-%}
+
+{%- if heading != blank or eyebrow != blank or description != blank or start != blank or has_end -%}
+  <div class="section-header section-header--{{ header_alignment }}">
+    {%- if start != blank -%}
+      <div class="section-header__start">{{ start }}</div>
+    {%- endif -%}
+    {%- if heading != blank or eyebrow != blank or description != blank -%}
+      <div class="section-header__main">
+        {%- if heading != blank or eyebrow != blank -%}
+          <div class="section-header__titles">
+            {%- if eyebrow != blank -%}
+              <span class="eyebrow">{{ eyebrow | escape }}</span>
+            {%- endif -%}
+            {%- if heading != blank -%}
+              <h2{% if heading_id != blank %} id="{{ heading_id }}"{% endif %} class="h2"{% if settings.scramble_headings %} data-scramble{% endif %}>{{ heading | escape }}</h2>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if description != blank -%}
+          <div class="section-header__description rte">{{ description }}</div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    {%- if has_end -%}
+      <div class="section-header__end">
+        {%- if link_url != blank and link_label != blank -%}
+          <a href="{{ link_url }}" class="link-underline">{{ link_label | escape }}</a>
+        {%- endif -%}
+        {%- if slider -%}
+          {% render 'slider-buttons' %}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}

@@ -1,0 +1,152 @@
+{%- liquid
+  assign has_logos = false
+  for block in section.blocks
+    if block.settings.image != blank or block.settings.name != blank
+      assign has_logos = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if has_logos or request.design_mode -%}
+  <section
+    class="section color-{{ section.settings.color_scheme }}"
+    style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }}); --logo-height: {{ section.settings.logo_height }}px;"
+  >
+    <div class="logo-strip logo-strip--{{ section.settings.style }}{% if section.settings.grayscale %} logo-strip--muted{% endif %}">
+      {%- if section.settings.heading != blank -%}
+        <p class="logo-strip__heading eyebrow">{{ section.settings.heading | escape }}</p>
+      {%- endif -%}
+      <marquee-band
+        class="marquee logo-strip__marquee"
+        data-speed="{{ section.settings.speed }}"
+        data-direction="forward"
+        {% if section.settings.style != 'marquee' %}
+          data-static
+        {% endif %}
+      >
+        <div class="marquee__viewport">
+          <div class="marquee__track">
+            <ul class="marquee__group logo-strip__list" role="list">
+              {% content_for 'blocks' %}
+            </ul>
+          </div>
+        </div>
+      </marquee-band>
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .logo-strip__heading {
+    display: block;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--color-muted);
+  }
+  .logo-strip__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: clamp(32px, 6vw, 96px);
+  }
+  .logo-strip-section {
+    overflow-x: clip;
+  }
+  .logo-strip--row .marquee__viewport {
+    max-width: calc(var(--page-width) + var(--gutter) * 2);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .logo-strip--row .marquee__track {
+    display: block;
+    width: auto;
+  }
+  .logo-strip--row .logo-strip__list {
+    flex-wrap: wrap;
+    justify-content: space-around;
+    row-gap: 24px;
+  }
+  .logo-strip--marquee .logo-strip__list {
+    padding-inline-end: clamp(32px, 6vw, 96px);
+  }
+  .logo-strip__item {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: var(--logo-height);
+  }
+  .logo-strip__image {
+    height: 100%;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+  }
+  .logo-strip--muted .logo-strip__image {
+    filter: grayscale(1);
+    opacity: 0.7;
+    transition: filter 0.3s, opacity 0.3s;
+  }
+  .logo-strip--muted .logo-strip__item:hover .logo-strip__image {
+    filter: none;
+    opacity: 1;
+  }
+  .logo-strip__name {
+    font-family: var(--font-heading);
+    font-size: calc(var(--logo-height) * 0.55);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+  .logo-strip__empty {
+    font-size: 0.75rem;
+    padding: 10px 16px;
+    border: 1px dashed var(--color-border);
+    color: var(--color-muted);
+  }
+  .logo-strip__link {
+    position: absolute;
+    inset: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Logo strip",
+  "tag": "div",
+  "class": "logo-strip-section",
+  "max_blocks": 12,
+  "blocks": [{ "type": "_logo" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "paragraph", "content": "Show press, stockist or partner logos. The section is hidden on your store until you add a logo or name." },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Layout",
+      "options": [
+        { "value": "row", "label": "Row" },
+        { "value": "marquee", "label": "Scrolling" }
+      ],
+      "default": "marquee"
+    },
+    { "type": "range", "id": "speed", "label": "Scrolling speed", "min": 10, "max": 120, "step": 5, "unit": "px", "default": 40 },
+    { "type": "range", "id": "logo_height", "label": "Logo height", "min": 20, "max": 80, "step": 2, "unit": "px", "default": 36 },
+    { "type": "checkbox", "id": "grayscale", "label": "Show logos in gray", "default": true },
+    { "type": "header", "content": "Spacing" },
+    { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" }
+  ],
+  "presets": [
+    {
+      "name": "Logo strip",
+      "blocks": [{ "type": "_logo" }, { "type": "_logo" }, { "type": "_logo" }, { "type": "_logo" }, { "type": "_logo" }]
+    }
+  ]
+}
+{% endschema %}

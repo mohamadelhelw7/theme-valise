@@ -1,0 +1,51 @@
+{% doc %}
+  Renders the floating WhatsApp chat button from the WhatsApp theme settings.
+  On product pages the prefilled message includes the product name and link.
+
+  @example
+  {% render 'whatsapp-float' %}
+{% enddoc %}
+
+{%- liquid
+  assign wa_number = settings.whatsapp_number | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')'
+  assign show = false
+  if settings.whatsapp_enable and wa_number != blank
+    if settings.whatsapp_mobile or settings.whatsapp_desktop
+      assign show = true
+    endif
+  endif
+-%}
+
+{%- if show -%}
+  {%- liquid
+    assign wa_message = settings.whatsapp_message
+    if request.page_type == 'product'
+      assign product_url = request.origin | append: product.url
+      assign wa_message = wa_message | append: ' ' | append: product.title | append: ' ' | append: product_url
+    endif
+    assign wa_classes = 'whatsapp-float'
+    if settings.whatsapp_position == 'start'
+      assign wa_classes = wa_classes | append: ' whatsapp-float--start'
+    endif
+    unless settings.whatsapp_mobile
+      assign wa_classes = wa_classes | append: ' whatsapp-float--hide-mobile'
+    endunless
+    unless settings.whatsapp_desktop
+      assign wa_classes = wa_classes | append: ' whatsapp-float--hide-desktop'
+    endunless
+  -%}
+  <a
+    href="https://wa.me/{{ wa_number }}?text={{ wa_message | url_encode }}"
+    class="{{ wa_classes }}"
+    target="_blank"
+    rel="noopener"
+    {% if settings.whatsapp_label == blank %}
+      aria-label="{{ 'general.whatsapp.chat' | t }}"
+    {% endif %}
+  >
+    {% render 'icon', icon: 'whatsapp' %}
+    {%- if settings.whatsapp_label != blank -%}
+      <span>{{ settings.whatsapp_label | escape }}</span>
+    {%- endif -%}
+  </a>
+{%- endif -%}

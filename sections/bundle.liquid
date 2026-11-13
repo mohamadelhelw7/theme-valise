@@ -1,0 +1,363 @@
+{%- liquid
+  assign products = section.settings.products
+  assign bundle_limit = 5
+  if products == blank
+    assign products = collections.all.products
+    assign bundle_limit = 3
+  endif
+  assign total = 0
+  assign variant_ids = ''
+  assign all_available = true
+  for p in products limit: bundle_limit
+    assign v = p.selected_or_first_available_variant
+    assign total = total | plus: v.price
+    if v.available
+      assign variant_ids = variant_ids | append: v.id | append: ','
+    else
+      assign all_available = false
+    endif
+  endfor
+  assign discount = section.settings.discount_percent
+  assign keep = 100 | minus: discount
+  assign discounted = total | times: keep | divided_by: 100
+-%}
+
+<section class="section color-{{ section.settings.color_scheme }}" style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});">
+  <div class="page-width">
+    <div class="bundle">
+      <div class="bundle__media media-tile" style="--tile-bg: {{ section.settings.media_bg }};">
+        {%- if section.settings.image -%}
+          {{
+            section.settings.image
+            | image_url: width: 1400
+            | image_tag: loading: 'lazy', widths: '500, 800, 1100, 1400', sizes: '(min-width: 990px) 50vw, 100vw'
+          }}
+        {%- else -%}
+          {% render 'media-placeholder', kind: 'lifestyle', index: 2 %}
+        {%- endif -%}
+      </div>
+
+      <div class="bundle__content">
+        <div class="bundle__intro">
+          {% content_for 'blocks' %}
+        </div>
+
+        <ol class="bundle__steps" role="list">
+          {%- for p in products limit: bundle_limit -%}
+            {%- assign v = p.selected_or_first_available_variant -%}
+            <li class="bundle__step">
+              <span class="bundle__num" aria-hidden="true">{{ forloop.index }}</span>
+              <div class="bundle__step-info">
+                <a href="{{ p.url }}" class="bundle__step-title">{{ p.title | escape }}</a>
+                {%- unless p.has_only_default_variant -%}
+                  <div class="bundle__step-meta">{{ v.title | escape }}</div>
+                {%- else -%}
+                  {%- if p.type != blank -%}
+                    <div class="bundle__step-meta">{{ p.type | escape }}</div>
+                  {%- endif -%}
+                {%- endunless -%}
+              </div>
+              <span class="bundle__step-price">{% render 'format-money', amount: v.price %}</span>
+            </li>
+          {%- else -%}
+            {%- for i in (1..3) -%}
+              <li class="bundle__step">
+                <span class="bundle__num" aria-hidden="true">{{ i }}</span>
+                <div class="bundle__step-info">
+                  <span class="bundle__step-title">{{ 'sections.bundle.placeholder_step' | t: number: i }}</span>
+                  <div class="bundle__step-meta">{{ 'sections.bundle.placeholder_hint' | t }}</div>
+                </div>
+                <span class="bundle__step-price">{% render 'format-money', amount: 0 %}</span>
+              </li>
+            {%- endfor -%}
+          {%- endfor -%}
+        </ol>
+
+        <div class="bundle__footer">
+          <div>
+            <div class="bundle__total-label">{{ 'sections.bundle.total' | t }}</div>
+            <div class="bundle__total">
+              {%- if discount > 0 -%}
+                {% render 'format-money', amount: discounted %}
+                <s class="price__compare">{% render 'format-money', amount: total %}</s>
+                <span class="bundle__save">{{ 'sections.bundle.save' | t: percent: discount }}</span>
+              {%- else -%}
+                {% render 'format-money', amount: total %}
+              {%- endif -%}
+            </div>
+          </div>
+          <bundle-add data-variant-ids="{{ variant_ids | remove_last: ',' }}">
+            <button
+              type="button"
+              class="button button--primary"
+              {% if variant_ids == blank or all_available == false %}
+                disabled
+              {% endif %}
+            >
+              {%- if all_available -%}
+                {{ section.settings.button_label | escape }}
+              {%- else -%}
+                {{ 'sections.bundle.unavailable' | t }}
+              {%- endif -%}
+            </button>
+            <p class="form-message form-message--error" data-form-error role="alert" hidden></p>
+          </bundle-add>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .bundle {
+    background: var(--color-surface);
+    border-radius: 32px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+    align-items: center;
+  }
+  .bundle__media {
+    min-height: 520px;
+    height: 100%;
+    border-radius: 24px;
+  }
+  .bundle__content {
+    padding: 16px 24px 16px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .bundle__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .bundle__steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .bundle__step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .bundle__num {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1.5px solid currentColor;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+  }
+  .bundle__step-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .bundle__step-title {
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .bundle__step-meta {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .bundle__step-price {
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  .bundle__footer {
+    border-top: 1px solid var(--color-border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .bundle__footer bundle-add {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bundle__total-label {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .bundle__total {
+    font-size: 1.375rem;
+    font-weight: 600;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .bundle__total .price__compare {
+    font-size: 0.9375rem;
+    font-weight: 400;
+  }
+  .bundle__save {
+    font-size: 0.875rem;
+    color: var(--color-sale);
+  }
+  @media (max-width: 989px) {
+    .bundle {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 24px;
+    }
+    .bundle__media {
+      min-height: 320px;
+    }
+    .bundle__content {
+      padding: 0 8px 8px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bundle",
+  "tag": "div",
+  "class": "bundle-section",
+  "blocks": [
+    {
+      "type": "eyebrow"
+    },
+    {
+      "type": "heading"
+    },
+    {
+      "type": "text"
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "Products in bundle",
+      "limit": 5,
+      "info": "Leave empty to use your first 3 products"
+    },
+    {
+      "type": "range",
+      "id": "discount_percent",
+      "label": "Bundle discount shown",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "default": 0,
+      "info": "Display only. Create a matching automatic discount (Buy X get Y or amount off products) in Shopify admin so checkout applies it."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Add set to cart"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "color",
+      "id": "media_bg",
+      "label": "Image background",
+      "default": "#DCE1D2"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "select",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "none"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle",
+      "blocks": [
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "The everyday set"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "A bag and the small things\nthat go inside it.",
+            "size": "h2",
+            "tag": "h2"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

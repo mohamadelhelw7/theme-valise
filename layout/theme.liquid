@@ -1,0 +1,208 @@
+{%- liquid
+  assign rtl_languages = 'ar,he,fa,ur' | split: ','
+  assign lang_root = request.locale.iso_code | split: '-' | first
+  assign text_dir = 'ltr'
+  if settings.text_direction == 'rtl'
+    assign text_dir = 'rtl'
+  elsif settings.text_direction == 'auto'
+    if rtl_languages contains lang_root
+      assign text_dir = 'rtl'
+    endif
+  endif
+
+  assign theme_color = '#FFFFFF'
+  for scheme in settings.color_schemes
+    if forloop.first
+      assign theme_color = scheme.settings.background
+    endif
+  endfor
+
+  if settings.currency_format == 'with_code'
+    assign money_format = shop.money_with_currency_format
+  else
+    assign money_format = shop.money_format
+  endif
+-%}
+<!doctype html>
+<html
+  class="no-js{% if settings.animate_sections %} reveal-enabled reveal--{{ settings.animation_style }}{% endif %}{% if settings.animate_stagger %} reveal-stagger{% endif %}{% if settings.animate_sections and settings.image_reveal == 'curtain' %} image-curtain{% endif %}{% if settings.page_transitions != 'none' %} pt-on pt-{{ settings.page_transitions }}{% endif %}"
+  lang="{{ request.locale.iso_code }}"
+  dir="{{ text_dir }}"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="{{ theme_color }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.page_transitions != 'none' -%}
+      {%- if template.name == 'product' and settings.photo_morph -%}
+        {% # theme-check-disable-next-line RemoteAsset %}
+        <link rel="expect" href="#ProductMediaParsed" blocking="render">
+      {%- endif -%}
+      <script>
+        window.addEventListener('pagereveal', function (event) {
+          var transition = event.viewTransition;
+          if (!transition) return;
+          var skip = function () { transition.skipTransition(); };
+          document.addEventListener('pointerdown', skip, { once: true });
+          document.addEventListener('keydown', skip, { once: true });
+          {%- if template.name == 'product' and settings.photo_morph %}
+          var path = null;
+          try {
+            path = sessionStorage.getItem('theme:morph');
+            sessionStorage.removeItem('theme:morph');
+          } catch (error) {}
+          if (!path || path !== location.pathname) return;
+          var image = document.querySelector('#MainContent .gallery__slide.is-featured img');
+          if (!image) return;
+          image.style.viewTransitionName = 'product-photo';
+          transition.finished.then(function () { image.style.viewTransitionName = ''; });
+          {%- endif %}
+        });
+      </script>
+    {%- endif -%}
+
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 64, height: 64 }}">
+    {%- endif -%}
+
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags.first }}{% endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {% render 'meta-tags' %}
+    {% render 'theme-styles' %}
+
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+
+    <script>
+      document.documentElement.classList.replace('no-js', 'js');
+      window.theme = {
+        routes: {
+          cart: {{ routes.cart_url | json }},
+          cartAdd: {{ routes.cart_add_url | json }},
+          cartChange: {{ routes.cart_change_url | json }},
+          predictiveSearch: {% if settings.predictive_search %}{{ routes.predictive_search_url | json }}{% else %}null{% endif %},
+          recommendations: {{ routes.product_recommendations_url | json }},
+          root: {{ routes.root_url | json }},
+          search: {{ routes.search_url | json }}
+        },
+        cartType: {{ settings.cart_type | json }},
+        product: {% if request.page_type == 'product' %}{{ product.handle | json }}{% else %}null{% endif %},
+        moneyFormat: {{ money_format | json }},
+        moneyTrim: {% if settings.currency_format == 'no_decimals' %}true{% else %}false{% endif %},
+        strings: {
+          addToCart: {{ 'products.product.add_to_cart' | t | json }},
+          soldOut: {{ 'products.product.sold_out' | t | json }},
+          unavailable: {{ 'products.product.unavailable' | t | json }},
+          added: {{ 'products.product.added' | t | json }},
+          loading: {{ 'general.accessibility.loading' | t | json }},
+          error: {{ 'general.errors.generic' | t | json }},
+          play: {{ 'general.slider.play' | t | json }},
+          pause: {{ 'general.slider.pause' | t | json }},
+          playVideo: {{ 'sections.video.play' | t | json }},
+          pauseVideo: {{ 'sections.video.pause' | t | json }},
+          cursorView: {{ 'general.cursor.view' | t | json }},
+          sizeAdded: {{ 'products.product.size_added' | t | json }},
+          save: {{ 'saved.save' | t: title: '[title]' | json }},
+          unsave: {{ 'saved.unsave' | t: title: '[title]' | json }},
+          saveLabel: {{ 'saved.save_label' | t | json }},
+          savedLabel: {{ 'saved.saved_label' | t | json }},
+          savedAdded: {{ 'saved.added' | t | json }},
+          savedRemoved: {{ 'saved.removed' | t | json }}
+        },
+        sizeNames: {{ settings.size_option_names | downcase | split: ',' | json }},
+        photoMorph: {% if settings.page_transitions != 'none' and settings.photo_morph %}true{% else %}false{% endif %}
+      };
+    </script>
+
+    {%- if request.page_type == 'index' -%}
+      {%- liquid
+        assign same_as = ''
+        if settings.social_instagram != blank
+          assign same_as = same_as | append: settings.social_instagram | append: '|'
+        endif
+        if settings.social_tiktok != blank
+          assign same_as = same_as | append: settings.social_tiktok | append: '|'
+        endif
+        if settings.social_facebook != blank
+          assign same_as = same_as | append: settings.social_facebook | append: '|'
+        endif
+        if settings.social_youtube != blank
+          assign same_as = same_as | append: settings.social_youtube | append: '|'
+        endif
+        assign same_as_list = same_as | split: '|'
+        assign site_url = request.origin | append: routes.root_url
+        assign search_target = request.origin | append: routes.search_url | append: '?q={search_term_string}'
+      -%}
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": {{ shop.name | json }},
+          "url": {{ site_url | json }}
+          {%- if same_as_list.size > 0 -%},
+          "sameAs": {{ same_as_list | json }}
+          {%- endif %}
+        }
+      </script>
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": {{ shop.name | json }},
+          "url": {{ site_url | json }},
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {{ search_target | json }},
+            "query-input": "required name=search_term_string"
+          }
+        }
+      </script>
+    {%- endif -%}
+
+    {{ content_for_header }}
+  </head>
+
+  <body class="template-{{ template.name | handleize }} badge-style-{{ settings.badge_style }} heading-accent-{{ settings.heading_accent }} card-shape-{{ settings.card_image_shape }}{% if settings.grain %} has-grain{% endif %}{% if settings.custom_cursor %} cursor-custom{% endif %}{% if settings.scramble_headings %} scramble-headings{% endif %}{% if settings.button_glow %} button-glow{% endif %}{% if settings.card_hover_lift %} card-lift{% endif %}{% if settings.hard_shadows %} hard-shadows{% endif %}">
+    <a class="skip-link visually-hidden-focusable" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="main" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    {% section 'cart-drawer' %}
+
+    {%- if settings.card_quick_view -%}
+      <dialog id="QuickViewModal" class="modal quick-view-modal" aria-label="{{ 'products.quick_view.title' | t }}">
+        <button type="button" class="icon-button modal__close" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+          {% render 'icon', icon: 'close' %}
+        </button>
+        <div class="quick-view-modal__content" data-quick-view-content></div>
+      </dialog>
+    {%- endif -%}
+
+    {%- if settings.wishlist_enable -%}
+      {% render 'saved-drawer' %}
+    {%- endif -%}
+    {%- if settings.back_to_top -%}
+      {% render 'back-to-top' %}
+    {%- endif -%}
+
+    {% render 'whatsapp-float' %}
+  </body>
+</html>

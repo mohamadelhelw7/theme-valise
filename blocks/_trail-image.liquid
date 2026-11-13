@@ -1,0 +1,37 @@
+{% doc %}
+  Renders one photo in the photo trail. Falls back to a product photo from the store.
+{% enddoc %}
+
+{%- liquid
+  assign trail_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign trail_index = forloop.index0
+      break
+    endif
+  endfor
+  assign trail_image = block.settings.image | default: collections.all.products[trail_index].featured_image
+-%}
+
+<span class="photo-trail__item" data-trail-item {{ block.shopify_attributes }}>
+  {%- if trail_image != blank -%}
+    {{
+      trail_image
+      | image_url: width: 600
+      | image_tag: loading: 'lazy', widths: '300, 450, 600', sizes: '(min-width: 750px) 280px, 160px', alt: '', draggable: 'false'
+    }}
+  {%- else -%}
+    {%- assign ph_n = trail_index | plus: 1 -%}{% render 'media-placeholder', kind: 'product', index: ph_n %}
+  {%- endif -%}
+</span>
+
+{% schema %}
+{
+  "name": "Photo",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to a product photo. Cut-outs and close-ups work well." }
+  ],
+  "presets": [{ "name": "Photo" }]
+}
+{% endschema %}

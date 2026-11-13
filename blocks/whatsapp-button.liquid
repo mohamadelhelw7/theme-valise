@@ -1,0 +1,67 @@
+{% doc %}
+  Renders an Ask on WhatsApp button. On product pages the message includes the product name and link.
+
+  @example
+  {% content_for 'block', type: 'whatsapp-button', id: 'whatsapp' %}
+{% enddoc %}
+
+{%- liquid
+  assign wa_number = block.settings.number | default: settings.whatsapp_number | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')'
+  assign wa_message = block.settings.message
+  if product != blank
+    assign product_url = request.origin | append: product.url
+    assign wa_message = wa_message | append: ' ' | append: product.title | append: ' ' | append: product_url
+  endif
+-%}
+
+{%- if wa_number != blank -%}
+  <a
+    href="https://wa.me/{{ wa_number }}?text={{ wa_message | url_encode }}"
+    class="button {{ block.settings.style }} whatsapp-button{% if block.settings.full_width %} button--full{% endif %}"
+    target="_blank"
+    rel="noopener"
+    {{ block.shopify_attributes }}
+  >
+    {% render 'icon', icon: 'whatsapp' %}
+    {{ block.settings.label | escape }}
+  </a>
+{%- elsif request.design_mode -%}
+  <p class="whatsapp-button__hint" {{ block.shopify_attributes }}>{{ 'general.whatsapp.missing_number' | t }}</p>
+{%- endif -%}
+
+{% stylesheet %}
+  .whatsapp-button .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .whatsapp-button__hint {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "WhatsApp button",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "Ask us on WhatsApp" },
+    { "type": "text", "id": "number", "label": "WhatsApp number", "info": "Leave empty to use the number in Theme settings > WhatsApp" },
+    { "type": "text", "id": "message", "label": "Prefilled message", "default": "Hi! I have a question about" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "button--secondary", "label": "Outline" },
+        { "value": "button--primary", "label": "Solid" },
+        { "value": "button--accent", "label": "Accent" },
+        { "value": "button--link", "label": "Text link" }
+      ],
+      "default": "button--secondary"
+    },
+    { "type": "checkbox", "id": "full_width", "label": "Full width", "default": true }
+  ],
+  "presets": [{ "name": "WhatsApp button", "category": "Links" }]
+}
+{% endschema %}

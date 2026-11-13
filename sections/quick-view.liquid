@@ -1,0 +1,117 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign form_id = 'ProductForm-' | append: section.id
+-%}
+
+<div class="quick-view">
+  <product-info
+    class="quick-view__grid"
+    data-section="{{ section.id }}"
+    data-url="{{ product.url }}"
+    data-update-url="false"
+    data-client-render="true"
+  >
+    <media-gallery class="quick-view__gallery" aria-label="{{ 'products.product.gallery' | t }}">
+      <ul class="gallery__track quick-view__track" data-gallery-track role="list">
+        {%- for media in product.media limit: 8 -%}
+          {%- if media.media_type == 'image' -%}
+            <li class="gallery__slide quick-view__slide" data-media-id="{{ media.id }}">
+              {{ media | image_url: width: 1100 | image_tag: loading: 'eager', widths: '500, 800, 1100', sizes: '(min-width: 750px) 480px, 100vw', alt: media.alt | escape }}
+            </li>
+          {%- endif -%}
+        {%- else -%}
+          <li class="gallery__slide quick-view__slide">{% render 'media-placeholder', kind: 'product' %}</li>
+        {%- endfor -%}
+      </ul>
+      {%- if product.media.size > 1 -%}
+        <div class="gallery__dots quick-view__dots" aria-hidden="true">
+          {%- for media in product.media limit: 8 -%}
+            {%- if media.media_type == 'image' -%}
+              <button type="button" class="gallery__dot" data-dot="{{ media.id }}" tabindex="-1" aria-current="{% if forloop.first %}true{% else %}false{% endif %}"></button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </media-gallery>
+
+    <div class="quick-view__info">
+      {%- if product.type != blank -%}
+        <span class="eyebrow">{{ product.type | escape }}</span>
+      {%- endif -%}
+      <h2 id="QuickViewTitle-{{ product.id }}" class="h3" tabindex="-1" data-quick-view-title>{{ product.title | escape }}</h2>
+      {%- assign rating = product.metafields.reviews.rating.value -%}
+      {%- if rating != blank -%}
+        {% render 'stars', rating: rating.rating, scale: rating.scale_max %}
+      {%- endif -%}
+      <div data-update="price">{% render 'price', variant: current_variant, class: 'quick-view__price' %}</div>
+      {% render 'variant-picker', product: product, id_prefix: 'QuickView', swatches: true %}
+      {% render 'buy-form', product: product, form_id: form_id, show_quantity: true, show_dynamic_checkout: false %}
+      <a href="{{ product.url }}" class="link-underline quick-view__link">{{ 'products.quick_view.full_details' | t }}</a>
+    </div>
+
+    <script type="application/json" data-product-variants>
+      {{ product.variants | json }}
+    </script>
+  </product-info>
+</div>
+
+{% stylesheet %}
+  .quick-view__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .quick-view__gallery {
+    position: relative;
+    background: var(--tint-1);
+  }
+  .quick-view__track {
+    border-radius: 0;
+    height: 100%;
+    gap: 0;
+  }
+  .quick-view__slide {
+    border-radius: 0;
+    aspect-ratio: 1;
+    flex-basis: 100%;
+  }
+  .quick-view__dots {
+    position: absolute;
+    bottom: 14px;
+    inset-inline: 0;
+    display: flex;
+  }
+  .quick-view__info {
+    padding: 40px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .quick-view__info h2:focus {
+    outline: none;
+  }
+  .quick-view__price {
+    font-size: 1.25rem;
+  }
+  .quick-view__link {
+    align-self: flex-start;
+  }
+  @media (max-width: 749px) {
+    .quick-view__grid {
+      grid-template-columns: 1fr;
+    }
+    .quick-view__slide {
+      aspect-ratio: 4 / 3;
+    }
+    .quick-view__info {
+      padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Quick view",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}
