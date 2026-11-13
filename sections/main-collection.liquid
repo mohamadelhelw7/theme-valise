@@ -20,6 +20,7 @@
 
 <div class="section color-{{ section.settings.color_scheme }}" style="--pt: 0px; --pb: var(--space-{{ section.settings.padding_bottom }});">
   <div class="page-width">
+    {%- if section.settings.show_title -%}
     <div class="page-title-block collection-hero">
       <div>
         {%- if section.settings.show_eyebrow -%}
@@ -36,6 +37,7 @@
         </div>
       {%- endif -%}
     </div>
+    {%- endif -%}
 
     {%- paginate collection.products by per_page -%}
       {%- liquid
@@ -188,7 +190,7 @@
         <div class="collection-layout__products">
           {%- if collection.products.size > 0 -%}
             <ul
-              class="product-grid product-grid--collection"
+              class="product-grid product-grid--collection{% if section.settings.grid_style == 'salon' %} product-grid--salon{% endif %}"
               data-product-grid
               role="list"
               style="--cols-desktop: {{ section.settings.columns_desktop }}; --cols-mobile: {{ section.settings.columns_mobile }};"
@@ -552,6 +554,7 @@
   "class": "main-collection-section",
   "settings": [
     { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "checkbox", "id": "show_title", "label": "Show title and description", "info": "Turn off when a Page intro section above shows them", "default": true },
     { "type": "checkbox", "id": "show_eyebrow", "label": "Show eyebrow", "default": true },
     { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
     { "type": "checkbox", "id": "show_image", "label": "Show collection image", "default": false },
@@ -593,6 +596,17 @@
       "info": "On mobile, filters always open in a drawer"
     },
     { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+    {
+      "type": "select",
+      "id": "grid_style",
+      "label": "Grid style",
+      "options": [
+        { "value": "even", "label": "Even rows" },
+        { "value": "salon", "label": "Salon wall, mixed sizes" }
+      ],
+      "default": "even",
+      "info": "Salon wall applies on computers. Turn off the column switch with it."
+    },
     { "type": "checkbox", "id": "show_grid_switch", "label": "Let shoppers change columns", "default": true },
     { "type": "header", "content": "Promo tile" },
     { "type": "paragraph", "content": "A photo tile placed between products on the first page." },

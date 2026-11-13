@@ -3,58 +3,25 @@
   "name": "Footer",
   "sections": {
     "footer": {
-      "type": "footer",
-      "blocks": {
-        "brand": {
-          "type": "_footer-brand",
-          "settings": {
-            "text": "<p>Bags for every day and every evening, made to be carried for years.</p>"
-          }
-        },
-        "menu_shop": {
-          "type": "_footer-menu",
-          "settings": {
-            "heading": "Shop",
-            "menu": "main-menu"
-          }
-        },
-        "menu_help": {
-          "type": "_footer-menu",
-          "settings": {
-            "heading": "Help",
-            "menu": "footer"
-          }
-        },
-        "newsletter": {
-          "type": "_footer-newsletter",
-          "settings": {
-            "heading": "Join our list"
-          }
-        }
-      },
-      "block_order": [
-        "brand",
-        "menu_shop",
-        "menu_help",
-        "newsletter"
-      ],
+      "type": "colophon",
       "settings": {
-        "color_scheme": "scheme-3",
-        "margin_top": "large",
-        "show_localization": true,
+        "color_scheme": "scheme-1",
+        "show_signup": true,
+        "signup_label": "News of new rooms",
+        "text": "<p>Bags shown one at a time, like objects in a gallery.</p>",
+        "menu_1": "main-menu",
+        "menu_1_heading": "Collection",
+        "menu_2": "footer",
+        "menu_2_heading": "Visit",
         "show_social": true,
-        "show_payment_icons": true,
-        "show_powered_by": false,
-        "show_closing_logo": true,
-        "closing_text": "Made to be carried.",
-        "closing_height": "small",
-        "closing_overlay": 35
+        "show_localization": true,
+        "show_payment_icons": true
       }
     },
     "popup": {
       "type": "popup",
       "settings": {
-        "enable": true,
+        "enable": false,
         "content": "newsletter",
         "trigger": "scroll",
         "delay": 8,
@@ -66,7 +33,7 @@
         "layout": "stacked",
         "image_position": "start",
         "dismiss_label": "Not now",
-        "color_scheme": "scheme-4",
+        "color_scheme": "scheme-2",
         "image_shape": "square",
         "eyebrow": "The list",
         "heading": "Hear about new\n*arrivals*",

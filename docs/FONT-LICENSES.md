@@ -4,12 +4,10 @@ Valise bundles these typefaces in `assets/`. All of them are published on Google
 
 | Files | Typeface | License |
 | --- | --- | --- |
-| `josefin-sans-*.woff2` | Josefin Sans | SIL OFL 1.1 |
-| `newsreader-*.woff2`, `newsreader-italic-*.woff2` | Newsreader | SIL OFL 1.1 |
-| `marcellus-*.woff2` | Marcellus | SIL OFL 1.1 |
-| `figtree-*.woff2` | Figtree | SIL OFL 1.1 |
-| `plex-arabic-*.woff2` | IBM Plex Sans Arabic | SIL OFL 1.1 |
-| `markazi-arabic.woff2` | Markazi Text | SIL OFL 1.1 |
+| `gloock-*.woff2` | Gloock | SIL OFL 1.1 |
+| `eb-garamond-*.woff2`, `eb-garamond-italic-*.woff2` | EB Garamond | SIL OFL 1.1 |
+| `aref-ruqaa-*.woff2` | Aref Ruqaa | SIL OFL 1.1 |
+| `scheherazade-*.woff2` | Scheherazade New | SIL OFL 1.1 |
 
 Each file keeps the copyright notice embedded by its authors. The files are the subsets served by Google Fonts.
 

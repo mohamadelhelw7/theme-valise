@@ -1,6 +1,6 @@
 {% doc %}
-  Fills a frame that has no image yet. By default it shows a fine line drawing
-  of a bag in soft studio light, with a floor shadow. Wide frames show a shelf
+  Fills a frame that has no image yet. By default it shows a drawn leather bag
+  standing on a plinth in soft light. Wide frames show a shelf
   with three bags. When a product name says what the bag is (tote, backpack,
   wallet and so on, in English or Arabic), the drawing matches it.
   Theme settings → Layout → Missing photos can switch it to a plain tint.
@@ -103,7 +103,8 @@
   /* Studio drawings */
   .media-placeholder--art {
     --ph-bg: var(--card-tint, var(--tile-bg, var(--color-surface)));
-    --ph-ink: color-mix(in srgb, var(--color-text) 72%, var(--ph-bg));
+    --ph-ink: color-mix(in srgb, #3a2418 70%, var(--color-text));
+    --ph-leather: color-mix(in srgb, #7b4a2e 82%, var(--color-text));
     container: ph / size;
     background-color: var(--ph-bg);
     background-image:
@@ -131,20 +132,21 @@
     content: '';
     position: absolute;
     z-index: -1;
-    inset-inline: 14%;
-    bottom: 3%;
-    height: 9%;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, color-mix(in srgb, var(--color-text) 16%, transparent), transparent);
+    inset-inline: 2%;
+    bottom: 5%;
+    height: 7%;
+    background: color-mix(in srgb, #ffffff 34%, transparent);
+    border-top: 1px solid color-mix(in srgb, #ffffff 60%, transparent);
   }
   .bag-art {
     display: block;
     width: 100%;
     height: auto;
     overflow: visible;
-    fill: var(--ph-bg);
+    fill: var(--ph-leather);
     stroke: currentColor;
-    stroke-width: 1.5;
+    stroke-width: 1.1;
+    filter: drop-shadow(0 10px 10px rgb(0 0 0 / 0.12));
     stroke-linecap: round;
     stroke-linejoin: round;
   }
@@ -153,9 +155,9 @@
   }
   .bag-art__stitch {
     fill: none;
-    stroke-width: 0.9;
+    stroke: color-mix(in srgb, #ffffff 60%, transparent);
+    stroke-width: 0.8;
     stroke-dasharray: 2.2 2.4;
-    opacity: 0.75;
   }
   .media-placeholder--shelf .media-placeholder__art {
     width: min(64cqw, 120cqh);

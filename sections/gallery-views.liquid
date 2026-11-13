@@ -1,0 +1,147 @@
+{%- liquid
+  assign numerals = 'I,II,III,IV,V,VI,VII,VIII,IX,X,XI,XII,XIII,XIV,XV,XVI,XVII,XVIII,XIX,XX' | split: ','
+  assign view_count = 0
+  for media in product.media offset: 1
+    if media.media_type == 'image'
+      assign view_count = view_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if view_count > 0 -%}
+  <section class="views" aria-label="{{ 'products.product.gallery' | t }}">
+    {%- assign shown = 0 -%}
+    {%- for media in product.media offset: 1 -%}
+      {%- if media.media_type != 'image' -%}{%- continue -%}{%- endif -%}
+      {%- liquid
+        assign shown = shown | plus: 1
+        assign position = forloop.index
+        assign numeral = numerals[position] | default: position
+        assign odd = shown | modulo: 2
+        if odd == 1
+          assign view_scheme = section.settings.scheme_a
+        else
+          assign view_scheme = section.settings.scheme_b
+        endif
+        assign view_alt = media.alt | default: product.title | escape
+      -%}
+      <figure class="views__room views__room--{% if odd == 1 %}start{% else %}end{% endif %} color-{{ view_scheme }}">
+        <div class="views__object">
+          {{ media | image_url: width: 1600 | image_tag: loading: 'lazy', widths: '500, 800, 1100, 1600', sizes: '(min-width: 990px) 50vw, 90vw', alt: view_alt, class: 'views__image' }}
+        </div>
+        <figcaption class="views__caption">
+          <span class="views__numeral">{{ numeral }}.</span>
+          {%- if section.settings.show_captions and media.alt != blank -%}
+            <span class="views__text">{{ media.alt | escape }}</span>
+          {%- endif -%}
+        </figcaption>
+      </figure>
+      {%- if shown >= section.settings.limit -%}{%- break -%}{%- endif -%}
+    {%- endfor -%}
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .views__room {
+    position: relative;
+    margin: 0;
+    min-height: min(92svh, 900px);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: center;
+    padding: clamp(40px, 8vh, 96px) max(var(--gutter), env(safe-area-inset-right, 0px)) clamp(40px, 8vh, 96px) max(var(--gutter), env(safe-area-inset-left, 0px));
+  }
+  .views__object {
+    grid-column: 4 / span 6;
+    height: min(72svh, 760px);
+  }
+  .views__room--start .views__object {
+    grid-column: 2 / span 6;
+  }
+  .views__room--end .views__object {
+    grid-column: 6 / span 6;
+  }
+  .views__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 26px 24px rgb(0 0 0 / 0.14));
+  }
+  .views__caption {
+    position: absolute;
+    bottom: clamp(24px, 5vh, 48px);
+    display: grid;
+    gap: 4px;
+    max-width: 280px;
+    font-size: 1.0625rem;
+  }
+  .views__room--start .views__caption {
+    inset-inline-end: max(var(--gutter), env(safe-area-inset-right, 0px));
+  }
+  .views__room--end .views__caption {
+    inset-inline-start: max(var(--gutter), env(safe-area-inset-left, 0px));
+  }
+  .views__numeral {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+  }
+  .views__text {
+    font-style: italic;
+    color: var(--color-muted);
+  }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .views__object {
+        animation: views-rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 45%;
+      }
+      @keyframes views-rise {
+        from {
+          opacity: 0.2;
+          translate: 0 10%;
+          scale: 0.94;
+        }
+        to {
+          opacity: 1;
+          translate: none;
+          scale: 1;
+        }
+      }
+    }
+  }
+  @media (max-width: 749px) {
+    .views__room {
+      min-height: 0;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .views__room .views__object,
+    .views__room--start .views__object,
+    .views__room--end .views__object {
+      grid-column: 1;
+      height: auto;
+      aspect-ratio: 1;
+    }
+    .views__caption {
+      position: static;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product views",
+  "tag": "div",
+  "class": "views-section",
+  "settings": [
+    { "type": "paragraph", "content": "Shows the product's other photos, one per room, after the first photo. Write a short caption in each photo's alt text in the product's media." },
+    { "type": "color_scheme", "id": "scheme_a", "label": "First room color", "default": "scheme-2" },
+    { "type": "color_scheme", "id": "scheme_b", "label": "Second room color", "default": "scheme-4" },
+    { "type": "checkbox", "id": "show_captions", "label": "Show alt text as captions", "default": true },
+    { "type": "range", "id": "limit", "label": "Most photos", "min": 1, "max": 12, "step": 1, "default": 6 }
+  ],
+  "enabled_on": { "templates": ["product"] },
+  "presets": [{ "name": "Product views" }]
+}
+{% endschema %}

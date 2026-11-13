@@ -1,68 +1,27 @@
 {
   "sections": {
-    "hero": {
-      "type": "campaign-hero",
+    "intro": {
+      "type": "gallery-intro",
       "settings": {
         "color_scheme": "scheme-1",
-        "height": "full",
-        "scroll_effect": "zoom",
-        "text_position": "center",
-        "overlay": 25,
-        "text_color": "#FFFFFF",
-        "eyebrow": "Our story",
-        "heading": "Made to be\n*carried*",
-        "text": "Tell the story of your brand: who makes your bags and why.",
-        "button_label": "Shop the collection",
-        "button_link": "shopify://collections/all"
+        "auto": false,
+        "label": "Our story",
+        "title": "Made to be carried",
+        "text": "<p>Tell the story of your brand: who makes your bags, where and why.</p>",
+        "alignment": "center",
+        "padding_top": "large",
+        "padding_bottom": "medium"
       }
     },
-    "statement": {
-      "type": "scroll-text",
+    "wall": {
+      "type": "wall-text",
       "settings": {
-        "color_scheme": "scheme-1"
-      }
-    },
-    "stories": {
-      "type": "stacked-stories",
-      "blocks": {
-        "stacked_stories_1": {
-          "type": "_story-card",
-          "settings": {
-            "color_scheme": "scheme-4",
-            "eyebrow": "The materials",
-            "heading": "Chosen to\n*last*",
-            "button_label": "Discover"
-          }
-        },
-        "stacked_stories_2": {
-          "type": "_story-card",
-          "settings": {
-            "color_scheme": "scheme-3",
-            "image_position": "end",
-            "eyebrow": "The size",
-            "heading": "Find the right\n*size*",
-            "text": "<p>Every bag shows its measurements and what fits inside on its page.</p>",
-            "button_label": "See the sizes"
-          }
-        },
-        "stacked_stories_3": {
-          "type": "_story-card",
-          "settings": {
-            "color_scheme": "scheme-5",
-            "eyebrow": "New in",
-            "heading": "New bags,\n*every* season",
-            "text": "<p>Sign up to hear about new bags first.</p>",
-            "button_label": "Shop new in"
-          }
-        }
-      },
-      "block_order": [
-        "stacked_stories_1",
-        "stacked_stories_2",
-        "stacked_stories_3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1"
+        "color_scheme": "scheme-1",
+        "source": "page",
+        "label": "The workshop",
+        "size": "large",
+        "padding_top": "medium",
+        "padding_bottom": "large"
       }
     },
     "closer_look": {
@@ -112,57 +71,38 @@
         "bag_anatomy_4"
       ],
       "settings": {
+        "color_scheme": "scheme-2",
+        "eyebrow": "Study",
+        "heading": "A closer *look*"
+      }
+    },
+    "hall": {
+      "type": "gallery-hall",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "label": "The hall",
+        "heading": "Every object",
+        "auto_fill": true,
+        "products_to_show": 5,
+        "layout": "salon",
+        "link_label": "See every object",
+        "link": "shopify://collections/all",
+        "padding_top": "large",
+        "padding_bottom": "large"
+      }
+    },
+    "visitor": {
+      "type": "visitor-book",
+      "settings": {
         "color_scheme": "scheme-2"
-      }
-    },
-    "video": {
-      "type": "video-feature",
-      "settings": {
-        "color_scheme": "scheme-1"
-      }
-    },
-    "social": {
-      "type": "social-gallery",
-      "blocks": {
-        "social_gallery_1": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_2": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_3": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_4": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_5": {
-          "type": "_gallery-image",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "social_gallery_1",
-        "social_gallery_2",
-        "social_gallery_3",
-        "social_gallery_4",
-        "social_gallery_5"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1"
       }
     }
   },
   "order": [
-    "hero",
-    "statement",
-    "stories",
+    "intro",
+    "wall",
     "closer_look",
-    "video",
-    "social"
+    "hall",
+    "visitor"
   ]
 }

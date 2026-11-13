@@ -1,0 +1,99 @@
+{%- liquid
+  assign intro_title = section.settings.title
+  assign intro_text = section.settings.text
+  assign intro_label = section.settings.label
+  if section.settings.auto
+    if collection != blank and template.name == 'collection'
+      assign intro_title = collection.title
+      if collection.description != blank
+        assign intro_text = collection.description
+      endif
+      assign intro_label = 'sections.rooms.objects' | t: count: collection.products_count
+    elsif template.name == 'list-collections'
+      assign intro_title = 'sections.rooms.collections' | t
+      assign intro_label = 'sections.rooms.exhibitions' | t: count: collections.size
+    elsif template.name == 'blog' and blog != blank
+      assign intro_title = blog.title
+    elsif template.name == 'page' and page != blank
+      assign intro_title = page.title
+    endif
+  endif
+-%}
+
+<section
+  class="section gallery-intro gallery-intro--{{ section.settings.alignment }} color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <div class="page-width gallery-intro__inner">
+    {%- if intro_label != blank -%}
+      <span class="gallery-intro__label">{{ intro_label | escape }}</span>
+    {%- endif -%}
+    {%- if intro_title != blank -%}
+      <h1 class="gallery-intro__title">{{ intro_title | escape }}</h1>
+    {%- endif -%}
+    {%- if intro_text != blank -%}
+      <div class="gallery-intro__text rte">{{ intro_text }}</div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .gallery-intro__inner {
+    display: grid;
+    gap: 16px;
+    padding-top: calc(var(--header-overlap, 0px));
+  }
+  .gallery-intro--center .gallery-intro__inner {
+    justify-items: center;
+    text-align: center;
+  }
+  .gallery-intro__label {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+  }
+  .gallery-intro__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(clamp(2.75rem, 7vw, 6.5rem) * var(--heading-scale));
+    line-height: 0.98;
+    letter-spacing: var(--heading-ls);
+    text-transform: var(--heading-case);
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .gallery-intro__text {
+    max-width: 40em;
+    font-size: 1.1875rem;
+    color: var(--color-body);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Page intro",
+  "tag": "div",
+  "class": "gallery-intro-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "checkbox", "id": "auto", "label": "Use the page's own title", "info": "On collection, blog and page templates. The collection page also shows its product count.", "default": true },
+    { "type": "text", "id": "label", "label": "Label" },
+    { "type": "text", "id": "title", "label": "Title", "default": "The collection" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "start", "label": "Start" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "start"
+    },
+    { "type": "select", "id": "padding_top", "label": "Top padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "medium" }
+  ],
+  "presets": [{ "name": "Page intro" }]
+}
+{% endschema %}

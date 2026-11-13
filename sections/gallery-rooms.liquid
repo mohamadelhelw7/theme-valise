@@ -1,0 +1,206 @@
+{%- liquid
+  assign room_count = section.blocks.size
+-%}
+
+<room-sequence
+  class="rooms rooms--{{ section.settings.room_height }} color-{{ section.settings.color_scheme }}"
+  data-no-reveal
+>
+  {%- if section.settings.show_intro -%}
+    <div class="rooms__intro">
+      {%- if section.settings.eyebrow != blank -%}
+        <span class="rooms__eyebrow">{{ section.settings.eyebrow | escape }}</span>
+      {%- endif -%}
+      {%- if section.settings.title != blank -%}
+        {%- assign title_parts = section.settings.title | escape | newline_to_br | split: '*' -%}
+        <h2 class="rooms__title">
+          {%- for part in title_parts -%}
+            {%- assign odd = forloop.index0 | modulo: 2 -%}
+            {%- if odd == 1 -%}<em>{{ part }}</em>{%- else -%}{{ part }}{%- endif -%}
+          {%- endfor -%}
+        </h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <p class="rooms__text">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+      <span class="rooms__hint" aria-hidden="true">{{ 'sections.rooms.scroll' | t }}<i></i></span>
+    </div>
+  {%- endif -%}
+  {% content_for 'blocks' %}
+  {%- if room_count == 0 and request.design_mode -%}
+    <p class="rooms__empty page-width">{{ 'sections.rooms.empty' | t }}</p>
+  {%- endif -%}
+</room-sequence>
+
+{% javascript %}
+  class RoomSequence extends HTMLElement {
+    connectedCallback() {
+      this.rooms = Array.from(this.querySelectorAll('[data-room]'));
+      if (!this.rooms.length) return;
+      this.paint(this.rooms[0]);
+      if (!('IntersectionObserver' in window)) {
+        this.rooms.forEach((room) => room.classList.add('is-current'));
+        return;
+      }
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) this.paint(entry.target);
+          });
+        },
+        { threshold: 0.5 }
+      );
+      this.rooms.forEach((room) => this.observer.observe(room));
+      this.addEventListener('shopify:block:select', (event) => {
+        const room = event.target.closest('[data-room]');
+        if (room) room.scrollIntoView({ block: 'center' });
+      });
+    }
+
+    disconnectedCallback() {
+      this.observer?.disconnect();
+    }
+
+    paint(room) {
+      const color = room.dataset.roomColor || getComputedStyle(room).getPropertyValue('--color-bg').trim();
+      if (color) this.style.setProperty('--room', color);
+      this.rooms.forEach((item) => item.classList.toggle('is-current', item === room));
+    }
+  }
+  if (!customElements.get('room-sequence')) customElements.define('room-sequence', RoomSequence);
+{% endjavascript %}
+
+{% stylesheet %}
+  room-sequence {
+    display: block;
+  }
+  .rooms {
+    --room-h: 100svh;
+    background: var(--room, var(--color-bg));
+    transition: background-color 1.2s ease;
+  }
+  .rooms--large {
+    --room-h: 86svh;
+  }
+  .rooms__intro {
+    min-height: calc(var(--room-h) * 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: calc(var(--header-overlap, 0px) + 32px) max(var(--gutter), env(safe-area-inset-right, 0px)) 48px;
+    text-align: center;
+  }
+  .rooms__eyebrow,
+  .room__num,
+  .room__count,
+  .room__view,
+  .rooms__hint {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+  }
+  .rooms__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(clamp(3rem, 9vw, 8.5rem) * var(--heading-scale));
+    line-height: 0.95;
+    letter-spacing: var(--heading-ls);
+    text-transform: var(--heading-case);
+    max-width: 14ch;
+    text-wrap: balance;
+  }
+  .rooms__title em {
+    font-style: normal;
+    color: var(--color-accent);
+  }
+  .heading-accent-italic .rooms__title em {
+    font-style: italic;
+    color: inherit;
+  }
+  .rooms__text {
+    max-width: 46ch;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .rooms__hint {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: var(--color-muted);
+  }
+  .rooms__hint i {
+    width: 1px;
+    height: 44px;
+    background: currentColor;
+    transform-origin: top;
+    animation: rooms-hint 2.4s ease-in-out infinite;
+  }
+  @keyframes rooms-hint {
+    0% {
+      scale: 1 0;
+    }
+    50% {
+      scale: 1 1;
+    }
+    100% {
+      scale: 1 0;
+      transform-origin: bottom;
+    }
+  }
+  .rooms__empty {
+    padding-block: 64px;
+    text-align: center;
+    color: var(--color-muted);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rooms,
+    .rooms__hint i {
+      transition: none;
+      animation: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Rooms",
+  "tag": "section",
+  "class": "rooms-section",
+  "max_blocks": 12,
+  "blocks": [{ "type": "_room" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1", "info": "Used for the opening title. Each room has its own color." },
+    {
+      "type": "select",
+      "id": "room_height",
+      "label": "Room height",
+      "options": [
+        { "value": "full", "label": "Full screen" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "full"
+    },
+    { "type": "checkbox", "id": "auto_fill", "label": "Fill empty rooms with your products", "default": true },
+    { "type": "collection", "id": "collection", "label": "Collection for empty rooms", "info": "Defaults to all products" },
+    { "type": "header", "content": "Opening title" },
+    { "type": "checkbox", "id": "show_intro", "label": "Show an opening title", "default": true },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The new season" },
+    { "type": "textarea", "id": "title", "label": "Title", "info": "Wrap a word in *asterisks* to highlight it", "default": "Objects to *carry*" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Each bag in its own room. Scroll to walk through." }
+  ],
+  "presets": [
+    {
+      "name": "Rooms",
+      "blocks": [
+        { "type": "_room", "settings": { "color_scheme": "scheme-4" } },
+        { "type": "_room", "settings": { "color_scheme": "scheme-5" } },
+        { "type": "_room", "settings": { "color_scheme": "scheme-2" } },
+        { "type": "_room", "settings": { "color_scheme": "scheme-4" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

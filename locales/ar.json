@@ -19,7 +19,8 @@
       "account": "حسابي",
       "cart": "السلة",
       "view_all": "تسوق كل {{ title }}",
-      "bag": "الحقيبة"
+      "bag": "الحقيبة",
+      "index": "الفهرس"
     },
     "search": {
       "title": "بحث",
@@ -340,6 +341,34 @@
     "photo_trail": {
       "hint_mouse": "حرّك الماوس",
       "hint_touch": "اضغط في أي مكان"
+    },
+    "rooms": {
+      "scroll": "مرّر",
+      "view": "شاهد",
+      "empty": "أضف بلوك Room لكل حقيبة تريد عرضها.",
+      "all_objects": "كل القطع",
+      "collections": "المجموعات",
+      "objects": {
+        "zero": "لا توجد قطع",
+        "one": "قطعة واحدة",
+        "two": "قطعتان",
+        "few": "{{ count }} قطع",
+        "many": "{{ count }} قطعة",
+        "other": "{{ count }} قطعة"
+      },
+      "exhibitions": {
+        "zero": "لا توجد مجموعات",
+        "one": "مجموعة واحدة",
+        "two": "مجموعتان",
+        "few": "{{ count }} مجموعات",
+        "many": "{{ count }} مجموعة",
+        "other": "{{ count }} مجموعة"
+      }
+    },
+    "catalogue": {
+      "maker": "الصانع",
+      "type": "النوع",
+      "reference": "المرجع"
     }
   },
   "contact": {

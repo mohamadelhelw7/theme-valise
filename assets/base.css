@@ -2492,3 +2492,128 @@ saved-drawer.is-loading .saved-drawer__grid {
 .badge-style-text .product-card__badges--center {
   gap: 4px 14px;
 }
+
+/* Museum label cards */
+.product-card--label .product-card__info {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'num title price'
+    'num type price'
+    'num rating rating'
+    'swatches swatches swatches'
+    'button button button';
+  align-items: baseline;
+  column-gap: 14px;
+  row-gap: 2px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+  text-align: start;
+}
+.product-card--label .product-card__num {
+  grid-area: num;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
+  font-size: 1rem;
+  color: var(--color-muted);
+}
+.product-card--label .product-card__heading {
+  grid-area: title;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 1.25rem;
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.product-card--label .product-card__title {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.product-card--label .product-card__type {
+  grid-area: type;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+.product-card--label .price {
+  grid-area: price;
+  justify-self: end;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.product-card--label .product-card__rating {
+  grid-area: rating;
+}
+.product-card--label .card-swatches {
+  grid-area: swatches;
+  margin-top: 8px;
+}
+.product-card--label .product-card__button {
+  grid-area: button;
+  margin-top: 10px;
+}
+.product-card--label .product-card__media img {
+  transition: translate 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.5s ease;
+}
+@media (hover: hover) {
+  .product-card--label:hover .product-card__media img:not(.product-card__image--hover) {
+    translate: 0 -2.5%;
+  }
+}
+
+/* Gallery utilities */
+.small-caps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+}
+
+/* Salon wall collection grid */
+@media (min-width: 990px) {
+  .product-grid.product-grid--salon {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    row-gap: clamp(32px, 4vw, 72px);
+  }
+  .product-grid--salon > li:nth-child(5n + 1) {
+    grid-column: 1 / span 5;
+  }
+  .product-grid--salon > li:nth-child(5n + 2) {
+    grid-column: 7 / span 5;
+    margin-top: clamp(40px, 10vw, 160px);
+  }
+  .product-grid--salon > li:nth-child(5n + 3) {
+    grid-column: 2 / span 3;
+  }
+  .product-grid--salon > li:nth-child(5n + 4) {
+    grid-column: 6 / span 3;
+    margin-top: clamp(24px, 6vw, 90px);
+  }
+  .product-grid--salon > li:nth-child(5n + 5) {
+    grid-column: 10 / span 3;
+  }
+}
+
+/* Gallery: placeholders standing on the room's plinth */
+.room__placeholder .media-placeholder,
+.product-room__placeholder .media-placeholder {
+  place-items: end center;
+}
+.room__placeholder .media-placeholder__art,
+.product-room__placeholder .media-placeholder__art {
+  translate: 0 11%;
+  width: min(100%, 72cqh);
+}
+.room__placeholder .media-placeholder__item::after,
+.product-room__placeholder .media-placeholder__item::after {
+  display: none;
+}
+.product-card--label .product-card__info {
+  align-content: start;
+}
+.hall__wall {
+  align-items: start;
+}

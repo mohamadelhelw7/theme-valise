@@ -998,7 +998,7 @@
   });
 
   const initHeader = () => {
-    const header = document.querySelector('.site-header');
+    const header = document.querySelector('.site-header, [data-site-header]');
     if (!header) return;
     const wrapper = header.closest('.shopify-section') || header;
     const sticky = header.dataset.sticky;
@@ -1115,7 +1115,7 @@
   document.addEventListener('shopify:section:load', (event) => {
     reveal.scan(event.target);
     event.target.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-revealed'));
-    if (event.target.querySelector('.site-header')) initHeader();
+    if (event.target.querySelector('.site-header, [data-site-header]')) initHeader();
   });
 
   document.addEventListener('keydown', (event) => {
@@ -2956,4 +2956,28 @@
     }
   }
   customElements.define('back-to-top', BackToTop);
+})();
+
+/* Signup forms: show the thank-you message only on the form that was sent */
+(() => {
+  document.addEventListener('submit', (event) => {
+    const form = event.target.closest('form[data-signup-id]');
+    if (!form) return;
+    try {
+      window.sessionStorage.setItem('theme:signup', form.dataset.signupId);
+    } catch (error) {}
+  });
+  let sent = null;
+  try {
+    sent = window.sessionStorage.getItem('theme:signup');
+  } catch (error) {}
+  if (!sent || !/customer_posted=true/.test(window.location.search)) return;
+  document.querySelectorAll('form[data-signup-id]').forEach((form) => {
+    if (form.dataset.signupId !== sent) return;
+    form.querySelectorAll('[data-signup-success]').forEach((el) => (el.hidden = false));
+    form.querySelectorAll('[data-signup-fields]').forEach((el) => (el.hidden = true));
+  });
+  try {
+    window.sessionStorage.removeItem('theme:signup');
+  } catch (error) {}
 })();

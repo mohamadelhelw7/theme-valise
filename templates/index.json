@@ -1,183 +1,82 @@
 {
   "sections": {
-    "slideshow": {
-      "type": "slideshow",
+    "rooms": {
+      "type": "gallery-rooms",
       "blocks": {
-        "slideshow_1": {
-          "type": "_slide",
+        "gallery_rooms_1": {
+          "type": "_room",
           "settings": {
-            "layout": "full",
-            "show_inset": false,
-            "eyebrow": "The new collection",
-            "heading": "Made to be carried",
-            "text": "Bags for every day and every evening.",
-            "link_label": "View collection",
-            "link": "shopify://collections/all",
-            "button_style": "button--light"
+            "color_scheme": "scheme-4",
+            "object_size": 60,
+            "show_price": true
           }
         },
-        "slideshow_2": {
-          "type": "_slide",
+        "gallery_rooms_2": {
+          "type": "_room",
           "settings": {
-            "layout": "split",
-            "show_inset": false,
-            "eyebrow": "New in",
-            "heading": "Two ways to carry",
-            "link_label": "Discover",
-            "link": "shopify://collections/all",
-            "button_style": "button--light",
-            "link_label_2": "Shop",
-            "link_2": "shopify://collections/all",
-            "button_style_2": "button--ink"
+            "color_scheme": "scheme-5",
+            "object_size": 60,
+            "show_price": true
           }
         },
-        "slideshow_3": {
-          "type": "_slide",
+        "gallery_rooms_3": {
+          "type": "_room",
           "settings": {
-            "layout": "full",
-            "show_inset": false,
-            "eyebrow": "Small leather goods",
-            "heading": "The details",
-            "text": "Wallets, card holders and pouches.",
-            "link_label": "Shop now",
-            "link": "shopify://collections/all",
-            "button_style": "button--light"
+            "color_scheme": "scheme-2",
+            "object_size": 55,
+            "show_price": true
+          }
+        },
+        "gallery_rooms_4": {
+          "type": "_room",
+          "settings": {
+            "color_scheme": "scheme-4",
+            "object_size": 60,
+            "show_price": true
           }
         }
       },
       "block_order": [
-        "slideshow_1",
-        "slideshow_2",
-        "slideshow_3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-3",
-        "height": "full",
-        "transition": "reveal",
-        "content_style": "framed",
-        "text_position": "middle",
-        "dots": "ring",
-        "overlay": 20,
-        "autoplay": true,
-        "interval": 7
-      }
-    },
-    "featured": {
-      "type": "featured-products",
-      "blocks": {
-        "featured_products_1": {
-          "type": "tab",
-          "settings": {
-            "label": "New in",
-            "show": "newest"
-          }
-        },
-        "featured_products_2": {
-          "type": "tab",
-          "settings": {
-            "label": "All bags",
-            "show": "all"
-          }
-        },
-        "featured_products_3": {
-          "type": "tab",
-          "settings": {
-            "label": "On sale",
-            "show": "on_sale"
-          }
-        }
-      },
-      "block_order": [
-        "featured_products_1",
-        "featured_products_2",
-        "featured_products_3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-2",
-        "eyebrow": "Shop the collection",
-        "heading": "New in",
-        "tab_style": "words",
-        "layout": "grid",
-        "products_to_show": 4,
-        "columns_desktop": 4,
-        "columns_mobile": "2",
-        "mobile_layout": "swipe",
-        "view_all_link": "shopify://collections/all",
-        "view_all_label": "View all bags",
-        "view_all_position": "below",
-        "header_alignment": "center",
-        "padding_top": "large",
-        "padding_bottom": "large"
-      }
-    },
-    "campaign": {
-      "type": "campaign-hero",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "height": "full",
-        "scroll_effect": "card",
-        "overlay": 20,
-        "text_color": "#FFFFFF",
-        "text_position": "bottom_start",
-        "show_scroll_hint": false,
-        "eyebrow": "Everyday carry",
-        "heading": "The everyday\n*backpack*",
-        "text": "Room for a laptop, a jacket and the rest of the day.",
-        "button_label": "Shop",
-        "button_link": "shopify://collections/all"
-      }
-    },
-    "styles": {
-      "type": "collection-list",
-      "blocks": {
-        "collection_list_1": {
-          "type": "_collection-card",
-          "settings": {
-            "title": "Totes",
-            "color": "#DCE1D2"
-          }
-        },
-        "collection_list_2": {
-          "type": "_collection-card",
-          "settings": {
-            "title": "Crossbody",
-            "color": "#F2E2C4"
-          }
-        },
-        "collection_list_3": {
-          "type": "_collection-card",
-          "settings": {
-            "title": "Backpacks",
-            "color": "#EAD9CF"
-          }
-        },
-        "collection_list_4": {
-          "type": "_collection-card",
-          "settings": {
-            "title": "Small leather goods",
-            "color": "#C9B8A6"
-          }
-        }
-      },
-      "block_order": [
-        "collection_list_1",
-        "collection_list_2",
-        "collection_list_3",
-        "collection_list_4"
+        "gallery_rooms_1",
+        "gallery_rooms_2",
+        "gallery_rooms_3",
+        "gallery_rooms_4"
       ],
       "settings": {
         "color_scheme": "scheme-1",
-        "eyebrow": "Shop by style",
-        "heading": "Find your shape",
-        "description": "Totes, crossbody bags, backpacks and small leather goods.",
-        "tile_style": "standard",
-        "image_fit": "contain",
-        "stagger": true,
+        "room_height": "full",
         "auto_fill": true,
-        "header_alignment": "center",
-        "columns": 4,
+        "show_intro": true,
+        "eyebrow": "The new season",
+        "title": "Objects to *carry*",
+        "text": "Each bag in its own room. Scroll to walk through."
+      }
+    },
+    "wall": {
+      "type": "wall-text",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "source": "custom",
+        "label": "About the collection",
+        "note": "New season",
+        "size": "large",
         "padding_top": "large",
-        "padding_bottom": "none"
+        "padding_bottom": "medium"
+      }
+    },
+    "hall": {
+      "type": "gallery-hall",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "label": "The hall",
+        "heading": "Every object",
+        "auto_fill": true,
+        "products_to_show": 5,
+        "layout": "salon",
+        "link_label": "See every object",
+        "link": "shopify://collections/all",
+        "padding_top": "medium",
+        "padding_bottom": "large"
       }
     },
     "closer_look": {
@@ -227,578 +126,86 @@
         "bag_anatomy_4"
       ],
       "settings": {
-        "color_scheme": "scheme-2"
+        "color_scheme": "scheme-2",
+        "eyebrow": "Study",
+        "heading": "A closer *look*",
+        "text": "Scroll to see what goes into each bag."
       }
     },
-    "feature": {
-      "type": "featured-product",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "eyebrow": "Featured",
-        "badge": "New season",
-        "image_position": "start",
-        "show_description": true,
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "collage": {
-      "type": "scroll-collage",
+    "small_rooms": {
+      "type": "gallery-rooms",
       "blocks": {
-        "scroll_collage_1": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_2": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_3": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_4": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_5": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_6": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_7": {
-          "type": "_collage-image",
-          "settings": {}
-        },
-        "scroll_collage_8": {
-          "type": "_collage-image",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "scroll_collage_1",
-        "scroll_collage_2",
-        "scroll_collage_3",
-        "scroll_collage_4",
-        "scroll_collage_5",
-        "scroll_collage_6",
-        "scroll_collage_7",
-        "scroll_collage_8"
-      ],
-      "settings": {
-        "color_scheme": "scheme-6",
-        "word_start": "Carry",
-        "word_end": "Lightly",
-        "length": "medium",
-        "end_heading": "Made to be carried",
-        "button_label": "Shop the collection",
-        "button_link": "shopify://collections/all"
-      }
-    },
-    "lookbook": {
-      "type": "lookbook-rail",
-      "blocks": {
-        "lookbook_rail_1": {
-          "type": "_rail-item",
+        "gallery_rooms_1": {
+          "type": "_room",
           "settings": {
-            "title": "The office",
-            "shape": "arch"
+            "color_scheme": "scheme-5",
+            "object_size": 45,
+            "show_price": true
           }
         },
-        "lookbook_rail_2": {
-          "type": "_rail-item",
+        "gallery_rooms_2": {
+          "type": "_room",
           "settings": {
-            "title": "Weekend",
-            "shape": "landscape"
+            "color_scheme": "scheme-4",
+            "object_size": 45,
+            "show_price": true
           }
         },
-        "lookbook_rail_3": {
-          "type": "_rail-item",
+        "gallery_rooms_3": {
+          "type": "_room",
           "settings": {
-            "title": "Dinner",
-            "shape": "portrait"
-          }
-        },
-        "lookbook_rail_4": {
-          "type": "_rail-item",
-          "settings": {
-            "title": "Travel",
-            "shape": "arch"
-          }
-        },
-        "lookbook_rail_5": {
-          "type": "_rail-item",
-          "settings": {
-            "title": "City walk",
-            "shape": "landscape"
-          }
-        },
-        "lookbook_rail_6": {
-          "type": "_rail-item",
-          "settings": {
-            "title": "Evening",
-            "shape": "portrait"
+            "color_scheme": "scheme-5",
+            "object_size": 45,
+            "show_price": true
           }
         }
       },
       "block_order": [
-        "lookbook_rail_1",
-        "lookbook_rail_2",
-        "lookbook_rail_3",
-        "lookbook_rail_4",
-        "lookbook_rail_5",
-        "lookbook_rail_6"
+        "gallery_rooms_1",
+        "gallery_rooms_2",
+        "gallery_rooms_3"
       ],
       "settings": {
         "color_scheme": "scheme-1",
-        "eyebrow": "Lookbook",
-        "heading": "On the move",
-        "description": "Six bags from the new collection, from the office to the weekend.",
-        "header_alignment": "start",
-        "link_label": "Shop the collection",
-        "link": "shopify://collections/all"
+        "room_height": "large",
+        "auto_fill": true,
+        "show_intro": true,
+        "eyebrow": "Small leather goods",
+        "title": "The *small* things",
+        "text": "Wallets, card holders and pouches, shown one at a time."
       }
     },
-    "look": {
-      "type": "shop-the-look",
-      "blocks": {
-        "shop_the_look_1": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 36,
-            "y": 44
-          }
-        },
-        "shop_the_look_2": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 58,
-            "y": 68
-          }
-        },
-        "shop_the_look_3": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 74,
-            "y": 30
-          }
-        }
-      },
-      "block_order": [
-        "shop_the_look_1",
-        "shop_the_look_2",
-        "shop_the_look_3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-4",
-        "eyebrow": "Styled",
-        "heading": "Shop the look",
-        "description": "Tap a dot to see each piece in this look.",
-        "image_position": "end",
-        "padding_top": "large",
-        "padding_bottom": "large"
-      }
-    },
-    "made": {
-      "type": "image-with-text",
-      "blocks": {
-        "image_with_text_1": {
-          "type": "eyebrow",
-          "settings": {
-            "text": "How it's made"
-          }
-        },
-        "image_with_text_2": {
-          "type": "heading",
-          "settings": {
-            "heading": "Details you can feel",
-            "size": "h2"
-          }
-        },
-        "image_with_text_3": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Describe how your bags are made: the materials, the lining, the stitching and the hardware.</p>"
-          }
-        },
-        "image_with_text_4": {
-          "type": "button",
-          "settings": {
-            "label": "Our story",
-            "link": "shopify://pages/about",
-            "style": "button--secondary"
-          }
-        }
-      },
-      "block_order": [
-        "image_with_text_1",
-        "image_with_text_2",
-        "image_with_text_3",
-        "image_with_text_4"
-      ],
+    "care": {
+      "type": "wall-text",
       "settings": {
         "color_scheme": "scheme-1",
-        "panel_scheme": "scheme-1",
-        "image_position": "left",
+        "source": "custom",
+        "label": "Care",
+        "heading": "Looking after your bag",
+        "text": "<p>Tell shoppers how to clean, store and look after your materials, so their bags keep their shape and color.</p>",
+        "size": "small",
+        "link_label": "Read the care guide",
+        "link": "shopify://blogs/news",
         "padding_top": "large",
-        "padding_bottom": "none"
+        "padding_bottom": "medium"
       }
     },
-    "words": {
-      "type": "scroll-words",
-      "blocks": {
-        "scroll_words_1": {
-          "type": "_word-pair",
-          "settings": {
-            "word_start": "Work",
-            "word_end": "Days"
-          }
-        },
-        "scroll_words_2": {
-          "type": "_word-pair",
-          "settings": {
-            "word_start": "Long",
-            "word_end": "Weekends"
-          }
-        },
-        "scroll_words_3": {
-          "type": "_word-pair",
-          "settings": {
-            "word_start": "Quiet",
-            "word_end": "Details"
-          }
-        },
-        "scroll_words_4": {
-          "type": "_word-pair",
-          "settings": {
-            "word_start": "Evenings",
-            "word_end": "Out"
-          }
-        }
-      },
-      "block_order": [
-        "scroll_words_1",
-        "scroll_words_2",
-        "scroll_words_3",
-        "scroll_words_4"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "eyebrow": "Every day",
-        "heading": "Made for your days",
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "explore": {
-      "type": "arc-gallery",
-      "blocks": {
-        "arc_gallery_1": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Totes",
-            "text": "Room for the whole day."
-          }
-        },
-        "arc_gallery_2": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Crossbody",
-            "text": "Hands free, from day to night."
-          }
-        },
-        "arc_gallery_3": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Shoulder bags",
-            "text": "Easy to grab on the way out."
-          }
-        },
-        "arc_gallery_4": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Backpacks",
-            "text": "For the commute and the weekend."
-          }
-        },
-        "arc_gallery_5": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Clutches",
-            "text": "Small, and made for evenings."
-          }
-        },
-        "arc_gallery_6": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Wallets",
-            "text": "Cards, coins and the small things."
-          }
-        },
-        "arc_gallery_7": {
-          "type": "_arc-slide",
-          "settings": {
-            "heading": "Travel",
-            "text": "Weekenders for longer trips."
-          }
-        }
-      },
-      "block_order": [
-        "arc_gallery_1",
-        "arc_gallery_2",
-        "arc_gallery_3",
-        "arc_gallery_4",
-        "arc_gallery_5",
-        "arc_gallery_6",
-        "arc_gallery_7"
-      ],
+    "visitor": {
+      "type": "visitor-book",
       "settings": {
         "color_scheme": "scheme-2",
-        "panel_scheme": "scheme-1",
-        "eyebrow": "Explore",
-        "header_alignment": "center",
-        "padding_top": "large",
-        "padding_bottom": "large"
-      }
-    },
-    "countdown": {
-      "type": "countdown-banner",
-      "blocks": {
-        "countdown_banner_1": {
-          "type": "eyebrow",
-          "settings": {
-            "text": "Limited time",
-            "alignment": "center"
-          }
-        },
-        "countdown_banner_2": {
-          "type": "heading",
-          "settings": {
-            "heading": "The season sale ends soon",
-            "size": "h1",
-            "tag": "h2",
-            "alignment": "center"
-          }
-        },
-        "countdown_banner_3": {
-          "type": "countdown",
-          "settings": {
-            "style": "boxes",
-            "size": "large",
-            "alignment": "center"
-          }
-        },
-        "countdown_banner_4": {
-          "type": "button",
-          "settings": {
-            "label": "Shop the sale",
-            "style": "button--primary"
-          }
-        }
-      },
-      "block_order": [
-        "countdown_banner_1",
-        "countdown_banner_2",
-        "countdown_banner_3",
-        "countdown_banner_4"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "panel_scheme": "scheme-3",
-        "layout": "center",
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "reviews": {
-      "type": "testimonials",
-      "blocks": {
-        "testimonials_1": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name"
-          }
-        },
-        "testimonials_2": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name"
-          }
-        },
-        "testimonials_3": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name"
-          }
-        },
-        "testimonials_4": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name"
-          }
-        }
-      },
-      "block_order": [
-        "testimonials_1",
-        "testimonials_2",
-        "testimonials_3",
-        "testimonials_4"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "eyebrow": "Reviews",
-        "heading": "In their words",
-        "header_alignment": "center",
-        "layout": "mosaic",
-        "columns": 3,
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "marquee": {
-      "type": "marquee",
-      "blocks": {
-        "marquee_1": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Totes"
-          }
-        },
-        "marquee_2": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Crossbody"
-          }
-        },
-        "marquee_3": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Backpacks"
-          }
-        },
-        "marquee_4": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Clutches"
-          }
-        },
-        "marquee_5": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Wallets"
-          }
-        }
-      },
-      "block_order": [
-        "marquee_1",
-        "marquee_2",
-        "marquee_3",
-        "marquee_4",
-        "marquee_5"
-      ],
-      "settings": {
-        "color_scheme": "scheme-6",
-        "size": "large",
-        "font": "heading",
-        "uppercase": true,
-        "separator": "dot",
-        "speed": 50,
-        "direction": "forward",
-        "react_to_scroll": true,
-        "borders": false,
-        "tilt": false,
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "journal": {
-      "type": "blog-posts",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "eyebrow": "Journal",
-        "heading": "From the journal",
-        "header_alignment": "split",
-        "card_style": "classic",
-        "layout": "grid",
-        "limit": 3,
-        "columns": 3,
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "newsletter": {
-      "type": "newsletter",
-      "settings": {
-        "color_scheme": "scheme-5",
-        "layout": "split",
-        "arch": false,
-        "eyebrow": "The list",
-        "heading": "Be the first to see new arrivals",
-        "padding_top": "large",
-        "padding_bottom": "large"
-      }
-    },
-    "social": {
-      "type": "social-gallery",
-      "blocks": {
-        "social_gallery_1": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_2": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_3": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_4": {
-          "type": "_gallery-image",
-          "settings": {}
-        },
-        "social_gallery_5": {
-          "type": "_gallery-image",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "social_gallery_1",
-        "social_gallery_2",
-        "social_gallery_3",
-        "social_gallery_4",
-        "social_gallery_5"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "heading": "Follow our journey",
-        "columns": 5,
         "padding_top": "large",
         "padding_bottom": "large"
       }
     }
   },
   "order": [
-    "slideshow",
-    "featured",
-    "campaign",
-    "styles",
+    "rooms",
+    "wall",
+    "hall",
     "closer_look",
-    "feature",
-    "collage",
-    "lookbook",
-    "look",
-    "made",
-    "words",
-    "explore",
-    "countdown",
-    "reviews",
-    "marquee",
-    "journal",
-    "newsletter",
-    "social"
+    "small_rooms",
+    "care",
+    "visitor"
   ]
 }

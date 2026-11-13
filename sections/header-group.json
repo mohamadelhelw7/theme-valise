@@ -8,31 +8,19 @@
         "a1": {
           "type": "_announcement",
           "settings": {
-            "text": "The new collection is here",
+            "text": "The new season is on view",
             "link": "shopify://collections/all"
-          }
-        },
-        "timer": {
-          "type": "_announcement-timer",
-          "settings": {
-            "text": "Sale ends in",
-            "end_date": "2026-12-31",
-            "end_time": "23:59",
-            "timezone": "+02:00",
-            "expired_message": "The sale has ended",
-            "clock_style": "stacked"
           }
         }
       },
       "block_order": [
-        "a1",
-        "timer"
+        "a1"
       ],
       "settings": {
         "color_scheme": "scheme-3",
         "show_country": false,
         "show_language": false,
-        "mode": "split",
+        "mode": "static",
         "speed": 50,
         "direction": "forward",
         "rotate_seconds": 4,
@@ -40,35 +28,18 @@
       }
     },
     "header": {
-      "type": "header",
+      "type": "gallery-header",
       "settings": {
         "color_scheme": "scheme-1",
-        "logo_width": 140,
-        "logo_width_mobile": 110,
-        "wordmark": "Valise",
-        "show_dot": false,
-        "wordmark_style": "spaced",
-        "logo_position": "center",
-        "desktop_menu": "inline",
-        "menu_alignment": "flex-start",
-        "height": "standard",
-        "sticky": "always",
-        "show_border": false,
-        "transparent_home": true,
-        "transparent_text": "#FFFFFF",
+        "index_scheme": "scheme-2",
         "menu": "main-menu",
-        "menu_style": "mega",
-        "icon_style": "icons",
+        "sticky": "scroll_up",
+        "transparent_home": true,
         "show_search": true,
-        "search_style": "icon",
-        "search_hints": "tote, crossbody, backpack, wallet",
         "show_account": true,
-        "show_language": false,
-        "drawer_show_whatsapp": true,
-        "drawer_show_localization": true,
-        "drawer_show_social": true,
         "show_saved": true,
-        "show_country": true
+        "show_whatsapp": true,
+        "show_localization": true
       }
     }
   },

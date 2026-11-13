@@ -28,6 +28,9 @@
   if settings.card_blend_images
     assign card_classes = card_classes | append: ' product-card--blend'
   endif
+  if settings.card_layout == 'label'
+    assign card_classes = card_classes | append: ' product-card--label'
+  endif
   if settings.card_text_align == 'center'
     assign card_classes = card_classes | append: ' product-card--center'
   endif
@@ -341,6 +344,9 @@
   </div>
 
   <div class="product-card__info">
+    {%- if settings.card_layout == 'label' -%}
+      <span class="product-card__num" aria-hidden="true">Nº {% if card_index < 10 %}0{% endif %}{{ card_index }}</span>
+    {%- endif -%}
     {%- if settings.card_show_vendor and product.vendor != blank -%}
       <span class="product-card__type">{{ product.vendor | escape }}</span>
     {%- elsif settings.card_show_type -%}

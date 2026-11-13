@@ -1,6 +1,6 @@
 # Valise, a Shopify theme
 
-A premium Online Store 2.0 theme for handbag, leather goods and travel bag brands, built on theme blocks. It's quiet and refined: thin, widely spaced capitals, square corners, product photos on soft grey, and a full-screen slideshow whose text sits in a thin frame that draws itself. It has bag-specific product blocks, Arabic and right-to-left support, Egyptian delivery features, and selling tools that usually need apps.
+A premium Online Store 2.0 theme for handbag and leather goods brands that presents every bag like an object in a gallery. The homepage is a walk through rooms, one bag per screen on a plinth with a museum label, and the page takes the color of each room as you scroll. The product page is a room of its own whose color follows the color the shopper picks. It has bag-specific blocks, Arabic and right-to-left support, Egyptian delivery features, and selling tools that usually need apps.
 
 - **Setup guide:** [docs/setup-guide.md](docs/setup-guide.md)
 - **دليل الإعداد بالعربية:** [docs/setup-guide.ar.md](docs/setup-guide.ar.md)
@@ -14,45 +14,30 @@ A premium Online Store 2.0 theme for handbag, leather goods and travel bag brand
 
 ## What's included
 
-**Five style presets:** Valise (white and soft grey with black, thin Josefin Sans capitals), Cognac (ivory and cognac leather, Marcellus capitals), Noir (black, bone and oxblood), Voyage (canvas and olive, for backpacks and travel) and Bordeaux (bone and bordeaux, Newsreader with italic accents).
+**Five style presets, each an exhibition:** Gallery (plaster with sage and clay rooms), Nocturne (dark rooms and brass), Terracotta (sand, terracotta and olive), Salon (blush, bordeaux and EB Garamond italics) and Stone (warm greys and brass).
 
-**Signature sections**
-- Slideshow: full-screen slides with a zoom reveal between them, text in a thin frame that draws itself as each slide appears, slides with two photos side by side, up to two buttons, and a next button whose ring fills while the slide plays.
-- A closer look: a bag photo stays in place while numbered points, lines and labels appear one by one as shoppers scroll. Made for showing the handle, hardware, stitching and base.
-- Featured products with large underlined words as tabs, for example New in, All bags and On sale, and a button under the products.
-- Plus every section from the shared engine: campaign hero, scroll collage, horizontal lookbook, scrolling words, curved gallery, shop the look, stacking stories, hover list, bento grid, drag gallery, reels, countdown banner, photo mosaic reviews, product finder, set builder, video, newsletter, blog posts, social gallery, recently viewed and a popup.
+**Gallery sections**
+- **Rooms:** an opening title, then one bag per screen on a plinth with a numbered museum label. The page color melts into each room's color as shoppers scroll. Empty rooms fill with your products.
+- **Product room:** the product page opens as a room. The label holds the title, price, options and buy buttons; the photos change with roman numerals or a swipe; the room takes a soft tint of the color the shopper picks.
+- **Product views:** the product's other photos, one per room, with their alt text as captions.
+- **Wall text:** a gallery-style introduction, or the product, collection or page description.
+- **Catalogue entry:** maker, type and reference beside the bag's measurements, care and delivery.
+- **Hall:** products hung as a salon wall in mixed sizes, with label cards.
+- **Page intro**, **Visitor book** (email signup) and the **Colophon** footer.
+- **Gallery header:** an Index button that opens a full-screen list of your collections with their photos and product counts, the wordmark in the center, and Bag (2).
+- **A closer look:** a pinned bag photo whose numbered points and labels appear one by one as shoppers scroll.
 
 **Made for bags**
-- Bag size block: width, height, depth, strap drop, capacity and weight, with a measured drawing. Ticks for what fits inside (phone, wallet, tablet, A4 documents, 13 or 15 inch laptop and more) and the ways to carry it. Every value can come from a product metafield.
-- Initials block: shoppers add initials with a live preview on a leather tag, and optional foil choices. Saved on the order.
-- Color swatches on product cards that switch the photo, and a hover photo for the inside or the bag on a model.
-- Saved items, back in stock alerts, quick view and quick add.
+- Museum label product cards: a number, the name in the display serif, the type in italics and the price, under a photo on a soft tint.
+- Bag size block: measurements with a drawing, what fits inside and ways to carry, all ready for metafields.
+- Initials block with a live leather tag preview and foil choices, saved on the order.
+- Salon wall option for collection pages.
 
-**Before photos are added**
-- Frames without a photo show fine line drawings of bags in soft studio light, with stitching and a floor shadow. A product called "Canvas backpack" gets a backpack drawing, in English or Arabic.
-- Heroes with no photo switch to a text-only layout.
+**Before photos are added:** drawn leather bags standing on plinths, matched to the product name when it says the bag type.
 
-**Header and announcement bar**
-- Logo in the center, menu at the start and icons at the end, see-through over the slideshow and solid on scroll.
-- Country and currency selector in the header.
-- Announcement bar with a message at the start and a countdown at the end.
+**Also included:** every section from the shared engine (slideshow, campaign hero, scroll collage, lookbook, set builder, product finder, reels and more), quick view, sticky add to cart bar, frequently bought together, cart upsells, free shipping bar, countdowns, predictive search, saved items, back in stock alerts, delivery estimate with an Egyptian governorate picker, WhatsApp, full Arabic with right-to-left layout, and price formats for EGP.
 
-**Selling features**
-- Quick view, sticky add to cart bar, frequently bought together, set builder, cart upsells and a free shipping bar.
-- Countdown timers, sale, new and sold out badges (as small text or boxes), and stock status.
-- Load more button or loading as shoppers scroll on collection pages.
-- Delivery date estimate and an Egyptian governorate delivery picker.
-- Predictive search with typed hints.
-
-**Local features**
-- Full Arabic translation with automatic right-to-left layout and bundled Arabic fonts (IBM Plex Sans Arabic and Markazi Text).
-- Floating WhatsApp button and an Ask on WhatsApp product button.
-- Price format options for EGP.
-
-**Technical**
-- Theme blocks everywhere, with app blocks in product and content sections.
-- No external libraries or remote assets. Bundled fonts: Josefin Sans, Newsreader, Marcellus, Figtree, IBM Plex Sans Arabic and Markazi Text.
-- Every effect only runs while its section is on screen and turns off for visitors who prefer reduced motion.
+**Technical:** theme blocks everywhere, no external libraries or remote assets. Bundled fonts: Gloock, EB Garamond, Aref Ruqaa and Scheherazade New. Effects only run on screen and turn off for visitors who prefer reduced motion.
 
 ## Versioning
 

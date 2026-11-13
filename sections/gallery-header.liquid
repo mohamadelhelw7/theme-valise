@@ -1,0 +1,500 @@
+{%- liquid
+  assign wa_number = settings.whatsapp_number | remove: '+' | remove: ' ' | remove: '-'
+  assign is_transparent = false
+  if section.settings.transparent_home and template.name == 'index'
+    assign is_transparent = true
+  endif
+  assign index_menu = section.settings.menu
+-%}
+
+<header
+  class="gallery-header{% if is_transparent %} gallery-header--over{% endif %} color-{{ section.settings.color_scheme }}"
+  data-site-header
+  data-sticky="{{ section.settings.sticky }}"
+  {% if is_transparent %}
+    data-transparent
+  {% endif %}
+>
+  <div class="gallery-header__bar">
+    <div class="gallery-header__side">
+      <button type="button" class="gallery-header__link" data-modal-open="IndexOverlay" aria-haspopup="dialog">
+        <span class="gallery-header__lines" aria-hidden="true"><i></i><i></i></span>
+        <span>{{ 'general.header.index' | t }}</span>
+      </button>
+      {%- if section.settings.show_search -%}
+        <button type="button" class="gallery-header__link gallery-header__desktop" data-modal-open="SearchOverlay" aria-haspopup="dialog">{{ 'general.search.title' | t }}</button>
+      {%- endif -%}
+    </div>
+
+    <a href="{{ routes.root_url }}" class="gallery-header__brand">
+      {%- if section.settings.logo != blank -%}
+        {%- assign logo_alt = section.settings.logo.alt | default: shop.name | escape -%}
+        {{
+          section.settings.logo
+          | image_url: width: 600
+          | image_tag: widths: '200, 300, 400, 600', sizes: '(min-width: 750px) 180px, 140px', alt: logo_alt, loading: 'eager', class: 'gallery-header__logo'
+        }}
+      {%- else -%}
+        <span class="gallery-header__wordmark">{{ section.settings.wordmark | default: shop.name | escape }}</span>
+      {%- endif -%}
+    </a>
+
+    <div class="gallery-header__side gallery-header__side--end">
+      {%- if section.settings.show_account and shop.customer_accounts_enabled -%}
+        <a class="gallery-header__link gallery-header__desktop" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">{{ 'general.header.account' | t }}</a>
+      {%- endif -%}
+      {%- if settings.wishlist_enable and section.settings.show_saved -%}
+        <button type="button" class="gallery-header__link gallery-header__desktop" data-modal-open="SavedDrawer">{{ 'saved.title' | t }}</button>
+      {%- endif -%}
+      <a href="{{ routes.cart_url }}" class="gallery-header__link" data-cart-open>
+        {{- 'general.header.bag' | t }} (<span data-cart-count-text>{{ cart.item_count }}</span>)
+      </a>
+    </div>
+  </div>
+</header>
+
+<dialog id="IndexOverlay" class="modal index-overlay color-{{ section.settings.index_scheme }}" aria-label="{{ 'general.header.index' | t }}">
+  <div class="index-overlay__top page-width">
+    <span class="index-overlay__label">{{ 'general.header.index' | t }}</span>
+    <span class="gallery-header__wordmark index-overlay__brand" aria-hidden="true">{{ section.settings.wordmark | default: shop.name | escape }}</span>
+    <button type="button" class="gallery-header__link" data-modal-close>{{ 'general.accessibility.close' | t }}</button>
+  </div>
+
+  <div class="index-overlay__body page-width">
+    <nav class="index-overlay__nav" aria-label="{{ 'general.header.main_nav' | t }}">
+      <ol class="index-overlay__list" role="list">
+        {%- for link in index_menu.links -%}
+          {%- liquid
+            assign link_image = blank
+            if link.type == 'collection_link'
+              assign link_image = link.object.featured_image | default: link.object.products.first.featured_image
+            elsif link.type == 'product_link'
+              assign link_image = link.object.featured_image
+            endif
+            if link_image == blank
+              assign link_image = collections.all.products[forloop.index0].featured_image
+            endif
+          -%}
+          <li class="index-overlay__item">
+            <a href="{{ link.url }}" class="index-overlay__link" data-index-preview="{{ forloop.index0 }}"{% if link.active %} aria-current="page"{% endif %}>
+              <span class="index-overlay__num">Nº {% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>
+              <span class="index-overlay__title">{{ link.title | escape }}</span>
+              {%- if link.type == 'collection_link' -%}
+                <span class="index-overlay__count">{{ 'sections.rooms.objects' | t: count: link.object.products_count }}</span>
+              {%- endif -%}
+            </a>
+            {%- if link.links.size > 0 -%}
+              <ul class="index-overlay__sub" role="list">
+                {%- for child in link.links -%}
+                  <li><a href="{{ child.url }}">{{ child.title | escape }}</a></li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </li>
+        {%- else -%}
+          <li class="index-overlay__item">
+            <a href="{{ routes.all_products_collection_url }}" class="index-overlay__link"><span class="index-overlay__num">Nº 01</span><span class="index-overlay__title">{{ 'sections.rooms.all_objects' | t }}</span></a>
+          </li>
+        {%- endfor -%}
+      </ol>
+    </nav>
+
+    <div class="index-overlay__preview" aria-hidden="true">
+      {%- for link in index_menu.links -%}
+        {%- liquid
+          assign link_image = blank
+          if link.type == 'collection_link'
+            assign link_image = link.object.featured_image | default: link.object.products.first.featured_image
+          elsif link.type == 'product_link'
+            assign link_image = link.object.featured_image
+          endif
+          if link_image == blank
+            assign link_image = collections.all.products[forloop.index0].featured_image
+          endif
+        -%}
+        <figure class="index-overlay__figure" data-index-image="{{ forloop.index0 }}">
+          {%- if link_image != blank -%}
+            {{ link_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '400, 600, 900', sizes: '30vw', alt: '' }}
+          {%- else -%}
+            {% render 'media-placeholder', kind: 'product', index: forloop.index, label: link.title %}
+          {%- endif -%}
+        </figure>
+      {%- endfor -%}
+    </div>
+
+    <div class="index-overlay__aside">
+      {%- if section.settings.show_search -%}
+        <button type="button" class="gallery-header__link" data-modal-open="SearchOverlay">{{ 'general.search.title' | t }}</button>
+      {%- endif -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="gallery-header__link" href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">{{ 'general.header.account' | t }}</a>
+      {%- endif -%}
+      {%- if settings.wishlist_enable and section.settings.show_saved -%}
+        <button type="button" class="gallery-header__link" data-modal-open="SavedDrawer">{{ 'saved.title' | t }}</button>
+      {%- endif -%}
+      {%- if section.settings.show_whatsapp and wa_number != blank -%}
+        <a class="gallery-header__link" href="https://wa.me/{{ wa_number }}?text={{ settings.whatsapp_message | url_encode }}" target="_blank" rel="noopener">{{ 'general.whatsapp.chat' | t }}</a>
+      {%- endif -%}
+      {%- if section.settings.show_localization -%}
+        {% render 'localization-form', id_prefix: 'Index', show_language: true, show_country: true %}
+      {%- endif -%}
+      {% render 'social-icons' %}
+    </div>
+  </div>
+</dialog>
+
+{%- if section.settings.show_search -%}
+  <dialog id="SearchOverlay" class="modal search-overlay color-{{ section.settings.index_scheme }}" aria-label="{{ 'general.search.title' | t }}">
+    <div class="index-overlay__top page-width">
+      <span class="index-overlay__label">{{ 'general.search.title' | t }}</span>
+      <span></span>
+      <button type="button" class="gallery-header__link" data-modal-close>{{ 'general.accessibility.close' | t }}</button>
+    </div>
+    <predictive-search class="search-overlay__inner page-width">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-overlay__form">
+        <label class="visually-hidden" for="GallerySearch-{{ section.id }}">{{ 'general.search.label' | t }}</label>
+        <input
+          id="GallerySearch-{{ section.id }}"
+          class="search-overlay__input"
+          type="search"
+          name="q"
+          placeholder="{{ 'general.search.placeholder' | t }}"
+          autocomplete="off"
+          role="combobox"
+          aria-expanded="false"
+          aria-autocomplete="list"
+        >
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit" class="gallery-header__link">{{ 'general.search.submit' | t }}</button>
+      </form>
+      <div class="search-overlay__results" data-predictive-results hidden></div>
+      <span class="visually-hidden" role="status" aria-live="polite" data-predictive-status></span>
+    </predictive-search>
+  </dialog>
+{%- endif -%}
+
+{% javascript %}
+  (() => {
+    const bind = (scope) => {
+      const overlay = scope.querySelector('#IndexOverlay');
+      if (!overlay || overlay.dataset.bound) return;
+      overlay.dataset.bound = 'true';
+      const figures = Array.from(overlay.querySelectorAll('[data-index-image]'));
+      const show = (index) => figures.forEach((figure) => figure.classList.toggle('is-active', figure.dataset.indexImage === index));
+      overlay.querySelectorAll('[data-index-preview]').forEach((link) => {
+        link.addEventListener('pointerenter', () => show(link.dataset.indexPreview));
+        link.addEventListener('focus', () => show(link.dataset.indexPreview));
+      });
+      if (figures[0]) figures[0].classList.add('is-active');
+    };
+    bind(document);
+    document.addEventListener('shopify:section:load', (event) => bind(event.target));
+  })();
+{% endjavascript %}
+
+{% stylesheet %}
+  .gallery-header {
+    position: relative;
+    z-index: 20;
+    transition: background-color 0.5s ease, color 0.5s ease, translate 0.4s ease;
+  }
+  .gallery-header--over {
+    position: absolute;
+    inset: 0 0 auto;
+    background: transparent;
+  }
+  .gallery-header--over.is-solid {
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .header-hidden .gallery-header {
+    translate: 0 -100%;
+  }
+  .gallery-header-section:has([data-sticky='always']),
+  .gallery-header-section:has([data-sticky='scroll_up']) {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  .gallery-header:not(.gallery-header--over) {
+    background: var(--color-bg);
+  }
+  .gallery-header__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+    min-height: 72px;
+    padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)) max(var(--gutter), env(safe-area-inset-right, 0px));
+  }
+  .gallery-header__side {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 2vw, 28px);
+  }
+  .gallery-header__side--end {
+    justify-content: flex-end;
+  }
+  .gallery-header__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-family: var(--font-label);
+    letter-spacing: 0.1em;
+    font-variant-caps: all-small-caps;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .gallery-header__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+  .gallery-header__lines {
+    display: grid;
+    gap: 5px;
+    width: 22px;
+  }
+  .gallery-header__lines i {
+    height: 1px;
+    background: currentColor;
+  }
+  .gallery-header__lines i:last-child {
+    width: 60%;
+  }
+  .gallery-header__brand {
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+  }
+  .gallery-header__wordmark {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2vw, 1.625rem);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    padding-inline-start: 0.32em;
+  }
+  .gallery-header__logo {
+    max-height: 44px;
+    width: auto;
+  }
+  @media (max-width: 749px) {
+    .gallery-header__desktop {
+      display: none;
+    }
+    .gallery-header__bar {
+      min-height: 60px;
+    }
+  }
+
+  .index-overlay,
+  .search-overlay {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+  .index-overlay[open],
+  .search-overlay[open] {
+    display: flex;
+    flex-direction: column;
+    animation: index-in 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .index-overlay.is-closing,
+  .search-overlay.is-closing {
+    animation: index-out 0.4s ease forwards;
+  }
+  @keyframes index-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes index-out {
+    to {
+      opacity: 0;
+    }
+  }
+  .index-overlay__top {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 72px;
+  }
+  .index-overlay__top > :last-child {
+    justify-self: end;
+  }
+  .index-overlay__label {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1rem;
+    color: var(--color-muted);
+  }
+  .index-overlay__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.6fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+    padding-block: clamp(24px, 5vh, 64px);
+    overflow-y: auto;
+  }
+  .index-overlay__list {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .index-overlay__link {
+    display: grid;
+    grid-template-columns: 4.5em 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--color-border);
+    color: inherit;
+    text-decoration: none;
+  }
+  .index-overlay__num,
+  .index-overlay__count {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    font-size: 1rem;
+  }
+  .index-overlay__title {
+    font-family: var(--font-heading);
+    font-size: calc(clamp(1.75rem, 3.4vw, 3rem) * var(--heading-scale));
+    line-height: 1.05;
+    transition: translate 0.4s ease, color 0.3s;
+  }
+  .index-overlay__link:hover .index-overlay__title,
+  .index-overlay__link:focus-visible .index-overlay__title {
+    translate: 0.25em 0;
+    color: var(--color-accent);
+  }
+  [dir='rtl'] .index-overlay__link:hover .index-overlay__title {
+    translate: -0.25em 0;
+  }
+  .index-overlay__sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 8px 0 6px;
+    padding: 0 0 0 calc(4.5em + 12px);
+    list-style: none;
+    font-size: 1rem;
+  }
+  [dir='rtl'] .index-overlay__sub {
+    padding: 0 calc(4.5em + 12px) 0 0;
+  }
+  .index-overlay__sub a {
+    color: var(--color-muted);
+  }
+  .index-overlay__preview {
+    position: sticky;
+    top: 0;
+    aspect-ratio: 4 / 5;
+    background: var(--color-surface);
+  }
+  .index-overlay__figure {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .index-overlay__figure.is-active {
+    opacity: 1;
+  }
+  .index-overlay__figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .index-overlay__aside {
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+  }
+  .search-overlay__inner {
+    display: grid;
+    gap: 24px;
+    padding-block: clamp(24px, 8vh, 96px);
+    overflow-y: auto;
+  }
+  .search-overlay__form {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    border-bottom: 1px solid currentColor;
+  }
+  .search-overlay__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 3.25rem);
+    padding: 10px 0;
+  }
+  .search-overlay__input:focus {
+    outline: none;
+  }
+  @media (max-width: 989px) {
+    .index-overlay__body {
+      grid-template-columns: 1fr;
+    }
+    .index-overlay__preview {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gallery header",
+  "tag": "div",
+  "class": "header-section gallery-header-section",
+  "enabled_on": { "groups": ["header"] },
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "color_scheme", "id": "index_scheme", "label": "Index and search color scheme", "default": "scheme-2" },
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "text", "id": "wordmark", "label": "Text logo", "info": "Used when no logo image is set. Defaults to store name." },
+    { "type": "link_list", "id": "menu", "label": "Index menu", "default": "main-menu", "info": "Collection links show their photo and product count in the index." },
+    {
+      "type": "select",
+      "id": "sticky",
+      "label": "Sticky header",
+      "options": [
+        { "value": "none", "label": "Off" },
+        { "value": "always", "label": "Always" },
+        { "value": "scroll_up", "label": "When scrolling up" }
+      ],
+      "default": "scroll_up"
+    },
+    { "type": "checkbox", "id": "transparent_home", "label": "Show header over the homepage's first section", "default": true },
+    { "type": "checkbox", "id": "show_search", "label": "Show search", "default": true },
+    { "type": "checkbox", "id": "show_account", "label": "Show account link", "default": true },
+    { "type": "checkbox", "id": "show_saved", "label": "Show saved items", "info": "Needs Theme settings > Saved items", "default": true },
+    { "type": "checkbox", "id": "show_whatsapp", "label": "Show WhatsApp in the index", "default": true },
+    { "type": "checkbox", "id": "show_localization", "label": "Show language and country in the index", "default": true }
+  ]
+}
+{% endschema %}

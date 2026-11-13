@@ -1,136 +1,37 @@
 {
   "sections": {
+    "intro": {
+      "type": "gallery-intro",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "auto": true,
+        "alignment": "start",
+        "padding_top": "large",
+        "padding_bottom": "medium"
+      }
+    },
     "main": {
       "type": "main-collection",
       "settings": {
-        "show_grid_switch": true,
-        "show_promo": true,
+        "show_grid_switch": false,
+        "show_promo": false,
         "promo_heading": "The new collection",
         "promo_link_label": "Shop now",
         "promo_position": 3,
         "promo_size": "wide",
         "promo_scheme": "scheme-6",
-        "pagination_style": "button"
+        "pagination_style": "button",
+        "show_title": false,
+        "grid_style": "salon",
+        "columns_desktop": 3
       }
     },
-    "categories": {
-      "type": "hover-list",
-      "blocks": {
-        "o1": {
-          "type": "_hover-link",
-          "settings": {
-            "label": "Totes"
-          }
-        },
-        "o2": {
-          "type": "_hover-link",
-          "settings": {
-            "label": "Crossbody"
-          }
-        },
-        "o3": {
-          "type": "_hover-link",
-          "settings": {
-            "label": "Backpacks"
-          }
-        },
-        "o4": {
-          "type": "_hover-link",
-          "settings": {
-            "label": "Wallets"
-          }
-        }
-      },
-      "block_order": [
-        "o1",
-        "o2",
-        "o3",
-        "o4"
-      ],
+    "visitor": {
+      "type": "visitor-book",
       "settings": {
         "color_scheme": "scheme-2",
-        "eyebrow": "Shop by category",
-        "header_alignment": "start",
-        "alignment": "start",
-        "size": "medium",
-        "photo_shape": "square",
-        "show_counts": true,
         "padding_top": "large",
         "padding_bottom": "large"
-      }
-    },
-    "look": {
-      "type": "shop-the-look",
-      "blocks": {
-        "dot_1": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 40,
-            "y": 40
-          }
-        },
-        "dot_2": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 60,
-            "y": 66
-          }
-        }
-      },
-      "block_order": [
-        "dot_1",
-        "dot_2"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "image_position": "end",
-        "heading": "Shop the fit",
-        "description": "Tap a dot to see each piece in this look.",
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "reviews": {
-      "type": "testimonials",
-      "blocks": {
-        "r1": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name",
-            "show_image": true,
-            "color": "#1B1B24"
-          }
-        },
-        "r2": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name",
-            "show_image": true,
-            "color": "#1B1B24"
-          }
-        },
-        "r3": {
-          "type": "_review",
-          "settings": {
-            "author": "Customer name",
-            "show_image": true,
-            "color": "#1B1B24"
-          }
-        }
-      },
-      "block_order": [
-        "r1",
-        "r2",
-        "r3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-4",
-        "heading": "What people are saying",
-        "header_alignment": "center",
-        "layout": "slider",
-        "columns": 3,
-        "padding_top": "large",
-        "padding_bottom": "none"
       }
     },
     "recent": {
@@ -147,10 +48,9 @@
     }
   },
   "order": [
+    "intro",
     "main",
-    "categories",
-    "look",
-    "reviews",
+    "visitor",
     "recent"
   ]
 }

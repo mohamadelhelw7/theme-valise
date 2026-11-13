@@ -55,7 +55,7 @@
             sessionStorage.removeItem('theme:morph');
           } catch (error) {}
           if (!path || path !== location.pathname) return;
-          var image = document.querySelector('#MainContent .gallery__slide.is-featured img');
+          var image = document.querySelector('#MainContent .gallery__slide.is-featured img, #MainContent [data-room-featured] img');
           if (!image) return;
           image.style.viewTransitionName = 'product-photo';
           transition.finished.then(function () { image.style.viewTransitionName = ''; });

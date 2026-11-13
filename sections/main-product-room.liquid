@@ -1,0 +1,517 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media | default: product.featured_media
+  assign form_id = 'ProductForm-' | append: section.id
+  assign zoom_id = 'Zoom-' | append: section.id
+  assign media_count = product.media.size
+
+  assign color_option = nil
+  assign color_index = -1
+  assign swatch_names = settings.swatch_option_names | downcase | split: ','
+  for option in product.options_with_values
+    assign option_name = option.name | downcase | strip
+    assign is_color = false
+    if option.values.first.swatch
+      assign is_color = true
+    endif
+    for swatch_name in swatch_names
+      assign swatch_clean = swatch_name | strip
+      if option_name == swatch_clean
+        assign is_color = true
+      endif
+    endfor
+    if is_color
+      assign color_option = option
+      assign color_index = forloop.index0
+      break
+    endif
+  endfor
+
+  assign room_ink = ''
+  if color_option != nil and section.settings.follow_color
+    for value in color_option.values
+      if value.selected and value.swatch.color
+        assign room_ink = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+      endif
+    endfor
+  endif
+
+  assign back_url = routes.all_products_collection_url
+  assign back_label = 'sections.rooms.all_objects' | t
+  if collection
+    assign back_url = collection.url
+    assign back_label = collection.title
+  endif
+  assign numerals = 'I,II,III,IV,V,VI,VII,VIII,IX,X,XI,XII,XIII,XIV,XV,XVI,XVII,XVIII,XIX,XX' | split: ','
+-%}
+
+<product-info
+  class="product-room color-{{ section.settings.color_scheme }}"
+  data-section="{{ section.id }}"
+  data-url="{{ product.url }}"
+  data-update-url="true"
+  {% if room_ink != blank %}
+    style="--room-ink: {{ room_ink }}; --room-mix: {{ section.settings.color_strength }}%;"
+  {% endif %}
+>
+  <div class="product-room__inner">
+    <a class="product-room__back" href="{{ back_url }}">← {{ back_label | escape }}</a>
+
+    <room-views class="product-room__views" data-follow-color="{{ section.settings.follow_color }}" data-color-index="{{ color_index }}" data-mix="{{ section.settings.color_strength }}">
+      <ul class="product-room__stage" role="list" data-room-track>
+        {%- for media in product.media -%}
+          {%- liquid
+            assign media_loading = 'lazy'
+            if forloop.first
+              assign media_loading = 'eager'
+            endif
+            assign media_alt = media.alt | default: product.title | escape
+            assign is_featured = false
+            if media.id == featured_media.id
+              assign is_featured = true
+            endif
+          -%}
+          <li
+            class="product-room__view{% if is_featured %} is-active{% endif %}"
+            data-media-id="{{ media.id }}"
+            {% if is_featured %}
+              data-room-featured
+            {% endif %}
+          >
+            {%- case media.media_type -%}
+              {%- when 'image' -%}
+                <button type="button" class="product-room__zoom" data-modal-open="{{ zoom_id }}" data-zoom-to="{{ media.id }}" aria-label="{{ 'products.product.zoom' | t: number: forloop.index }}">
+                  {{
+                    media
+                    | image_url: width: 1800
+                    | image_tag: loading: media_loading, widths: '500, 800, 1100, 1400, 1800', sizes: '(min-width: 990px) 46vw, 100vw', alt: media_alt
+                  }}
+                </button>
+              {%- when 'video', 'external_video' -%}
+                {{ media | media_tag: image_size: '1400x', autoplay: false, loop: false, controls: true }}
+              {%- when 'model' -%}
+                {{ media | media_tag: image_size: '1400x' }}
+            {%- endcase -%}
+          </li>
+        {%- else -%}
+          <li class="product-room__view is-active" data-room-featured>
+            <span class="product-room__placeholder">{% render 'media-placeholder', kind: 'product', index: 3, label: product.title %}</span>
+          </li>
+        {%- endfor -%}
+      </ul>
+      <span id="ProductMediaParsed" hidden></span>
+      <span class="product-room__plinth" aria-hidden="true"></span>
+
+      {%- if media_count > 1 -%}
+        <ol class="product-room__nav" role="list" aria-label="{{ 'products.product.gallery' | t }}">
+          {%- for media in product.media -%}
+            {%- assign numeral = numerals[forloop.index0] | default: forloop.index -%}
+            <li>
+              <button
+                type="button"
+                data-view="{{ media.id }}"
+                aria-current="{% if media.id == featured_media.id %}true{% else %}false{% endif %}"
+                aria-label="{{ 'products.product.view_media' | t: number: forloop.index }}"
+                {% if media.alt != blank %}
+                  title="{{ media.alt | escape }}"
+                {% endif %}
+              >
+                {{- numeral -}}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ol>
+      {%- endif -%}
+
+      {%- if color_option != nil -%}
+        <script type="application/json" data-room-colors>
+          {
+          {%- for value in color_option.values -%}
+            {{ value.name | json }}: {% if value.swatch.color %}"rgb({{ value.swatch.color.rgb }})"{% else %}null{% endif %}{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+          }
+        </script>
+      {%- endif -%}
+    </room-views>
+
+    <div class="product-room__label">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+
+  {%- if section.settings.sticky_atc != 'off' -%}
+    <sticky-atc class="sticky-atc sticky-atc--{{ section.settings.sticky_atc }} color-{{ section.settings.color_scheme }}" data-target="{{ form_id }}">
+      <div class="sticky-atc__inner page-width">
+        <div class="sticky-atc__media">
+          {%- if product.featured_media -%}
+            {{ product.featured_media | image_url: width: 120, height: 120, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+          {%- endif -%}
+        </div>
+        <div class="sticky-atc__info">
+          <span class="sticky-atc__title">{{ product.title | escape }}</span>
+          <div data-update="sticky-price">{% render 'price', variant: current_variant %}</div>
+        </div>
+        <div class="sticky-atc__button" data-update="sticky-button">
+          <button
+            type="submit"
+            form="{{ form_id }}"
+            class="button button--primary"
+            {% unless current_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            {%- if current_variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </button>
+        </div>
+      </div>
+    </sticky-atc>
+  {%- endif -%}
+
+  <script type="application/json" data-product-variants>
+    {{ product.variants | json }}
+  </script>
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+</product-info>
+
+{%- if media_count > 0 -%}
+  <dialog id="{{ zoom_id }}" class="modal zoom-modal" aria-label="{{ 'products.product.gallery' | t }}">
+    <button type="button" class="icon-button modal__close" data-modal-close aria-label="{{ 'general.accessibility.close' | t }}">
+      {% render 'icon', icon: 'close' %}
+    </button>
+    <ul class="zoom-modal__list" role="list">
+      {%- for media in product.media -%}
+        {%- if media.media_type == 'image' -%}
+          <li data-zoom-media="{{ media.id }}">
+            {{ media | image_url: width: 2400 | image_tag: loading: 'lazy', widths: '1000, 1600, 2400', sizes: '100vw', alt: media.alt }}
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </dialog>
+{%- endif -%}
+
+{% javascript %}
+  class RoomViews extends HTMLElement {
+    connectedCallback() {
+      this.info = this.closest('product-info');
+      this.track = this.querySelector('[data-room-track]');
+      this.views = Array.from(this.querySelectorAll('[data-media-id]'));
+      this.buttons = Array.from(this.querySelectorAll('[data-view]'));
+      try {
+        this.colors = JSON.parse(this.querySelector('[data-room-colors]')?.textContent || '{}');
+      } catch (error) {
+        this.colors = {};
+      }
+      this.buttons.forEach((button) => button.addEventListener('click', () => this.show(button.dataset.view, true)));
+      this.addEventListener('click', (event) => {
+        const zoom = event.target.closest('[data-zoom-to]');
+        if (!zoom) return;
+        const dialog = document.getElementById(zoom.dataset.modalOpen);
+        const target = dialog?.querySelector(`[data-zoom-media="${zoom.dataset.zoomTo}"]`);
+        if (target) requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      });
+      this.onVariant = (event) => {
+        const variant = event.detail?.variant;
+        if (!variant) return;
+        if (variant.featured_media) this.show(variant.featured_media.id, true);
+        this.paint(variant);
+      };
+      this.info?.addEventListener('variant:change', this.onVariant);
+      if ('IntersectionObserver' in window && this.track) {
+        this.observer = new IntersectionObserver(
+          (entries) => {
+            if (!this.isRow()) return;
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) this.mark(entry.target.dataset.mediaId);
+            });
+          },
+          { root: this.track, threshold: 0.6 }
+        );
+        this.views.forEach((view) => this.observer.observe(view));
+      }
+    }
+
+    disconnectedCallback() {
+      this.info?.removeEventListener('variant:change', this.onVariant);
+      this.observer?.disconnect();
+    }
+
+    isRow() {
+      return this.track && this.track.scrollWidth > this.track.clientWidth + 2;
+    }
+
+    mark(id) {
+      this.views.forEach((view) => view.classList.toggle('is-active', view.dataset.mediaId === String(id)));
+      this.buttons.forEach((button) => button.setAttribute('aria-current', String(button.dataset.view === String(id))));
+    }
+
+    show(id, scroll) {
+      const view = this.views.find((item) => item.dataset.mediaId === String(id));
+      if (!view) return;
+      this.mark(id);
+      if (scroll && this.isRow()) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.track.scrollTo({ left: view.offsetLeft - this.track.offsetLeft, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    }
+
+    paint(variant) {
+      if (this.dataset.followColor !== 'true' || !this.info) return;
+      const index = Number(this.dataset.colorIndex);
+      if (index < 0) return;
+      const name = variant.options[index];
+      let color = this.colors[name];
+      if (!color && name) {
+        const css = name.toLowerCase().replace(/\s+/g, '');
+        if (window.CSS && CSS.supports('color', css)) color = css;
+      }
+      if (color) {
+        this.info.style.setProperty('--room-ink', color);
+        this.info.style.setProperty('--room-mix', `${this.dataset.mix || 26}%`);
+      } else {
+        this.info.style.removeProperty('--room-ink');
+        this.info.style.removeProperty('--room-mix');
+      }
+    }
+  }
+  if (!customElements.get('room-views')) customElements.define('room-views', RoomViews);
+{% endjavascript %}
+
+{% stylesheet %}
+  .product-room {
+    display: block;
+    background: color-mix(in srgb, var(--room-ink, var(--color-bg)) var(--room-mix, 0%), var(--color-bg));
+    transition: background-color 1.2s ease;
+  }
+  .product-room__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+    grid-template-areas:
+      'back views'
+      'label views';
+    grid-template-rows: auto 1fr;
+    gap: 24px clamp(24px, 4vw, 64px);
+    min-height: calc(100svh - var(--header-height, 0px));
+    padding: 28px max(var(--gutter), env(safe-area-inset-right, 0px)) clamp(28px, 5vh, 56px) max(var(--gutter), env(safe-area-inset-left, 0px));
+  }
+  .product-room__back {
+    grid-area: back;
+    align-self: start;
+    color: inherit;
+    text-decoration: none;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+  }
+  .product-room__back:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  room-views {
+    display: block;
+  }
+  .product-room__views {
+    grid-area: views;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: end;
+    min-height: min(78svh, 860px);
+  }
+  .product-room__stage {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    min-height: 420px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .product-room__view {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-items: end;
+    justify-items: center;
+    opacity: 0;
+    translate: 0 3%;
+    transition: opacity 0.9s ease, translate 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+    pointer-events: none;
+  }
+  .product-room__view.is-active {
+    opacity: 1;
+    translate: none;
+    pointer-events: auto;
+  }
+  .product-room__zoom {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .product-room__view img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(0 30px 26px rgb(0 0 0 / 0.16));
+  }
+  .product-room__placeholder {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .product-room__placeholder .media-placeholder--art {
+    background: transparent;
+  }
+  .product-room__plinth {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
+    width: min(64%, 520px);
+    height: clamp(20px, 3vh, 32px);
+    background: color-mix(in srgb, #ffffff 30%, transparent);
+    border-top: 1px solid color-mix(in srgb, #ffffff 55%, transparent);
+  }
+  .product-room__nav {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0 0 0 24px;
+    list-style: none;
+  }
+  .product-room__nav button {
+    min-width: 44px;
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-muted);
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    text-align: end;
+    cursor: pointer;
+  }
+  .product-room__nav button[aria-current='true'] {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+  .product-room__label {
+    grid-area: label;
+    align-self: end;
+    display: grid;
+    gap: 16px;
+    padding: 22px 22px 24px;
+    background: color-mix(in srgb, #fbf9f5 90%, transparent);
+    color: #1c1916;
+    --color-text: #1c1916;
+    --color-body: #2a2622;
+    --color-muted: #5e5750;
+    --color-border: #ddd6cb;
+    --color-surface: #f1ece4;
+    --color-bg: #fbf9f5;
+  }
+  .product-room__label .product-title,
+  .product-room__label h1 {
+    font-family: var(--font-heading);
+  }
+  @media (max-width: 989px) {
+    .product-room__inner {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'back'
+        'views'
+        'label';
+      grid-template-rows: auto auto auto;
+      min-height: 0;
+      padding-top: 16px;
+    }
+    .product-room__views {
+      min-height: 0;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .product-room__stage {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      height: auto;
+      min-height: 0;
+    }
+    .product-room__stage::-webkit-scrollbar {
+      display: none;
+    }
+    .product-room__view {
+      position: relative;
+      inset: auto;
+      flex: 0 0 100%;
+      aspect-ratio: 1;
+      opacity: 1;
+      translate: none;
+      pointer-events: auto;
+      scroll-snap-align: center;
+    }
+    .product-room__nav {
+      grid-column: 1;
+      grid-row: 3;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 0;
+    }
+    .product-room__nav button {
+      min-width: 36px;
+      text-align: center;
+    }
+    .product-room__plinth {
+      width: 70%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .product-room,
+    .product-room__view {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product room",
+  "tag": "section",
+  "class": "product-room-section",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Room color", "default": "scheme-4" },
+    { "type": "checkbox", "id": "follow_color", "label": "Tint the room with the chosen color", "info": "Uses the color swatches set on your product options, or the color name when it is a standard color.", "default": true },
+    { "type": "range", "id": "color_strength", "label": "Tint strength", "min": 10, "max": 60, "step": 2, "unit": "%", "default": 26 },
+    {
+      "type": "select",
+      "id": "sticky_atc",
+      "label": "Sticky add to cart bar",
+      "options": [
+        { "value": "mobile", "label": "Mobile only" },
+        { "value": "always", "label": "Always" },
+        { "value": "off", "label": "Off" }
+      ],
+      "default": "mobile"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,247 @@
+{% doc %}
+  Renders one room: a single bag on a plinth with a museum label. The page
+  takes this room's color while it is on screen.
+{% enddoc %}
+
+{%- liquid
+  assign room_index = 0
+  for b in section.blocks
+    if b.id == block.id
+      assign room_index = forloop.index0
+      break
+    endif
+  endfor
+  assign room_number = room_index | plus: 1
+  assign room_total = section.blocks.size
+  assign room_product = block.settings.product
+  if room_product == blank and section.settings.auto_fill
+    assign source = section.settings.collection | default: collections.all
+    assign room_product = source.products[room_index]
+  endif
+  assign room_image = block.settings.image | default: room_product.featured_image
+  assign room_alt = block.settings.image.alt | default: room_product.title | escape
+  assign room_title = block.settings.title | default: room_product.title
+  assign room_caption = block.settings.caption | default: room_product.type
+  assign room_url = block.settings.link | default: room_product.url
+  assign view_label = block.settings.link_label
+  if view_label == blank
+    assign view_label = 'sections.rooms.view' | t
+  endif
+  assign image_loading = 'lazy'
+  if room_index == 0
+    assign image_loading = 'eager'
+  endif
+-%}
+
+<article
+  class="room color-{{ block.settings.color_scheme }}"
+  data-room
+  {% if block.settings.room_color != blank %}
+    data-room-color="{{ block.settings.room_color }}"
+  {% endif %}
+  style="--object-size: {{ block.settings.object_size }}svh;"
+  {{ block.shopify_attributes }}
+>
+  <div class="room__stage">
+    <a class="room__object" href="{{ room_url | default: routes.all_products_collection_url }}" tabindex="-1" aria-hidden="true">
+      {%- if room_image != blank -%}
+        {{
+          room_image
+          | image_url: width: 1400
+          | image_tag: widths: '500, 800, 1100, 1400', sizes: '(min-width: 750px) 45vw, 80vw', loading: image_loading, alt: room_alt, class: 'room__image'
+        }}
+      {%- else -%}
+        <span class="room__placeholder">{% render 'media-placeholder', kind: 'product', index: room_number, label: room_title %}</span>
+      {%- endif -%}
+    </a>
+    <span class="room__plinth" aria-hidden="true"></span>
+  </div>
+
+  <div class="room__plaque">
+    <span class="room__num">Nº {% if room_number < 10 %}0{% endif %}{{ room_number }}</span>
+    {%- if room_title != blank -%}
+      <h3 class="room__title">
+        {%- if room_url != blank -%}
+          <a href="{{ room_url }}">{{ room_title | escape }}</a>
+        {%- else -%}
+          {{ room_title | escape }}
+        {%- endif -%}
+      </h3>
+    {%- elsif request.design_mode -%}
+      <h3 class="room__title">{{ 'products.product.placeholder_title' | t }}</h3>
+    {%- endif -%}
+    {%- if room_caption != blank -%}
+      <p class="room__caption">{{ room_caption | escape }}</p>
+    {%- endif -%}
+    <div class="room__row">
+      {%- if room_product != blank and block.settings.show_price -%}
+        <span class="room__price">{% render 'format-money', amount: room_product.price %}</span>
+      {%- endif -%}
+      {%- if room_url != blank -%}
+        <a class="room__view" href="{{ room_url }}">{{ view_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <span class="room__count" aria-hidden="true">{% if room_number < 10 %}0{% endif %}{{ room_number }} / {% if room_total < 10 %}0{% endif %}{{ room_total }}</span>
+</article>
+
+{% stylesheet %}
+  .rooms > .room {
+    background: transparent;
+  }
+  .room {
+    position: relative;
+    min-height: var(--room-h, 100svh);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-areas: 'plaque stage count';
+    align-items: end;
+    gap: 24px;
+    padding: calc(var(--header-overlap, 0px) + 24px) max(var(--gutter), env(safe-area-inset-right, 0px)) clamp(28px, 5vh, 56px) max(var(--gutter), env(safe-area-inset-left, 0px));
+    color: var(--color-text);
+  }
+  .room__stage {
+    grid-area: stage;
+    align-self: stretch;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+    align-items: end;
+  }
+  .room__object {
+    display: block;
+    width: 100%;
+    height: min(var(--object-size), 100%);
+    max-height: var(--object-size);
+    translate: 0 6%;
+    opacity: 0.35;
+    scale: 0.96;
+    transition: translate 1.2s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 1.2s ease, scale 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .room.is-current .room__object {
+    translate: none;
+    opacity: 1;
+    scale: 1;
+  }
+  .room__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(0 26px 22px rgb(0 0 0 / 0.16));
+  }
+  .room__placeholder {
+    position: relative;
+    display: block;
+    height: 100%;
+    --card-tint: transparent;
+  }
+  .room__placeholder .media-placeholder--art {
+    background: transparent;
+  }
+  .room__plinth {
+    display: block;
+    width: min(70%, 420px);
+    height: clamp(18px, 3vh, 30px);
+    margin-top: -2px;
+    background: color-mix(in srgb, #ffffff 30%, transparent);
+    border-top: 1px solid color-mix(in srgb, #ffffff 55%, transparent);
+  }
+  .room__plaque {
+    grid-area: plaque;
+    justify-self: start;
+    display: grid;
+    gap: 6px;
+    max-width: 300px;
+    padding: 16px 18px;
+    background: color-mix(in srgb, #fbf9f5 88%, transparent);
+    color: #1c1916;
+    font-size: 1rem;
+    line-height: 1.35;
+    opacity: 0;
+    translate: 0 12px;
+    transition: opacity 0.9s ease 0.3s, translate 0.9s ease 0.3s;
+  }
+  .room.is-current .room__plaque {
+    opacity: 1;
+    translate: none;
+  }
+  .room__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: 1.5rem;
+    line-height: 1.1;
+  }
+  .room__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .room__caption {
+    font-style: italic;
+    color: #5e5750;
+  }
+  .room__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .room__view {
+    color: inherit;
+    text-underline-offset: 4px;
+  }
+  .room__count {
+    grid-area: count;
+    justify-self: end;
+    color: var(--color-muted);
+  }
+  @media (max-width: 749px) {
+    .room {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'stage stage'
+        'plaque count';
+      align-items: end;
+      min-height: min(var(--room-h, 100svh), 760px);
+    }
+    .room__object {
+      height: min(var(--object-size), 52svh);
+    }
+    .room__plaque {
+      max-width: none;
+      width: 100%;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .room__object,
+    .room__plaque {
+      transition: none;
+      translate: none;
+      opacity: 1;
+      scale: 1;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Room",
+  "tag": null,
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product", "info": "Empty rooms use your products in order" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Defaults to the product photo. A cut-out or a photo on a plain background works best." },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Room color", "default": "scheme-4", "info": "The page takes this scheme's background color while the room is on screen" },
+    { "type": "color", "id": "room_color", "label": "Custom room color", "info": "Optional. Overrides the scheme's background." },
+    { "type": "range", "id": "object_size", "label": "Bag size", "min": 40, "max": 80, "step": 5, "unit": "%", "default": 60 },
+    { "type": "header", "content": "Label" },
+    { "type": "text", "id": "title", "label": "Title", "info": "Defaults to the product name" },
+    { "type": "text", "id": "caption", "label": "Caption", "info": "Defaults to the product type. For example the materials." },
+    { "type": "checkbox", "id": "show_price", "label": "Show price", "default": true },
+    { "type": "text", "id": "link_label", "label": "Link label", "info": "Defaults to View" },
+    { "type": "url", "id": "link", "label": "Link", "info": "Defaults to the product" }
+  ],
+  "presets": [{ "name": "Room" }]
+}
+{% endschema %}

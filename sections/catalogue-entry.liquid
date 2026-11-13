@@ -1,0 +1,122 @@
+{%- liquid
+  assign entry_product = product
+  if entry_product == blank
+    assign entry_product = collections.all.products.first
+  endif
+  assign entry_variant = entry_product.selected_or_first_available_variant
+-%}
+
+<section
+  class="section catalogue-entry color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+>
+  <div class="page-width catalogue-entry__grid">
+    <div class="catalogue-entry__head">
+      {%- if section.settings.label != blank -%}
+        <span class="catalogue-entry__label">{{ section.settings.label | escape }}</span>
+      {%- endif -%}
+      {%- if entry_product != blank -%}
+        <h2 class="catalogue-entry__title">{{ entry_product.title | escape }}</h2>
+        <dl class="catalogue-entry__meta">
+          {%- if section.settings.show_vendor and entry_product.vendor != blank -%}
+            <div><dt>{{ 'sections.catalogue.maker' | t }}</dt><dd>{{ entry_product.vendor | escape }}</dd></div>
+          {%- endif -%}
+          {%- if section.settings.show_type and entry_product.type != blank -%}
+            <div><dt>{{ 'sections.catalogue.type' | t }}</dt><dd>{{ entry_product.type | escape }}</dd></div>
+          {%- endif -%}
+          {%- if section.settings.show_sku and entry_variant.sku != blank -%}
+            <div><dt>{{ 'sections.catalogue.reference' | t }}</dt><dd>{{ entry_variant.sku | escape }}</dd></div>
+          {%- endif -%}
+        </dl>
+      {%- endif -%}
+    </div>
+    <div class="catalogue-entry__body">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .catalogue-entry__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: clamp(28px, 6vw, 110px);
+    align-items: start;
+  }
+  .catalogue-entry__head {
+    position: sticky;
+    top: calc(var(--header-height, 0px) + 24px);
+    display: grid;
+    gap: 14px;
+    padding-top: 0.6em;
+    border-top: 1px solid currentColor;
+  }
+  .catalogue-entry__label {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+  }
+  .catalogue-entry__title {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(clamp(1.75rem, 3vw, 2.75rem) * var(--heading-scale));
+    line-height: 1.05;
+  }
+  .catalogue-entry__meta {
+    display: grid;
+    margin: 0;
+  }
+  .catalogue-entry__meta div {
+    display: grid;
+    grid-template-columns: 8em 1fr;
+    gap: 12px;
+    padding-block: 7px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .catalogue-entry__meta dt {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+  }
+  .catalogue-entry__meta dd {
+    margin: 0;
+  }
+  .catalogue-entry__body {
+    display: grid;
+    gap: 28px;
+    min-width: 0;
+  }
+  @media (max-width: 749px) {
+    .catalogue-entry__grid {
+      grid-template-columns: 1fr;
+    }
+    .catalogue-entry__head {
+      position: static;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Catalogue entry",
+  "tag": "div",
+  "class": "catalogue-entry-section",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-2" },
+    { "type": "text", "id": "label", "label": "Label", "default": "Catalogue entry" },
+    { "type": "checkbox", "id": "show_vendor", "label": "Show the brand as maker", "default": true },
+    { "type": "checkbox", "id": "show_type", "label": "Show the product type", "default": true },
+    { "type": "checkbox", "id": "show_sku", "label": "Show the SKU as reference", "default": true },
+    { "type": "select", "id": "padding_top", "label": "Top padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" }
+  ],
+  "presets": [
+    {
+      "name": "Catalogue entry",
+      "blocks": [{ "type": "bag-size" }, { "type": "accordion" }]
+    }
+  ]
+}
+{% endschema %}

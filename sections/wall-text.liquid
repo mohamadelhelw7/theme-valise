@@ -1,0 +1,157 @@
+{%- liquid
+  assign wall_text = section.settings.text
+  case section.settings.source
+    when 'product'
+      if product != blank and product.description != blank
+        assign wall_text = product.description
+      endif
+    when 'collection'
+      if collection != blank and collection.description != blank
+        assign wall_text = collection.description
+      endif
+    when 'page'
+      if page != blank and page.content != blank
+        assign wall_text = page.content
+      endif
+  endcase
+-%}
+
+{%- if wall_text != blank or section.settings.heading != blank -%}
+  <section
+    class="section wall-text wall-text--{{ section.settings.size }} color-{{ section.settings.color_scheme }}"
+    style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+  >
+    <div class="page-width wall-text__grid">
+      <div class="wall-text__aside">
+        {%- if section.settings.label != blank -%}
+          <span class="wall-text__label">{{ section.settings.label | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.note != blank -%}
+          <span class="wall-text__note">{{ section.settings.note | escape }}</span>
+        {%- endif -%}
+      </div>
+      <div class="wall-text__body">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="wall-text__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if wall_text != blank -%}
+          <div class="wall-text__text rte">{{ wall_text }}</div>
+        {%- endif -%}
+        {%- if section.settings.signature != blank -%}
+          <p class="wall-text__signature">{{ section.settings.signature | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.link_label != blank and section.settings.link != blank -%}
+          <a class="wall-text__link" href="{{ section.settings.link }}">{{ section.settings.link_label | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .wall-text__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+    gap: clamp(24px, 5vw, 96px);
+  }
+  .wall-text__aside {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding-top: 0.6em;
+    border-top: 1px solid currentColor;
+  }
+  .wall-text__label,
+  .wall-text__note {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+  }
+  .wall-text__note {
+    color: var(--color-muted);
+  }
+  .wall-text__body {
+    display: grid;
+    gap: 22px;
+    max-width: 44em;
+  }
+  .wall-text__heading {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(clamp(1.75rem, 3vw, 2.5rem) * var(--heading-scale));
+    line-height: 1.1;
+  }
+  .wall-text__text {
+    font-size: clamp(1.25rem, 1.9vw, 1.75rem);
+    line-height: 1.45;
+    color: var(--color-body);
+  }
+  .wall-text--small .wall-text__text {
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+  .wall-text__text p + p {
+    margin-top: 0.8em;
+  }
+  .wall-text__signature {
+    font-style: italic;
+    color: var(--color-muted);
+  }
+  .wall-text__link {
+    justify-self: start;
+    color: inherit;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+    text-underline-offset: 5px;
+  }
+  @media (max-width: 749px) {
+    .wall-text__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Wall text",
+  "tag": "div",
+  "class": "wall-text-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Text",
+      "options": [
+        { "value": "custom", "label": "Written below" },
+        { "value": "product", "label": "Product description" },
+        { "value": "collection", "label": "Collection description" },
+        { "value": "page", "label": "Page content" }
+      ],
+      "default": "custom",
+      "info": "Falls back to the text below when the description is empty"
+    },
+    { "type": "text", "id": "label", "label": "Label", "default": "About the collection" },
+    { "type": "text", "id": "note", "label": "Note under the label", "info": "For example a season or a place" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Write a few lines about your bags the way a gallery introduces an exhibition: where the idea came from, how the pieces are made and what they are for.</p>" },
+    { "type": "text", "id": "signature", "label": "Signature", "info": "For example the founder's name" },
+    { "type": "text", "id": "link_label", "label": "Link label" },
+    { "type": "url", "id": "link", "label": "Link" },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Text size",
+      "options": [
+        { "value": "large", "label": "Large" },
+        { "value": "small", "label": "Small" }
+      ],
+      "default": "large"
+    },
+    { "type": "select", "id": "padding_top", "label": "Top padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" }
+  ],
+  "presets": [{ "name": "Wall text" }]
+}
+{% endschema %}

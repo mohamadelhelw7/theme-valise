@@ -7,19 +7,15 @@
 {% enddoc %}
 
 {%- liquid
-  assign sans_fallback = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
 
   assign heading_picker = false
   case settings.heading_font_source
-    when 'josefin_sans'
-      assign heading_family = "'Theme Josefin Sans'"
-      assign heading_fallback = "'Futura', 'Century Gothic', " | append: sans_fallback
-    when 'newsreader'
-      assign heading_family = "'Theme Newsreader'"
+    when 'gloock'
+      assign heading_family = "'Theme Gloock'"
       assign heading_fallback = "Georgia, 'Times New Roman', serif"
-    when 'marcellus'
-      assign heading_family = "'Theme Marcellus'"
-      assign heading_fallback = "'Optima', Candara, Georgia, serif"
+    when 'eb_garamond'
+      assign heading_family = "'Theme EB Garamond'"
+      assign heading_fallback = "Garamond, Georgia, 'Times New Roman', serif"
     else
       assign heading_picker = true
       assign heading_font = settings.type_heading_font | font_modify: 'weight', settings.heading_weight | default: settings.type_heading_font
@@ -30,9 +26,9 @@
   assign body_picker = false
   assign body_weight = 400
   case settings.body_font_source
-    when 'figtree'
-      assign body_family = "'Theme Figtree'"
-      assign body_fallback = sans_fallback
+    when 'eb_garamond'
+      assign body_family = "'Theme EB Garamond'"
+      assign body_fallback = "Garamond, Georgia, 'Times New Roman', serif"
     else
       assign body_picker = true
       assign body_font = settings.type_body_font
@@ -42,17 +38,17 @@
   endcase
 
   case settings.arabic_heading_font
-    when 'plex_arabic'
-      assign arabic_heading = "'Theme IBM Plex Sans Arabic', "
-    when 'markazi'
-      assign arabic_heading = "'Theme Markazi Text', "
+    when 'aref_ruqaa'
+      assign arabic_heading = "'Theme Aref Ruqaa', "
+    when 'scheherazade'
+      assign arabic_heading = "'Theme Scheherazade New', "
     else
       assign arabic_heading = ''
   endcase
 
   case settings.arabic_body_font
-    when 'plex_arabic'
-      assign arabic_body = "'Theme IBM Plex Sans Arabic', "
+    when 'scheherazade'
+      assign arabic_body = "'Theme Scheherazade New', "
     else
       assign arabic_body = ''
   endcase

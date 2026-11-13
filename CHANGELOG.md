@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0
+- New design: Valise now presents bags like objects in a gallery, with its own homepage, header, product cards, product page, collection page and footer.
+- New sections: Rooms (one bag per screen, the page takes each room's color), Product room (the product page as a room with a museum label, tinted by the chosen color), Product views, Wall text, Catalogue entry, Hall (a salon wall of products), Page intro, Visitor book, Gallery header (with a full-screen Index) and Colophon footer.
+- Product cards: a new Museum label layout, on by default.
+- Collection page: Salon wall grid option and a setting to hide the title when a Page intro is used.
+- Five new presets: Gallery, Nocturne, Terracotta, Salon and Stone.
+- New fonts: Gloock and EB Garamond, with Aref Ruqaa and Scheherazade New for Arabic.
+- Missing photos show drawn leather bags on plinths.
+- The previous slideshow, header and footer are still available as sections.
+
 ## 1.0.0
 - First release of Valise, a theme for handbag, leather goods and travel bag brands.
 - Five style presets: Valise, Cognac, Noir, Voyage and Bordeaux.

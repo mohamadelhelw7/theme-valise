@@ -1,18 +1,12 @@
 {
   "sections": {
     "main": {
-      "type": "main-product",
+      "type": "main-product-room",
       "blocks": {
         "title": {
           "type": "product-title",
           "settings": {
             "label": "type"
-          }
-        },
-        "rating": {
-          "type": "product-rating",
-          "settings": {
-            "anchor": "reviews"
           }
         },
         "price": {
@@ -65,10 +59,57 @@
             "full_width": true
           }
         },
-        "description": {
-          "type": "product-description",
-          "settings": {}
-        },
+        "whatsapp": {
+          "type": "whatsapp-button",
+          "settings": {
+            "label": "Ask us on WhatsApp",
+            "message": "Hi! I have a question about",
+            "style": "button--secondary",
+            "full_width": true
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "variant_picker",
+        "inventory",
+        "personalize",
+        "buy_buttons",
+        "restock",
+        "save",
+        "whatsapp"
+      ],
+      "settings": {
+        "color_scheme": "scheme-4",
+        "follow_color": true,
+        "color_strength": 26,
+        "sticky_atc": "mobile"
+      }
+    },
+    "views": {
+      "type": "gallery-views",
+      "settings": {
+        "scheme_a": "scheme-2",
+        "scheme_b": "scheme-4",
+        "show_captions": true,
+        "limit": 6
+      }
+    },
+    "about": {
+      "type": "wall-text",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "source": "product",
+        "label": "About this piece",
+        "size": "large",
+        "padding_top": "large",
+        "padding_bottom": "medium"
+      }
+    },
+    "entry": {
+      "type": "catalogue-entry",
+      "blocks": {
         "bag_size": {
           "type": "bag-size",
           "settings": {
@@ -76,6 +117,35 @@
             "unit": "cm",
             "show_diagram": true
           }
+        },
+        "details": {
+          "type": "accordion",
+          "settings": {
+            "style": "lines",
+            "single_open": true
+          },
+          "blocks": {
+            "details_1": {
+              "type": "_accordion-row",
+              "settings": {
+                "heading": "Materials and care",
+                "icon": "bag",
+                "content": "<p>List the materials, the lining and how to clean and store this bag.</p>"
+              }
+            },
+            "details_2": {
+              "type": "_accordion-row",
+              "settings": {
+                "heading": "Shipping and returns",
+                "icon": "truck",
+                "content": "<p>Add your delivery times and return policy.</p>"
+              }
+            }
+          },
+          "block_order": [
+            "details_1",
+            "details_2"
+          ]
         },
         "delivery": {
           "type": "delivery-info",
@@ -135,368 +205,40 @@
             "zone_remote"
           ]
         },
-        "details": {
-          "type": "accordion",
-          "settings": {
-            "style": "lines",
-            "single_open": true
-          },
-          "blocks": {
-            "details_1": {
-              "type": "_accordion-row",
-              "settings": {
-                "heading": "Materials and care",
-                "icon": "bag",
-                "content": "<p>List the materials, the lining and how to clean and store this bag.</p>"
-              }
-            },
-            "details_2": {
-              "type": "_accordion-row",
-              "settings": {
-                "heading": "Shipping and returns",
-                "icon": "truck",
-                "content": "<p>Add your delivery times and return policy.</p>"
-              }
-            }
-          },
-          "block_order": [
-            "details_1",
-            "details_2"
-          ]
-        },
-        "icons": {
-          "type": "icon-list",
-          "settings": {
-            "layout": "grid",
-            "columns": 3,
-            "boxed": true
-          },
-          "blocks": {
-            "icons_1": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "lock",
-                "title": "Secure checkout"
-              }
-            },
-            "icons_2": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "truck",
-                "title": "Delivery times by governorate"
-              }
-            },
-            "icons_3": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "return",
-                "title": "See our return policy"
-              }
-            }
-          },
-          "block_order": [
-            "icons_1",
-            "icons_2",
-            "icons_3"
-          ]
-        },
         "payments": {
           "type": "payment-icons",
           "settings": {
             "text": "Secure checkout"
           }
-        },
-        "whatsapp": {
-          "type": "whatsapp-button",
-          "settings": {
-            "label": "Ask us on WhatsApp",
-            "message": "Hi! I have a question about",
-            "style": "button--secondary",
-            "full_width": true
-          }
         }
       },
       "block_order": [
-        "title",
-        "rating",
-        "price",
-        "variant_picker",
-        "inventory",
-        "personalize",
-        "buy_buttons",
-        "restock",
-        "save",
-        "description",
         "bag_size",
-        "delivery",
         "details",
-        "icons",
-        "payments",
-        "whatsapp"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1",
-        "gallery_layout": "grid",
-        "media_width": "medium",
-        "media_ratio": "1",
-        "media_fit": "contain",
-        "enable_zoom": true,
-        "sticky_info": true,
-        "sticky_atc": "mobile",
-        "padding_top": "small",
-        "padding_bottom": "small",
-        "media_position": "start"
-      }
-    },
-    "marquee": {
-      "type": "marquee",
-      "blocks": {
-        "marquee_1": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "New season"
-          }
-        },
-        "marquee_2": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Secure checkout"
-          }
-        },
-        "marquee_3": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Delivery across governorates"
-          }
-        },
-        "marquee_4": {
-          "type": "_marquee-item",
-          "settings": {
-            "text": "Ask us on WhatsApp"
-          }
-        }
-      },
-      "block_order": [
-        "marquee_1",
-        "marquee_2",
-        "marquee_3",
-        "marquee_4"
+        "delivery",
+        "payments"
       ],
       "settings": {
         "color_scheme": "scheme-2",
-        "size": "small",
-        "font": "body",
-        "uppercase": true,
-        "separator": "dot",
-        "speed": 40,
-        "borders": false,
-        "padding_top": "none",
-        "padding_bottom": "none"
-      }
-    },
-    "closer_look": {
-      "type": "bag-anatomy",
-      "blocks": {
-        "bag_anatomy_1": {
-          "type": "_anatomy-point",
-          "settings": {
-            "x": 50,
-            "y": 14,
-            "title": "Handle",
-            "text": "Say what the handle is made of and how long the drop is."
-          }
-        },
-        "bag_anatomy_2": {
-          "type": "_anatomy-point",
-          "settings": {
-            "x": 64,
-            "y": 46,
-            "title": "Hardware",
-            "text": "Describe the clasp, buckles and their finish."
-          }
-        },
-        "bag_anatomy_3": {
-          "type": "_anatomy-point",
-          "settings": {
-            "x": 30,
-            "y": 66,
-            "title": "Stitching",
-            "text": "Explain how the bag is sewn and finished."
-          }
-        },
-        "bag_anatomy_4": {
-          "type": "_anatomy-point",
-          "settings": {
-            "x": 58,
-            "y": 90,
-            "title": "Base",
-            "text": "Mention the base, feet or anything that protects it."
-          }
-        }
-      },
-      "block_order": [
-        "bag_anatomy_1",
-        "bag_anatomy_2",
-        "bag_anatomy_3",
-        "bag_anatomy_4"
-      ],
-      "settings": {
-        "color_scheme": "scheme-1"
-      }
-    },
-    "hero": {
-      "type": "product-hero",
-      "blocks": {
-        "product_hero_1": {
-          "type": "eyebrow",
-          "settings": {
-            "text": "Why you'll love it"
-          }
-        },
-        "product_hero_2": {
-          "type": "heading",
-          "settings": {
-            "heading": "Easy to carry,\nmade to be noticed",
-            "size": "h1",
-            "tag": "h2",
-            "max_width": 22
-          }
-        },
-        "product_hero_3": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Describe the shape, the materials and the details that make this bag.</p>"
-          }
-        },
-        "product_hero_4": {
-          "type": "icon-list",
-          "settings": {
-            "layout": "list",
-            "boxed": false
-          },
-          "blocks": {
-            "product_hero_4_1": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "bag",
-                "title": "Add the first reason here"
-              }
-            },
-            "product_hero_4_2": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "key",
-                "title": "Add the second reason here"
-              }
-            },
-            "product_hero_4_3": {
-              "type": "_icon-item",
-              "settings": {
-                "icon": "sparkle",
-                "title": "Add the third reason here"
-              }
-            }
-          },
-          "block_order": [
-            "product_hero_4_1",
-            "product_hero_4_2",
-            "product_hero_4_3"
-          ]
-        }
-      },
-      "block_order": [
-        "product_hero_1",
-        "product_hero_2",
-        "product_hero_3",
-        "product_hero_4"
-      ],
-      "settings": {
-        "color_scheme": "scheme-4",
+        "label": "Catalogue entry",
+        "show_vendor": true,
+        "show_type": true,
+        "show_sku": true,
         "padding_top": "large",
         "padding_bottom": "large"
       }
     },
-    "made": {
-      "type": "image-with-text",
-      "blocks": {
-        "image_with_text_1": {
-          "type": "eyebrow",
-          "settings": {
-            "text": "The details"
-          }
-        },
-        "image_with_text_2": {
-          "type": "heading",
-          "settings": {
-            "heading": "Look inside",
-            "size": "h2"
-          }
-        },
-        "image_with_text_3": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Show the inside of the bag: pockets, lining and closures.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "image_with_text_1",
-        "image_with_text_2",
-        "image_with_text_3"
-      ],
+    "recommendations": {
+      "type": "product-recommendations",
       "settings": {
         "color_scheme": "scheme-1",
-        "panel_scheme": "scheme-1",
-        "image_position": "right",
+        "heading": "You might also like",
+        "intent": "related",
+        "limit": 4,
+        "mobile_layout": "swipe",
         "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "bought": {
-      "type": "frequently-bought",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "look": {
-      "type": "shop-the-look",
-      "blocks": {
-        "shop_the_look_1": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 36,
-            "y": 44
-          }
-        },
-        "shop_the_look_2": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 58,
-            "y": 68
-          }
-        },
-        "shop_the_look_3": {
-          "type": "_hotspot",
-          "settings": {
-            "x": 74,
-            "y": 30
-          }
-        }
-      },
-      "block_order": [
-        "shop_the_look_1",
-        "shop_the_look_2",
-        "shop_the_look_3"
-      ],
-      "settings": {
-        "color_scheme": "scheme-2",
-        "eyebrow": "Styled",
-        "heading": "Wear it with",
-        "image_position": "start",
-        "padding_top": "large",
-        "padding_bottom": "large"
+        "padding_bottom": "none",
+        "header_alignment": "center"
       }
     },
     "reviews": {
@@ -544,76 +286,17 @@
         "padding_bottom": "none"
       }
     },
-    "faq": {
-      "type": "faq",
-      "blocks": {
-        "faq_1": {
-          "type": "_faq-item",
-          "settings": {
-            "question": "How long does delivery take?",
-            "answer": "<p>Add your delivery times and the areas you ship to.</p>",
-            "open": true
-          }
-        },
-        "faq_2": {
-          "type": "_faq-item",
-          "settings": {
-            "question": "Which payment methods do you accept?",
-            "answer": "<p>List the payment options you accept.</p>"
-          }
-        },
-        "faq_3": {
-          "type": "_faq-item",
-          "settings": {
-            "question": "How do I care for my bag?",
-            "answer": "<p>Share simple care tips for your materials, such as leather or canvas.</p>"
-          }
-        },
-        "faq_4": {
-          "type": "_faq-item",
-          "settings": {
-            "question": "What is your return policy?",
-            "answer": "<p>Summarize your return policy and link to the full page.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "faq_1",
-        "faq_2",
-        "faq_3",
-        "faq_4"
-      ],
+    "hall": {
+      "type": "gallery-hall",
       "settings": {
         "color_scheme": "scheme-1",
+        "label": "In the same room",
+        "auto_fill": true,
+        "products_to_show": 5,
+        "layout": "salon",
+        "link_label": "See the whole collection",
         "padding_top": "large",
-        "padding_bottom": "none"
-      }
-    },
-    "recommendations": {
-      "type": "product-recommendations",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "heading": "You might also like",
-        "intent": "related",
-        "limit": 4,
-        "mobile_layout": "swipe",
-        "padding_top": "large",
-        "padding_bottom": "none",
-        "header_alignment": "center"
-      }
-    },
-    "more": {
-      "type": "more-products",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "heading": "More from [collection]",
-        "header_alignment": "start",
-        "layout": "slider",
-        "columns": 4,
-        "limit": 8,
-        "show_link": true,
-        "padding_top": "large",
-        "padding_bottom": "none"
+        "padding_bottom": "large"
       }
     },
     "recent": {
@@ -631,16 +314,12 @@
   },
   "order": [
     "main",
-    "marquee",
-    "closer_look",
-    "hero",
-    "made",
-    "bought",
-    "look",
-    "reviews",
-    "faq",
+    "views",
+    "about",
+    "entry",
     "recommendations",
-    "more",
+    "reviews",
+    "hall",
     "recent"
   ]
 }

@@ -1,0 +1,163 @@
+{%- liquid
+  assign hall_collection = section.settings.collection
+  if hall_collection == blank and product != blank and section.settings.auto_fill
+    assign hall_collection = product.collections.first
+  endif
+  if hall_collection == blank and section.settings.auto_fill
+    assign hall_collection = collections.all
+  endif
+  assign limit = section.settings.products_to_show
+  assign heading_id = 'HallHeading-' | append: section.id
+  assign hall_link = section.settings.link | default: hall_collection.url
+-%}
+
+<section
+  class="section hall color-{{ section.settings.color_scheme }}"
+  style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
+  aria-labelledby="{{ heading_id }}"
+>
+  <div class="page-width">
+    <div class="hall__head">
+      {%- if section.settings.label != blank -%}
+        <span class="hall__label">{{ section.settings.label | escape }}</span>
+      {%- endif -%}
+      <h2 id="{{ heading_id }}" class="hall__heading">{{ section.settings.heading | default: hall_collection.title | escape }}</h2>
+      {%- if section.settings.link_label != blank and hall_link != blank -%}
+        <a class="hall__link" href="{{ hall_link }}">{{ section.settings.link_label | escape }}</a>
+      {%- endif -%}
+    </div>
+
+    <ul class="hall__wall hall__wall--{{ section.settings.layout }}" role="list">
+      {%- assign shown = 0 -%}
+      {%- for item in hall_collection.products limit: limit -%}
+        {%- if product != blank and item.id == product.id -%}{%- continue -%}{%- endif -%}
+        {%- assign shown = shown | plus: 1 -%}
+        <li class="hall__item">{% render 'product-card', product: item, index: shown %}</li>
+      {%- endfor -%}
+      {%- if shown == 0 -%}
+        {%- for i in (1..limit) -%}
+          <li class="hall__item">{% render 'product-card', product: blank, index: i %}</li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</section>
+
+{% stylesheet %}
+  .hall__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'label link'
+      'heading link';
+    align-items: end;
+    gap: 6px 24px;
+    margin-bottom: clamp(32px, 5vw, 72px);
+    padding-bottom: 14px;
+    border-bottom: 1px solid currentColor;
+  }
+  .hall__label {
+    grid-area: label;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+  }
+  .hall__heading {
+    grid-area: heading;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: calc(clamp(2rem, 4.4vw, 4rem) * var(--heading-scale));
+    line-height: 1;
+  }
+  .hall__link {
+    grid-area: link;
+    color: inherit;
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.12em;
+    font-size: 1.0625rem;
+    text-underline-offset: 5px;
+  }
+  .hall__wall {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 64px) var(--grid-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .hall__wall--salon .hall__item:nth-child(5n + 1) {
+    grid-column: 1 / span 5;
+  }
+  .hall__wall--salon .hall__item:nth-child(5n + 2) {
+    grid-column: 7 / span 5;
+    margin-top: clamp(40px, 12vw, 180px);
+  }
+  .hall__wall--salon .hall__item:nth-child(5n + 3) {
+    grid-column: 2 / span 3;
+  }
+  .hall__wall--salon .hall__item:nth-child(5n + 4) {
+    grid-column: 6 / span 3;
+    margin-top: clamp(24px, 6vw, 90px);
+  }
+  .hall__wall--salon .hall__item:nth-child(5n + 5) {
+    grid-column: 10 / span 3;
+  }
+  .hall__wall--row .hall__item {
+    grid-column: span 3;
+  }
+  @media (max-width: 749px) {
+    .hall__wall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .hall__wall .hall__item,
+    .hall__wall--salon .hall__item:nth-child(n) {
+      grid-column: auto;
+      margin-top: 0;
+    }
+    .hall__wall--salon .hall__item:nth-child(3n + 1) {
+      grid-column: 1 / -1;
+    }
+    .hall__wall--salon .hall__item:nth-child(3n + 3) {
+      margin-top: 48px;
+    }
+    .hall__head {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'label'
+        'heading'
+        'link';
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hall",
+  "tag": "div",
+  "class": "hall-section",
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "text", "id": "label", "label": "Label", "default": "The hall" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Defaults to the collection name" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "checkbox", "id": "auto_fill", "label": "Use all products when no collection is picked", "info": "On product pages it uses the product's own collection.", "default": true },
+    { "type": "range", "id": "products_to_show", "label": "Products", "min": 3, "max": 15, "step": 1, "default": 5 },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "salon", "label": "Salon wall, mixed sizes" },
+        { "value": "row", "label": "Even rows" }
+      ],
+      "default": "salon"
+    },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "See every object" },
+    { "type": "url", "id": "link", "label": "Link", "info": "Defaults to the collection" },
+    { "type": "select", "id": "padding_top", "label": "Top padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
+    { "type": "select", "id": "padding_bottom", "label": "Bottom padding", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" }
+  ],
+  "presets": [{ "name": "Hall" }]
+}
+{% endschema %}

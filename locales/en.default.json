@@ -19,7 +19,8 @@
       "account": "Account",
       "cart": "Cart",
       "view_all": "Shop all {{ title }}",
-      "bag": "Bag"
+      "bag": "Bag",
+      "index": "Index"
     },
     "search": {
       "title": "Search",
@@ -316,6 +317,26 @@
     "photo_trail": {
       "hint_mouse": "Move your mouse around",
       "hint_touch": "Tap anywhere"
+    },
+    "rooms": {
+      "scroll": "Scroll",
+      "view": "View",
+      "empty": "Add a Room block for each bag you want to show.",
+      "all_objects": "All objects",
+      "collections": "Collections",
+      "objects": {
+        "one": "{{ count }} object",
+        "other": "{{ count }} objects"
+      },
+      "exhibitions": {
+        "one": "{{ count }} collection",
+        "other": "{{ count }} collections"
+      }
+    },
+    "catalogue": {
+      "maker": "Maker",
+      "type": "Type",
+      "reference": "Reference"
     }
   },
   "contact": {

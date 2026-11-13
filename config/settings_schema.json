@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Valise",
-    "theme_version": "1.0.0",
+    "theme_version": "2.0.0",
     "theme_author": "Mohamed Elhelw",
     "theme_documentation_url": "https://github.com/mohamadelhelw7/theme-valise",
     "theme_support_url": "https://github.com/mohamadelhelw7/theme-valise"
@@ -22,7 +22,7 @@
             "type": "color",
             "id": "background",
             "label": "Background",
-            "default": "#FFFFFF"
+            "default": "#EBE6DE"
           },
           {
             "type": "color_background",
@@ -34,55 +34,55 @@
             "type": "color",
             "id": "surface",
             "label": "Cards and panels",
-            "default": "#F3F3F1"
+            "default": "#F6F3EE"
           },
           {
             "type": "color",
             "id": "text",
             "label": "Text",
-            "default": "#141414"
+            "default": "#1C1916"
           },
           {
             "type": "color",
             "id": "text_muted",
             "label": "Secondary text",
-            "default": "#5F5F5F"
+            "default": "#5E5750"
           },
           {
             "type": "color",
             "id": "border",
             "label": "Borders",
-            "default": "#E4E4E1"
+            "default": "#D5CEC3"
           },
           {
             "type": "color",
             "id": "accent",
             "label": "Accent",
-            "default": "#141414"
+            "default": "#6B2B2B"
           },
           {
             "type": "color",
             "id": "on_accent",
             "label": "Text on accent",
-            "default": "#FFFFFF"
+            "default": "#FBF9F5"
           },
           {
             "type": "color",
             "id": "button",
             "label": "Button",
-            "default": "#141414"
+            "default": "#1C1916"
           },
           {
             "type": "color",
             "id": "button_label",
             "label": "Button text",
-            "default": "#FFFFFF"
+            "default": "#FBF9F5"
           },
           {
             "type": "color",
             "id": "secondary_button_label",
             "label": "Outline button",
-            "default": "#141414"
+            "default": "#1C1916"
           }
         ],
         "role": {
@@ -109,19 +109,19 @@
         "type": "color",
         "id": "color_sale",
         "label": "Sale price and badge",
-        "default": "#B3261E"
+        "default": "#8E2B23"
       },
       {
         "type": "color",
         "id": "color_badge",
         "label": "New badge",
-        "default": "#141414"
+        "default": "#1C1916"
       },
       {
         "type": "color",
         "id": "color_badge_text",
         "label": "Badge text",
-        "default": "#FFFFFF"
+        "default": "#FBF9F5"
       },
       {
         "type": "header",
@@ -132,25 +132,25 @@
         "type": "color",
         "id": "color_tint_1",
         "label": "Tint 1",
-        "default": "#F2F2F0"
+        "default": "#E3DED5"
       },
       {
         "type": "color",
         "id": "color_tint_2",
         "label": "Tint 2",
-        "default": "#EFEFEC"
+        "default": "#DDE0D4"
       },
       {
         "type": "color",
         "id": "color_tint_3",
         "label": "Tint 3",
-        "default": "#F3F2EF"
+        "default": "#E8DCD2"
       },
       {
         "type": "color",
         "id": "color_tint_4",
         "label": "Tint 4",
-        "default": "#EDEDEA"
+        "default": "#DEDAD4"
       }
     ]
   },
@@ -167,23 +167,19 @@
         "label": "Heading font",
         "options": [
           {
-            "value": "josefin_sans",
-            "label": "Josefin Sans"
+            "value": "gloock",
+            "label": "Gloock"
           },
           {
-            "value": "newsreader",
-            "label": "Newsreader"
-          },
-          {
-            "value": "marcellus",
-            "label": "Marcellus"
+            "value": "eb_garamond",
+            "label": "EB Garamond"
           },
           {
             "value": "picker",
             "label": "Choose from font library"
           }
         ],
-        "default": "josefin_sans",
+        "default": "gloock",
         "info": "The named fonts are bundled with the theme."
       },
       {
@@ -223,7 +219,7 @@
             "label": "Extra bold"
           }
         ],
-        "default": "300"
+        "default": "400"
       },
       {
         "type": "range",
@@ -233,7 +229,7 @@
         "max": 130,
         "step": 5,
         "unit": "%",
-        "default": 100
+        "default": 110
       },
       {
         "type": "range",
@@ -242,7 +238,7 @@
         "min": -6,
         "max": 20,
         "step": 1,
-        "default": 18
+        "default": 0
       },
       {
         "type": "range",
@@ -252,13 +248,13 @@
         "max": 130,
         "step": 5,
         "unit": "%",
-        "default": 115
+        "default": 105
       },
       {
         "type": "checkbox",
         "id": "heading_uppercase",
         "label": "Uppercase headings",
-        "default": true
+        "default": false
       },
       {
         "type": "select",
@@ -287,15 +283,15 @@
         "label": "Body font",
         "options": [
           {
-            "value": "figtree",
-            "label": "Figtree"
+            "value": "eb_garamond",
+            "label": "EB Garamond"
           },
           {
             "value": "picker",
             "label": "Choose from font library"
           }
         ],
-        "default": "figtree"
+        "default": "eb_garamond"
       },
       {
         "type": "font_picker",
@@ -312,7 +308,7 @@
         "max": 18,
         "step": 1,
         "unit": "px",
-        "default": 15
+        "default": 17
       },
       {
         "type": "select",
@@ -360,19 +356,19 @@
         "label": "Arabic headings",
         "options": [
           {
-            "value": "plex_arabic",
-            "label": "IBM Plex Sans Arabic"
+            "value": "aref_ruqaa",
+            "label": "Aref Ruqaa"
           },
           {
-            "value": "markazi",
-            "label": "Markazi Text"
+            "value": "scheherazade",
+            "label": "Scheherazade New"
           },
           {
             "value": "system",
             "label": "Device default"
           }
         ],
-        "default": "plex_arabic"
+        "default": "aref_ruqaa"
       },
       {
         "type": "select",
@@ -380,15 +376,15 @@
         "label": "Arabic text",
         "options": [
           {
-            "value": "plex_arabic",
-            "label": "IBM Plex Sans Arabic"
+            "value": "scheherazade",
+            "label": "Scheherazade New"
           },
           {
             "value": "system",
             "label": "Device default"
           }
         ],
-        "default": "plex_arabic",
+        "default": "scheherazade",
         "info": "Arabic fonts are bundled and only load when a page shows Arabic text."
       }
     ]
@@ -404,7 +400,7 @@
         "max": 1600,
         "step": 20,
         "unit": "px",
-        "default": 1440
+        "default": 1480
       },
       {
         "type": "range",
@@ -414,7 +410,7 @@
         "max": 64,
         "step": 4,
         "unit": "px",
-        "default": 40
+        "default": 48
       },
       {
         "type": "range",
@@ -435,7 +431,7 @@
         "max": 160,
         "step": 8,
         "unit": "px",
-        "default": 112
+        "default": 128
       },
       {
         "type": "range",
@@ -445,7 +441,7 @@
         "max": 32,
         "step": 2,
         "unit": "px",
-        "default": 24
+        "default": 32
       },
       {
         "type": "range",
@@ -591,7 +587,7 @@
         "min": 0,
         "max": 20,
         "step": 1,
-        "default": 16
+        "default": 12
       },
       {
         "type": "checkbox",
@@ -611,6 +607,23 @@
   {
     "name": "Product cards",
     "settings": [
+      {
+        "type": "select",
+        "id": "card_layout",
+        "label": "Card layout",
+        "options": [
+          {
+            "value": "label",
+            "label": "Museum label"
+          },
+          {
+            "value": "standard",
+            "label": "Standard"
+          }
+        ],
+        "default": "label",
+        "info": "Museum label puts a numbered label under the photo, like a gallery caption."
+      },
       {
         "type": "select",
         "id": "card_style",
@@ -653,7 +666,7 @@
             "label": "Landscape"
           }
         ],
-        "default": "1"
+        "default": "0.8"
       },
       {
         "type": "select",
@@ -700,7 +713,7 @@
         "max": 40,
         "step": 4,
         "unit": "px",
-        "default": 24
+        "default": 28
       },
       {
         "type": "checkbox",
@@ -748,7 +761,7 @@
             "label": "Center"
           }
         ],
-        "default": "center"
+        "default": "start"
       },
       {
         "type": "range",
@@ -773,7 +786,7 @@
             "label": "Spaced capitals"
           }
         ],
-        "default": "uppercase"
+        "default": "none"
       },
       {
         "type": "header",
@@ -783,7 +796,7 @@
         "type": "checkbox",
         "id": "card_show_type",
         "label": "Show product type",
-        "default": false
+        "default": true
       },
       {
         "type": "checkbox",
@@ -879,7 +892,7 @@
             "label": "Top center"
           }
         ],
-        "default": "center"
+        "default": "start"
       },
       {
         "type": "select",
@@ -1061,7 +1074,7 @@
             "label": "Zoom in"
           }
         ],
-        "default": "fade-up"
+        "default": "fade"
       },
       {
         "type": "range",
@@ -1071,7 +1084,7 @@
         "max": 1200,
         "step": 100,
         "unit": "ms",
-        "default": 900
+        "default": 1200
       },
       {
         "type": "checkbox",
@@ -1093,7 +1106,7 @@
             "label": "Wipe in from the bottom"
           }
         ],
-        "default": "curtain"
+        "default": "none"
       },
       {
         "type": "checkbox",
