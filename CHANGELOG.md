@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1
+- Fixed the homepage showing a 404 after uploading the theme: Shopify rejected the Bento grid section because its Columns on desktop slider had only two values, which also stopped the homepage template from loading. The slider now goes from 2 to 4 columns.
+
 ## 2.0.0
 - New design: Valise now presents bags like objects in a gallery, with its own homepage, header, product cards, product page, collection page and footer.
 - New sections: Rooms (one bag per screen, the page takes each room's color), Product room (the product page as a room with a museum label, tinted by the chosen color), Product views, Wall text, Catalogue entry, Hall (a salon wall of products), Page intro, Visitor book, Gallery header (with a full-screen Index) and Colophon footer.
