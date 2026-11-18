@@ -10,7 +10,12 @@
 {%- liquid
   assign addon_style = block.settings.style
   assign addon_url = ''
-  if block.settings.source != 'picked' and product != blank
+  assign addon_picked = block.settings.products | size
+  assign addon_use_picked = false
+  if block.settings.source == 'picked' or addon_picked > 0
+    assign addon_use_picked = true
+  endif
+  if addon_use_picked == false and product != blank
     assign addon_url = routes.product_recommendations_url | append: '?product_id=' | append: product.id | append: '&limit=10&intent=' | append: block.settings.source | append: '&section_id=upsell-kit-render'
   endif
 -%}
@@ -49,7 +54,7 @@
     {%- endif -%}
   </div>
   <div class="addons__items" data-upsell-target>
-    {%- if block.settings.source == 'picked' -%}
+    {%- if addon_use_picked -%}
       {%- for picked in block.settings.products limit: block.settings.limit -%}
         {%- if picked.id == product.id -%}{%- continue -%}{%- endif -%}
         {% render 'upsell-kit-addon', product: picked, layout: addon_style, badge: block.settings.badge %}
@@ -59,7 +64,7 @@
   <p class="addons__note">{{ 'upsells.addons_note' | t }}</p>
   {%- if request.design_mode -%}
     <p class="upsell-kit-hint" data-addon-empty hidden>
-      {%- if block.settings.source == 'picked' -%}
+      {%- if addon_use_picked -%}
         {{ 'upsells.editor_pick' | t }}
       {%- else -%}
         {{ 'upsells.editor_empty' | t }}
@@ -550,9 +555,9 @@
         { "value": "picked", "label": "Products I pick" }
       ],
       "default": "complementary",
-      "info": "Set complementary products in the Search & Discovery app. Related products come from Shopify automatically."
+      "info": "Related products come from Shopify, and complementary ones from the Search & Discovery app. While Shopify has no suggestions for a product yet, the block shows other products from its collection."
     },
-    { "type": "product_list", "id": "products", "label": "Add-ons", "limit": 8, "info": "Used with Products I pick" },
+    { "type": "product_list", "id": "products", "label": "Add-ons", "limit": 8, "info": "Products you pick here are always shown, whatever the Products setting says." },
     { "type": "range", "id": "limit", "label": "Add-ons to show", "min": 1, "max": 8, "step": 1, "default": 4 },
     {
       "type": "text",

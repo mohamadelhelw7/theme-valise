@@ -1,7 +1,8 @@
 {%- comment -%}
-  Renders Shopify's product recommendations for the Pair it with and Product add-ons blocks.
-  The blocks fetch it with section_id=upsell-kit-render and copy the list for their layout.
-  Products already in the cart are left out.
+  Renders suggestions for the Pair it with and Product add-ons blocks through the product
+  recommendations endpoint (section_id=upsell-kit-render). Each block copies the list for its layout.
+  A new store has no recommendations yet, so it then falls back to other products from the
+  product's collection, or from the whole store. Products in the cart and sold out products are left out.
 {%- endcomment -%}
 
 {%- liquid
@@ -9,10 +10,21 @@
   for item in cart.items
     assign in_cart = in_cart | append: item.product_id | append: ','
   endfor
+  assign rec_list = recommendations.products
+  if recommendations.products_count == 0
+    assign rec_pool = collections.all
+    for rec_collection in product.collections
+      if rec_collection.products_count > 3
+        assign rec_pool = rec_collection
+        break
+      endif
+    endfor
+    assign rec_list = rec_pool.products
+  endif
 -%}
 
 <div data-upsell-kit-results>
-  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+  {%- if recommendations.performed? -%}
     {%- for kit in (1..6) -%}
       {%- liquid
         case kit
@@ -30,16 +42,21 @@
             assign kit_name = 'addon-toggles'
         endcase
         assign kit_layout = kit_name | split: '-' | last
+        assign shown = 0
       -%}
       <div data-kit="{{ kit_name }}">
-        {%- for rec in recommendations.products -%}
+        {%- for rec in rec_list -%}
           {%- assign needle = ',' | append: rec.id | append: ',' -%}
-          {%- if in_cart contains needle -%}{%- continue -%}{%- endif -%}
+          {%- if in_cart contains needle or rec.available == false or rec.id == product.id -%}
+            {%- continue -%}
+          {%- endif -%}
           {%- if kit < 4 -%}
             {% render 'upsell-kit-pair', product: rec, layout: kit_layout %}
           {%- else -%}
             {% render 'upsell-kit-addon', product: rec, layout: kit_layout %}
           {%- endif -%}
+          {%- assign shown = shown | plus: 1 -%}
+          {%- if shown >= 8 -%}{%- break -%}{%- endif -%}
         {%- endfor -%}
       </div>
     {%- endfor -%}

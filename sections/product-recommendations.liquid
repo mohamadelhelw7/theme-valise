@@ -3,17 +3,43 @@
   data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ section.settings.limit }}&intent={{ section.settings.intent }}"
   style="--pt: var(--space-{{ section.settings.padding_top }}); --pb: var(--space-{{ section.settings.padding_bottom }});"
 >
-  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
-    <div class="page-width">
-      <div class="section-header{% if section.settings.header_alignment == 'center' %} section-header--center{% endif %}">
-        <h2 class="h2">{{ section.settings.heading | escape }}</h2>
+  {%- if recommendations.performed? -%}
+    {%- liquid
+      comment
+        A new store has no suggestions yet: fall back to other products from the product's collection,
+        or from the whole store.
+      endcomment
+      assign rec_list = recommendations.products
+      if recommendations.products_count == 0
+        assign rec_pool = collections.all
+        for rec_collection in product.collections
+          if rec_collection.products_count > 3
+            assign rec_pool = rec_collection
+            break
+          endif
+        endfor
+        assign rec_list = rec_pool.products
+      endif
+      assign shown = 0
+    -%}
+    {%- capture rec_cards -%}
+      {%- for rec in rec_list -%}
+        {%- if rec.id == product.id or rec.available == false -%}{%- continue -%}{%- endif -%}
+        {%- assign shown = shown | plus: 1 -%}
+        <li>{% render 'product-card', product: rec, index: shown %}</li>
+        {%- if shown >= section.settings.limit -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if shown > 0 -%}
+      <div class="page-width">
+        <div class="section-header{% if section.settings.header_alignment == 'center' %} section-header--center{% endif %}">
+          <h2 class="h2">{{ section.settings.heading | escape }}</h2>
+        </div>
+        <ul class="product-grid{% if section.settings.mobile_layout == 'swipe' %} product-grid--swipe{% endif %}" role="list" style="--cols-desktop: {{ section.settings.limit | at_most: 4 }};">
+          {{- rec_cards -}}
+        </ul>
       </div>
-      <ul class="product-grid{% if section.settings.mobile_layout == 'swipe' %} product-grid--swipe{% endif %}" role="list" style="--cols-desktop: {{ section.settings.limit | at_most: 4 }};">
-        {%- for rec in recommendations.products -%}
-          <li>{% render 'product-card', product: rec, index: forloop.index %}</li>
-        {%- endfor -%}
-      </ul>
-    </div>
+    {%- endif -%}
   {%- endif -%}
 </product-recommendations-loader>
 

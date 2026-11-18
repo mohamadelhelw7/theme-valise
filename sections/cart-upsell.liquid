@@ -1,16 +1,33 @@
+{%- comment -%}
+  Products suggested in the cart drawer and on the cart page, rendered through the product
+  recommendations endpoint for the first item in the cart. A new store has no recommendations yet,
+  so it then falls back to other products from that item's collection, or from the whole store.
+{%- endcomment -%}
+
 {%- liquid
   assign in_cart = ','
   for item in cart.items
     assign in_cart = in_cart | append: item.product_id | append: ','
   endfor
+  assign rec_list = recommendations.products
+  if recommendations.products_count == 0
+    assign rec_pool = collections.all
+    for rec_collection in product.collections
+      if rec_collection.products_count > 3
+        assign rec_pool = rec_collection
+        break
+      endif
+    endfor
+    assign rec_list = rec_pool.products
+  endif
   assign shown = 0
 -%}
 
 <div data-cart-upsell-results>
-  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
-    {%- for rec in recommendations.products -%}
+  {%- if recommendations.performed? -%}
+    {%- for rec in rec_list -%}
       {%- assign needle = ',' | append: rec.id | append: ',' -%}
-      {%- if in_cart contains needle or rec.available == false -%}
+      {%- if in_cart contains needle or rec.available == false or rec.id == product.id -%}
         {%- continue -%}
       {%- endif -%}
       {% render 'upsell-item', product: rec %}

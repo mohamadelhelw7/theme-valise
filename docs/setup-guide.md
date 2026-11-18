@@ -153,3 +153,5 @@ Five upsell types are included. Add the first four as blocks on the product page
   - To make a bundle page, go to **Online Store → Pages → Add page** and pick the **bundle** template.
 
 Products already in the cart are left out of the suggestions, and sold out products are not shown.
+
+**In a new store** Shopify has no suggestions yet, so these upsells, Frequently bought together, the product recommendations and the cart suggestions show other products from the same collection, or from the whole store, until it does. Products you pick in a block are always shown first. Frequently bought together uses **Heading before Shopify has suggestions** meanwhile, so it doesn't claim the products are bought together.

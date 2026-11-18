@@ -67,6 +67,15 @@
             "style": "button--secondary",
             "full_width": true
           }
+        },
+        "pair_with": {
+          "type": "pair-with",
+          "settings": {
+            "heading": "Pair it with",
+            "style": "rows",
+            "source": "related",
+            "limit": 2
+          }
         }
       },
       "block_order": [
@@ -76,6 +85,7 @@
         "inventory",
         "personalize",
         "buy_buttons",
+        "pair_with",
         "restock",
         "save",
         "whatsapp"
@@ -310,6 +320,50 @@
         "padding_top": "large",
         "padding_bottom": "large"
       }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "faq_1": {
+          "type": "_faq-item",
+          "settings": {
+            "question": "What are the bag's measurements?",
+            "answer": "<p>Add the size of each bag and what fits inside, for example a laptop or a water bottle.</p>",
+            "open": true
+          }
+        },
+        "faq_2": {
+          "type": "_faq-item",
+          "settings": {
+            "question": "How do I care for my bag?",
+            "answer": "<p>Add care instructions for the materials you use.</p>",
+            "open": false
+          }
+        },
+        "faq_3": {
+          "type": "_faq-item",
+          "settings": {
+            "question": "How long does delivery take?",
+            "answer": "<p>Add your delivery times and the areas you ship to.</p>",
+            "open": false
+          }
+        },
+        "faq_4": {
+          "type": "_faq-item",
+          "settings": {
+            "question": "Can I return or exchange an item?",
+            "answer": "<p>Add your return and exchange policy, or link to your refund policy page.</p>",
+            "open": false
+          }
+        }
+      },
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4"
+      ],
+      "settings": {}
     }
   },
   "order": [
@@ -320,6 +374,7 @@
     "recommendations",
     "reviews",
     "hall",
-    "recent"
+    "recent",
+    "faq"
   ]
 }

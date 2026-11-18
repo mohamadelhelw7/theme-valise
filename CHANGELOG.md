@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1
+- Fixed: upsells were hidden on stores where Shopify has no product suggestions yet, which is every new store. The upsell blocks, Frequently bought together, the product recommendations section and the cart suggestions now show other products from the same collection, or from the whole store, until Shopify has suggestions.
+- Products you pick in an upsell are now always shown, whatever the Products setting says.
+- While Frequently bought together shows these fallback products, it uses its own heading (Complete the look by default), so it never claims they are bought together.
+- The product page now has a Pair it with block after the buy buttons.
+- The product page now ends with an FAQ section with four different questions.
+
 ## 2.1.0
 - Five new upsell types, all optional. On the product page, under Add block → Upsells:
   - Pair it with: products with their own add button, as rows, a spotlight box, a slider of cards, or rows with a Quick view button.

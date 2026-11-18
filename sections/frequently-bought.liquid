@@ -3,10 +3,27 @@
   assign limit = section.settings.limit
   assign others = blank
   assign needs_load = false
-  if source == 'manual'
+  assign fbt_picked = section.settings.products | size
+  assign fbt_fallback = false
+  if source == 'manual' or fbt_picked > 0
     assign others = section.settings.products
   elsif recommendations.performed?
     assign others = recommendations.products
+    if recommendations.products_count == 0
+      comment
+        A new store has no suggestions yet: show other products from the collection instead,
+        under a heading that doesn't claim they're bought together.
+      endcomment
+      assign fbt_fallback = true
+      assign rec_pool = collections.all
+      for rec_collection in product.collections
+        if rec_collection.products_count > 3
+          assign rec_pool = rec_collection
+          break
+        endif
+      endfor
+      assign others = rec_pool.products
+    endif
   else
     assign needs_load = true
   endif
@@ -23,10 +40,14 @@
     {%- unless needs_load -%}
       <div class="fbt">
         <div class="fbt__intro">
-          {%- if section.settings.eyebrow != blank -%}
-            <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+          {%- if fbt_fallback -%}
+            <h2 class="h2">{{ section.settings.fallback_heading | default: section.settings.heading | escape }}</h2>
+          {%- else -%}
+            {%- if section.settings.eyebrow != blank -%}
+              <span class="eyebrow">{{ section.settings.eyebrow | escape }}</span>
+            {%- endif -%}
+            <h2 class="h2">{{ section.settings.heading | escape }}</h2>
           {%- endif -%}
-          <h2 class="h2">{{ section.settings.heading | escape }}</h2>
         </div>
 
         {%- capture rows -%}
@@ -192,6 +213,13 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Complete the look" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Frequently bought together" },
     {
+      "type": "text",
+      "id": "fallback_heading",
+      "label": "Heading before Shopify has suggestions",
+      "default": "Complete the look",
+      "info": "While Shopify has no suggestions for a product yet, this section shows other products from its collection under this heading."
+    },
+    {
       "type": "select",
       "id": "source",
       "label": "Products to show",
@@ -201,9 +229,9 @@
         { "value": "manual", "label": "Pick products" }
       ],
       "default": "complementary",
-      "info": "Set complementary products for each product in the Shopify Search & Discovery app"
+      "info": "Set complementary products for each product in the Shopify Search & Discovery app. Products you pick below are always used."
     },
-    { "type": "product_list", "id": "products", "label": "Products", "limit": 4, "info": "Used with Pick products" },
+    { "type": "product_list", "id": "products", "label": "Products", "limit": 4, "info": "Products you pick here are always shown, whatever Products to show says." },
     { "type": "range", "id": "limit", "label": "Products added to the bundle", "min": 1, "max": 3, "step": 1, "default": 2 },
     { "type": "header", "content": "Spacing" },
     { "type": "select", "id": "padding_top", "label": "Top spacing", "options": [{ "value": "none", "label": "None" }, { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" }, { "value": "large", "label": "Large" }], "default": "large" },
