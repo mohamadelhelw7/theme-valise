@@ -1,0 +1,251 @@
+{% doc %}
+  Free shipping progress for the product page: how far the cart is from free shipping,
+  with a "You" marker on the bar. It updates when something is added to the cart.
+  The amount comes from this block.
+
+  @example
+  {% content_for 'block', type: 'shipping-goal', id: 'shipping-goal' %}
+{% enddoc %}
+
+{%- liquid
+  assign goal = block.settings.threshold | default: 0
+  if goal == 0 and settings.free_shipping_threshold > 0
+    assign goal = settings.free_shipping_threshold
+  endif
+  assign goal_cents = goal | times: 100 | round
+  assign goal_total = cart.total_price
+  assign goal_left = goal_cents | minus: goal_total
+  assign goal_left_money = goal_left | money
+  assign goal_progress = 0
+  if goal_cents > 0
+    assign goal_progress = goal_total | times: 100 | divided_by: goal_cents | at_most: 100
+  endif
+-%}
+
+{%- if goal_cents > 0 -%}
+  <shipping-goal
+    class="ship-goal ship-goal--{{ block.settings.style }}{% if goal_left <= 0 %} is-done{% endif %}"
+    data-goal="{{ goal_cents }}"
+    data-left="{{ 'upsells.shipping_left' | t: amount: '[amount]' | escape }}"
+    data-done="{{ 'upsells.shipping_done' | t | escape }}"
+    style="--ship-p: {{ goal_progress }};"
+    {{ block.shopify_attributes }}
+  >
+    <p class="ship-goal__message" data-ship-message aria-live="polite">
+      {%- if block.settings.show_icon -%}
+        <span class="ship-goal__icon" aria-hidden="true">{% render 'icon', icon: 'truck' %}</span>
+      {%- endif -%}
+      <span data-ship-text>
+        {%- if goal_left > 0 -%}
+          {{ 'upsells.shipping_left' | t: amount: goal_left_money }}
+        {%- else -%}
+          {{ 'upsells.shipping_done' | t }}
+        {%- endif -%}
+      </span>
+    </p>
+    <div
+      class="ship-goal__track"
+      role="progressbar"
+      aria-label="{{ 'upsells.shipping_progress' | t }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="{{ goal_progress }}"
+      data-ship-track
+    >
+      <span class="ship-goal__fill"></span>
+      {%- if block.settings.style == 'marker' -%}
+        <span class="ship-goal__you" aria-hidden="true">{{ 'upsells.shipping_you' | t }}</span>
+      {%- endif -%}
+    </div>
+    {%- if block.settings.style == 'marker' -%}
+      <div class="ship-goal__ends">
+        <span>{{ 0 | money }}</span>
+        <span>{{ 'upsells.shipping_free' | t }} <bdi>{{ goal_cents | money }}</bdi></span>
+      </div>
+    {%- endif -%}
+  </shipping-goal>
+{%- elsif request.design_mode -%}
+  <p class="upsell-kit-hint" {{ block.shopify_attributes }}>{{ 'upsells.shipping_hint' | t }}</p>
+{%- endif -%}
+
+{% javascript %}
+  if (!customElements.get('shipping-goal')) {
+    class ShippingGoal extends HTMLElement {
+      connectedCallback() {
+        this.refresh = () => this.load();
+        document.addEventListener('cart:updated', this.refresh);
+        document.addEventListener('cart:added', this.refresh);
+      }
+
+      disconnectedCallback() {
+        document.removeEventListener('cart:updated', this.refresh);
+        document.removeEventListener('cart:added', this.refresh);
+      }
+
+      load() {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          const routes = (window.theme && window.theme.routes) || {};
+          fetch(`${routes.cart || '/cart'}.js`)
+            .then((response) => response.json())
+            .then((cart) => this.update(cart.total_price))
+            .catch(() => {});
+        }, 120);
+      }
+
+      update(total) {
+        const goal = Number(this.dataset.goal) || 0;
+        if (!goal) return;
+        const left = goal - Number(total || 0);
+        const progress = Math.max(0, Math.min(100, Math.floor((Number(total || 0) * 100) / goal)));
+        const format = (window.theme && window.theme.formatMoney) || ((cents) => (cents / 100).toFixed(2));
+        this.style.setProperty('--ship-p', progress);
+        this.classList.toggle('is-done', left <= 0);
+        this.querySelector('[data-ship-track]')?.setAttribute('aria-valuenow', progress);
+        const text = this.querySelector('[data-ship-text]');
+        if (text) text.textContent = left > 0 ? this.dataset.left.replace('[amount]', format(left)) : this.dataset.done;
+      }
+    }
+    customElements.define('shipping-goal', ShippingGoal);
+  }
+{% endjavascript %}
+
+{% stylesheet %}
+  .upsell-kit-hint {
+    margin: 0;
+    padding: 12px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .upsell-kit-hint[hidden] {
+    display: none;
+  }
+  shipping-goal {
+    display: grid;
+    gap: 10px;
+  }
+  .ship-goal__message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .ship-goal__icon .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .ship-goal__track {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  .ship-goal__fill {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: calc(var(--ship-p, 0) * 1%);
+    border-radius: inherit;
+    background: var(--color-accent);
+    transition: width 0.5s ease;
+  }
+  .ship-goal.is-done .ship-goal__fill {
+    background: var(--color-text);
+  }
+
+  /* Marker style: a thicker bar with "You" above the point reached */
+  .ship-goal--marker {
+    gap: 6px;
+  }
+  .ship-goal--marker .ship-goal__message {
+    margin-bottom: 18px;
+  }
+  .ship-goal--marker .ship-goal__track {
+    height: 14px;
+    border: 1px solid var(--color-text);
+    background: transparent;
+  }
+  .ship-goal--marker .ship-goal__fill::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: -6px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--color-bg);
+    border-radius: 50%;
+    background: var(--color-text);
+    transform: translateY(-50%);
+  }
+  .ship-goal--marker.is-done .ship-goal__fill::after {
+    display: none;
+  }
+  .ship-goal__you {
+    position: absolute;
+    inset-block-end: calc(100% + 4px);
+    inset-inline-start: calc(var(--ship-p, 0) * 1%);
+    font-family: var(--font-label, inherit);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: translateX(calc(var(--ship-p, 0) * -1%));
+    transition: inset-inline-start 0.5s ease, transform 0.5s ease;
+  }
+  [dir='rtl'] .ship-goal__you {
+    transform: translateX(calc(var(--ship-p, 0) * 1%));
+  }
+  .ship-goal.is-done .ship-goal__you {
+    display: none;
+  }
+  .ship-goal__ends {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  .ship-goal__ends span:last-child {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ship-goal__fill,
+    .ship-goal__you {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Free shipping progress",
+  "settings": [
+    {
+      "type": "number",
+      "id": "threshold",
+      "label": "Free shipping from",
+      "info": "In your store currency. Use your real free shipping amount from Settings → Shipping and delivery."
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "marker", "label": "Bar with a You marker and amounts" },
+        { "value": "slim", "label": "Message and a thin bar" }
+      ],
+      "default": "marker"
+    },
+    { "type": "checkbox", "id": "show_icon", "label": "Show a truck icon", "default": true }
+  ],
+  "presets": [
+    { "name": "Free shipping progress", "category": "Upsells" }
+  ]
+}
+{% endschema %}

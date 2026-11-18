@@ -36,6 +36,7 @@ A premium Online Store 2.0 theme for handbag and leather goods brands that prese
 **Before photos are added:** drawn leather bags standing on plinths, matched to the product name when it says the bag type.
 
 **Also included:** every section from the shared engine (slideshow, campaign hero, scroll collage, lookbook, set builder, product finder, reels and more), quick view, sticky add to cart bar, frequently bought together, cart upsells, free shipping bar, countdowns, predictive search, saved items, back in stock alerts, delivery estimate with an Egyptian governorate picker, WhatsApp, full Arabic with right-to-left layout, and price formats for EGP.
+- **Upsells:** Pair it with (rows, spotlight, slider or quick view), Product add-ons (checkboxes, tiles or switches), an Offer banner, Free shipping progress on the product page, and a Bundle builder section.
 
 **Technical:** theme blocks everywhere, no external libraries or remote assets. Bundled fonts: Gloock, EB Garamond, Aref Ruqaa and Scheherazade New. Effects only run on screen and turn off for visitors who prefer reduced motion.
 

@@ -1,0 +1,55 @@
+{%- comment -%}
+  Renders Shopify's product recommendations for the Pair it with and Product add-ons blocks.
+  The blocks fetch it with section_id=upsell-kit-render and copy the list for their layout.
+  Products already in the cart are left out.
+{%- endcomment -%}
+
+{%- liquid
+  assign in_cart = ','
+  for item in cart.items
+    assign in_cart = in_cart | append: item.product_id | append: ','
+  endfor
+-%}
+
+<div data-upsell-kit-results>
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+    {%- for kit in (1..6) -%}
+      {%- liquid
+        case kit
+          when 1
+            assign kit_name = 'pair-row'
+          when 2
+            assign kit_name = 'pair-card'
+          when 3
+            assign kit_name = 'pair-quick'
+          when 4
+            assign kit_name = 'addon-checks'
+          when 5
+            assign kit_name = 'addon-tiles'
+          else
+            assign kit_name = 'addon-toggles'
+        endcase
+        assign kit_layout = kit_name | split: '-' | last
+      -%}
+      <div data-kit="{{ kit_name }}">
+        {%- for rec in recommendations.products -%}
+          {%- assign needle = ',' | append: rec.id | append: ',' -%}
+          {%- if in_cart contains needle -%}{%- continue -%}{%- endif -%}
+          {%- if kit < 4 -%}
+            {% render 'upsell-kit-pair', product: rec, layout: kit_layout %}
+          {%- else -%}
+            {% render 'upsell-kit-addon', product: rec, layout: kit_layout %}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Upsell kit results",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

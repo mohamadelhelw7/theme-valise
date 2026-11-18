@@ -1,0 +1,436 @@
+{% doc %}
+  Pair it with: suggests products that go with this one, each with its own add button,
+  so they go to the cart on their own. Four styles: rows, a spotlight box, a slider of cards,
+  and rows with a Quick view button for products with many options.
+  Products come from Shopify's recommendations or are picked by hand.
+
+  @example
+  {% content_for 'block', type: 'pair-with', id: 'pair-with' %}
+{% enddoc %}
+
+{%- liquid
+  assign pair_style = block.settings.style
+  case pair_style
+    when 'slider'
+      assign pair_layout = 'card'
+    when 'quick'
+      assign pair_layout = 'quick'
+    else
+      assign pair_layout = 'row'
+  endcase
+  assign pair_url = ''
+  if block.settings.source != 'picked' and product != blank
+    assign pair_url = routes.product_recommendations_url | append: '?product_id=' | append: product.id | append: '&limit=10&intent=' | append: block.settings.source | append: '&section_id=upsell-kit-render'
+  endif
+-%}
+
+<pair-with
+  class="pair pair--{{ pair_style }}"
+  data-kit="pair-{{ pair_layout }}"
+  data-limit="{{ block.settings.limit }}"
+  {% if block.settings.note != blank %}
+    data-note="{{ block.settings.note | escape }}"
+  {% endif %}
+  {% if pair_url != blank %}
+    data-url="{{ pair_url }}"
+    {% unless request.design_mode %}
+      hidden
+    {% endunless %}
+  {% endif %}
+  {% if request.design_mode %}
+    data-editor="true"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <div class="pair__head">
+    {%- if block.settings.heading != blank -%}
+      <p class="pair__heading">{{ block.settings.heading | escape }}</p>
+    {%- endif -%}
+    {%- if pair_style == 'slider' -%}
+      <div class="pair__arrows" data-pair-arrows hidden>
+        <button type="button" class="pair__arrow" data-pair-step="-1" aria-label="{{ 'upsells.previous' | t }}">
+          {%- render 'icon', icon: 'chevron-left' -%}
+        </button>
+        <button type="button" class="pair__arrow" data-pair-step="1" aria-label="{{ 'upsells.next' | t }}">
+          {%- render 'icon', icon: 'chevron-right' -%}
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="pair__items" data-upsell-target>
+    {%- if block.settings.source == 'picked' -%}
+      {%- for picked in block.settings.products limit: block.settings.limit -%}
+        {%- if picked.id == product.id -%}{%- continue -%}{%- endif -%}
+        {% render 'upsell-kit-pair', product: picked, layout: pair_layout, note: block.settings.note %}
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+  {%- if request.design_mode -%}
+    <p class="upsell-kit-hint" data-pair-empty hidden>
+      {%- if block.settings.source == 'picked' -%}
+        {{ 'upsells.editor_pick' | t }}
+      {%- else -%}
+        {{ 'upsells.editor_empty' | t }}
+      {%- endif -%}
+    </p>
+  {%- endif -%}
+</pair-with>
+
+{% javascript %}
+  if (!customElements.get('pair-with')) {
+    class PairWith extends HTMLElement {
+      connectedCallback() {
+        this.track = this.querySelector('[data-upsell-target]');
+        this.addEventListener('change', (event) => {
+          const select = event.target.closest('[data-pair-variant]');
+          if (!select) return;
+          const option = select.selectedOptions[0];
+          const label = select.closest('[data-upsell-item]')?.querySelector('[data-pair-price]');
+          const format = window.theme && window.theme.formatMoney;
+          if (label && option && format) label.textContent = format(option.dataset.price);
+        });
+        this.addEventListener('click', (event) => {
+          const arrow = event.target.closest('[data-pair-step]');
+          if (!arrow || !this.track) return;
+          const rtl = getComputedStyle(this).direction === 'rtl';
+          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const step = Number(arrow.dataset.pairStep) * this.track.clientWidth * 0.8 * (rtl ? -1 : 1);
+          this.track.scrollBy({ left: step, behavior: reduce ? 'auto' : 'smooth' });
+        });
+        const url = this.dataset.url;
+        if (!url) {
+          this.finish();
+          return;
+        }
+        const cache = (window.upsellKitCache = window.upsellKitCache || new Map());
+        if (!cache.has(url)) {
+          cache.set(
+            url,
+            fetch(url)
+              .then((response) => response.text())
+              .then((html) => new DOMParser().parseFromString(html, 'text/html'))
+          );
+        }
+        cache
+          .get(url)
+          .then((doc) => {
+            const results = doc.querySelector(`[data-kit="${this.dataset.kit}"]`);
+            if (results && this.track) this.track.innerHTML = results.innerHTML;
+            this.finish();
+          })
+          .catch(() => this.finish());
+      }
+
+      finish() {
+        const items = this.track ? Array.from(this.track.querySelectorAll('[data-upsell-item]')) : [];
+        const limit = Number(this.dataset.limit) || items.length;
+        items.slice(limit).forEach((item) => item.remove());
+        if (this.dataset.note) {
+          this.querySelectorAll('[data-pair-note]').forEach((note) => {
+            note.textContent = this.dataset.note;
+            note.hidden = false;
+          });
+        }
+        const empty = items.length === 0;
+        if (this.dataset.editor === 'true') {
+          const hint = this.querySelector('[data-pair-empty]');
+          if (hint) hint.hidden = !empty;
+        } else {
+          this.hidden = empty;
+        }
+        const arrows = this.querySelector('[data-pair-arrows]');
+        if (arrows && this.track) {
+          requestAnimationFrame(() => {
+            arrows.hidden = this.track.scrollWidth <= this.track.clientWidth + 4;
+          });
+        }
+      }
+    }
+    customElements.define('pair-with', PairWith);
+  }
+{% endjavascript %}
+
+{% stylesheet %}
+  pair-with {
+    display: grid;
+    gap: 12px;
+  }
+  pair-with[hidden] {
+    display: none;
+  }
+  .pair__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .pair__head:empty {
+    display: none;
+  }
+  .pair__heading {
+    margin: 0;
+    font-family: var(--font-label, inherit);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+  }
+  .pair__arrows {
+    display: flex;
+    gap: 6px;
+  }
+  .pair__arrows[hidden] {
+    display: none;
+  }
+  .pair__arrow {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .pair__arrow:hover {
+    border-color: var(--color-text);
+  }
+  .pair__arrow .icon {
+    width: 16px;
+    height: 16px;
+  }
+  [dir='rtl'] .pair__arrow .icon {
+    transform: scaleX(-1);
+  }
+  .pair__items {
+    display: grid;
+    gap: 10px;
+  }
+  .upsell-kit-hint {
+    margin: 0;
+    padding: 12px;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .upsell-kit-hint[hidden] {
+    display: none;
+  }
+
+  /* One product */
+  .pair-item {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .pair-item__media {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--tint-1);
+  }
+  .pair-item__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pair-item__info {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .pair-item__title {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .pair-item__title:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .pair-item__price-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    font-size: 0.8125rem;
+  }
+  .pair-item__save {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: var(--label-ls);
+    text-transform: var(--label-case);
+    color: var(--color-sale);
+  }
+  .pair-item__note {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  .pair-item__note[hidden] {
+    display: none;
+  }
+  .pair-item__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .pair-item__form .form-message {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 0.75rem;
+  }
+  .pair-item__select {
+    flex: 1 1 110px;
+    min-width: 0;
+    min-height: 36px;
+    font-size: 0.8125rem;
+  }
+  .pair-item__button {
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .pair-item__button-price {
+    unicode-bidi: isolate;
+  }
+  .pair-item__button-price::before {
+    content: '\00B7';
+    margin-inline-end: 6px;
+  }
+  /* A product with options puts the picker and button on their own line */
+  .pair-item:has(.pair-item__select) {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+  .pair-item:has(.pair-item__select) .pair-item__form {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  /* Rows: thin lines between products */
+  .pair--rows .pair-item + .pair-item,
+  .pair--quick .pair-item + .pair-item {
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Spotlight: each product in its own box */
+  .pair--spotlight .pair-item {
+    grid-template-columns: 88px minmax(0, 1fr) auto;
+    padding: 14px;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-md);
+  }
+  .pair--spotlight .pair-item:has(.pair-item__select) {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+  .pair--spotlight .pair-item__title {
+    font-size: 0.9375rem;
+  }
+
+  /* Slider of cards */
+  .pair--slider .pair__items {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .pair--slider .pair__items::-webkit-scrollbar {
+    display: none;
+  }
+  .pair-item--card,
+  .pair-item--card:has(.pair-item__select) {
+    flex: 0 0 min(190px, 44%);
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    align-items: start;
+    gap: 8px;
+    scroll-snap-align: start;
+  }
+  .pair-item--card .pair-item__media {
+    aspect-ratio: 4 / 5;
+  }
+  .pair-item--card .pair-item__form,
+  .pair-item--card:has(.pair-item__select) .pair-item__form {
+    grid-column: auto;
+    display: grid;
+  }
+  .pair-item--card .pair-item__select {
+    flex: none;
+  }
+
+  @media (max-width: 480px) {
+    .pair--spotlight .pair-item {
+      grid-template-columns: 72px minmax(0, 1fr);
+    }
+    .pair--spotlight .pair-item__form,
+    .pair--rows .pair-item__form {
+      grid-column: 2;
+      justify-content: flex-start;
+    }
+    .pair--rows .pair-item {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Pair it with",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Pair it with" },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Style",
+      "options": [
+        { "value": "rows", "label": "Rows with an add button" },
+        { "value": "spotlight", "label": "Spotlight: each product in a box" },
+        { "value": "slider", "label": "Slider of cards" },
+        { "value": "quick", "label": "Rows with a Quick view button" }
+      ],
+      "default": "rows"
+    },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Products",
+      "options": [
+        { "value": "complementary", "label": "Complementary products" },
+        { "value": "related", "label": "Related products" },
+        { "value": "picked", "label": "Products I pick" }
+      ],
+      "default": "related",
+      "info": "Set complementary products in the Search & Discovery app. Related products come from Shopify automatically."
+    },
+    { "type": "product_list", "id": "products", "label": "Products to suggest", "limit": 8, "info": "Used with Products I pick" },
+    { "type": "range", "id": "limit", "label": "Products to show", "min": 1, "max": 8, "step": 1, "default": 3 },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Note under each product",
+      "info": "Only a real offer or fact, for example a discount you set up in Discounts. Leave empty to hide it."
+    }
+  ],
+  "presets": [
+    { "name": "Pair it with", "category": "Upsells" },
+    { "name": "Pair it with: spotlight", "category": "Upsells", "settings": { "style": "spotlight", "limit": 1 } },
+    { "name": "Pair it with: slider", "category": "Upsells", "settings": { "style": "slider", "heading": "Complete the look", "limit": 6 } },
+    { "name": "Buy it with: quick view", "category": "Upsells", "settings": { "style": "quick", "heading": "Buy it with", "limit": 2 } }
+  ]
+}
+{% endschema %}

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0
+- Five new upsell types, all optional. On the product page, under Add block → Upsells:
+  - Pair it with: products with their own add button, as rows, a spotlight box, a slider of cards, or rows with a Quick view button.
+  - Product add-ons: extras that go to the cart together with the product, as checkbox rows, tiles that show a check, or cards with a switch.
+  - Offer banner: an image or icon, a heading and a line of text for a real offer, in a dashed, filled or outlined frame.
+  - Free shipping progress: a bar with a "You" marker that updates when the cart changes.
+- New Bundle builder section: shoppers fill a set number of slots from one or more collections and add the whole bundle in one click. The new bundle page template uses it.
+- Ticked add-ons now go to the cart together with the main product.
+- Setup guide: a new Upsells and bundles section, in English and Arabic.
+
 ## 2.0.1
 - Fixed the homepage showing a 404 after uploading the theme: Shopify rejected the Bento grid section because its Columns on desktop slider had only two values, which also stopped the homepage template from loading. The slider now goes from 2 to 4 columns.
 

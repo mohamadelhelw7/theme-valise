@@ -1,0 +1,85 @@
+{% doc %}
+  Renders one product for the Pair it with block. Each product has its own add button,
+  so it goes to the cart on its own, apart from the main product.
+  Layouts: row (photo, name, price and an Add button), card (for the slider) and quick (a Quick view button).
+
+  @param {product} product - The product to suggest
+  @param {string} layout - row, card or quick
+  @param {string} [note] - A short line under the name, for example a real offer
+
+  @example
+  {% render 'upsell-kit-pair', product: product, layout: 'row', note: block.settings.note %}
+{% enddoc %}
+
+{%- liquid
+  assign pair_variant = product.selected_or_first_available_variant
+  assign pair_save = 0
+  if pair_variant.compare_at_price > pair_variant.price
+    assign pair_save = pair_variant.compare_at_price | minus: pair_variant.price | times: 100 | divided_by: pair_variant.compare_at_price
+  endif
+-%}
+
+{%- if product.available -%}
+  <div class="pair-item pair-item--{{ layout }}" data-upsell-item>
+    <a href="{{ product.url }}" class="pair-item__media" tabindex="-1" aria-hidden="true">
+      {%- if product.featured_media -%}
+        {%- if layout == 'card' -%}
+          {{ product.featured_media | image_url: width: 480 | image_tag: loading: 'lazy', widths: '240, 360, 480', sizes: '220px', alt: '' }}
+        {%- else -%}
+          {{ product.featured_media | image_url: width: 200, height: 200, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+        {%- endif -%}
+      {%- endif -%}
+    </a>
+    <div class="pair-item__info">
+      <a href="{{ product.url }}" class="pair-item__title">{{ product.title | escape }}</a>
+      <div class="pair-item__price-row">
+        {% render 'price', product: product %}
+        {%- if pair_save > 0 -%}
+          <span class="pair-item__save">{{ 'upsells.save_percent' | t: percent: pair_save }}</span>
+        {%- endif -%}
+      </div>
+      <span class="pair-item__note" data-pair-note {% if note == blank %}hidden{% endif %}>{{ note | escape }}</span>
+    </div>
+    {%- if layout == 'quick' -%}
+      <button type="button" class="button button--secondary button--small pair-item__button" data-quick-view="{{ product.url }}">
+        {{- 'upsells.quick_view' | t -}}
+        <span class="visually-hidden">{{ product.title | escape }}</span>
+      </button>
+    {%- else -%}
+      {%- form 'product', product, data-product-form: '', novalidate: 'novalidate', class: 'pair-item__form' -%}
+        {%- if product.has_only_default_variant -%}
+          <input type="hidden" name="id" value="{{ pair_variant.id }}">
+        {%- else -%}
+          <select
+            name="id"
+            class="select pair-item__select"
+            aria-label="{{ 'products.product.choose_options_for' | t: title: product.title | escape }}"
+            data-pair-variant
+          >
+            {%- for v in product.variants -%}
+              <option
+                value="{{ v.id }}"
+                data-price="{{ v.price }}"
+                {% if v.id == pair_variant.id %}
+                  selected
+                {% endif %}
+                {% unless v.available %}
+                  disabled
+                {% endunless %}
+              >
+                {{- v.title | escape -}}
+              </option>
+            {%- endfor -%}
+          </select>
+        {%- endif -%}
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="button button--primary button--small pair-item__button{% if layout == 'card' %} button--full{% endif %}">
+          <span>{{ 'cart.upsell_add' | t }}</span>
+          <span class="pair-item__button-price" data-pair-price>{{ pair_variant.price | money }}</span>
+          <span class="visually-hidden">{{ product.title | escape }}</span>
+        </button>
+        <p class="form-message form-message--error" data-form-error role="alert" hidden></p>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}

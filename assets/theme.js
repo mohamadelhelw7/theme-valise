@@ -345,7 +345,14 @@
       }
       if (Object.keys(properties).length) item.properties = properties;
       if (formData.get('selling_plan')) item.selling_plan = Number(formData.get('selling_plan'));
-      afterAdd(await addToCart([item]));
+      const items = [item];
+      const info = form.closest('product-info');
+      if (info && form.id === 'ProductForm-' + info.dataset.section) {
+        info.querySelectorAll('input[data-upsell-addon]:checked').forEach((input) => {
+          if (input.value) items.push({ id: Number(input.value), quantity: 1 });
+        });
+      }
+      afterAdd(await addToCart(items));
     } catch (error) {
       if (errorEl) {
         errorEl.textContent = error.message;

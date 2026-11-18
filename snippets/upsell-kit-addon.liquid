@@ -1,0 +1,80 @@
+{% doc %}
+  Renders one add-on for the Product add-ons block. A ticked add-on goes to the cart together
+  with the main product (theme.js reads the checked data-upsell-addon inputs).
+  Layouts: checks (a checkbox row), tiles (a small square that shows a check when picked)
+  and toggles (a card with a switch).
+
+  @param {product} product - The add-on product
+  @param {string} layout - checks, tiles or toggles
+  @param {string} [badge] - A short badge, for example a real time limit
+
+  @example
+  {% render 'upsell-kit-addon', product: product, layout: 'tiles', badge: block.settings.badge %}
+{% enddoc %}
+
+{%- assign addon_variant = product.selected_or_first_available_variant -%}
+
+{%- if product.available -%}
+  <div class="addon-item addon-item--{{ layout }}" data-upsell-item>
+    <label class="addon-item__pick">
+      <input type="checkbox" class="addon-item__input" value="{{ addon_variant.id }}" data-upsell-addon>
+      {%- case layout -%}
+        {%- when 'tiles' -%}
+          <span class="addon-item__media" aria-hidden="true">
+            {%- if product.featured_media -%}
+              {{ product.featured_media | image_url: width: 320, height: 320, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+            {%- endif -%}
+            <span class="addon-item__tick">{% render 'icon', icon: 'check' %}</span>
+          </span>
+        {%- when 'toggles' -%}
+          <span class="addon-item__media" aria-hidden="true">
+            {%- if product.featured_media -%}
+              {{ product.featured_media | image_url: width: 200, height: 200, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+            {%- endif -%}
+          </span>
+        {%- else -%}
+          <span class="addon-item__box" aria-hidden="true">{% render 'icon', icon: 'check' %}</span>
+          <span class="addon-item__media" aria-hidden="true">
+            {%- if product.featured_media -%}
+              {{ product.featured_media | image_url: width: 160, height: 160, crop: 'center' | image_tag: loading: 'lazy', alt: '' }}
+            {%- endif -%}
+          </span>
+      {%- endcase -%}
+      <span class="addon-item__info">
+        <span class="addon-item__title">{{ product.title | escape }}</span>
+        {% render 'price', product: product %}
+        <span class="addon-item__badge" data-addon-badge {% if badge == blank %}hidden{% endif %}>{{ badge | escape }}</span>
+      </span>
+      {%- if layout == 'toggles' -%}
+        <span class="addon-item__switch" aria-hidden="true"></span>
+      {%- endif -%}
+    </label>
+    {%- unless product.has_only_default_variant -%}
+      <select
+        class="select addon-item__select"
+        aria-label="{{ 'products.product.choose_options_for' | t: title: product.title | escape }}"
+        data-addon-variant
+      >
+        {%- for v in product.variants -%}
+          <option
+            value="{{ v.id }}"
+            {% if v.id == addon_variant.id %}
+              selected
+            {% endif %}
+            {% unless v.available %}
+              disabled
+            {% endunless %}
+          >
+            {{- v.title | escape -}}
+          </option>
+        {%- endfor -%}
+      </select>
+    {%- endunless -%}
+    {%- if layout == 'toggles' -%}
+      <a href="{{ product.url }}" class="addon-item__link">
+        {{- 'upsells.view' | t -}}
+        <span class="visually-hidden">{{ product.title | escape }}</span>
+      </a>
+    {%- endif -%}
+  </div>
+{%- endif -%}

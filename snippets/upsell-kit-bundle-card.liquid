@@ -1,0 +1,83 @@
+{% doc %}
+  Renders one product in the Bundle builder: photo, name, price, an option picker
+  and an "Add to bundle" button. The bundle-builder element reads the data attributes.
+
+  @param {product} product - The product to show
+  @param {string} [sizes] - The sizes attribute for the photo
+
+  @example
+  {% render 'upsell-kit-bundle-card', product: product, sizes: '33vw' %}
+{% enddoc %}
+
+{%- assign bb_variant = product.selected_or_first_available_variant -%}
+
+<li class="bbuild-card" data-bb-product data-title="{{ product.title | escape }}">
+  <div class="bbuild-card__media">
+    {%- if product.featured_media -%}
+      {{ product.featured_media | image_url: width: 720 | image_tag: loading: 'lazy', widths: '240, 360, 480, 720', sizes: sizes, alt: '' }}
+    {%- else -%}
+      {% render 'media-placeholder' %}
+    {%- endif -%}
+    <span class="bbuild-card__badge" data-bb-badge hidden></span>
+  </div>
+  <div class="bbuild-card__info">
+    <p class="bbuild-card__title">{{ product.title | escape }}</p>
+    <p class="bbuild-card__price">
+      <span data-bb-price>{{ bb_variant.price | money }}</span>
+      {%- if bb_variant.compare_at_price > bb_variant.price -%}
+        <s class="bbuild-card__compare">{{ bb_variant.compare_at_price | money }}</s>
+      {%- endif -%}
+    </p>
+  </div>
+  {%- if product.has_only_default_variant -%}
+    {%- liquid
+      assign bb_thumb = ''
+      if product.featured_media
+        assign bb_thumb = product.featured_media | image_url: width: 160, height: 160, crop: 'center'
+      endif
+    -%}
+    <input
+      type="hidden"
+      value="{{ bb_variant.id }}"
+      data-bb-single
+      data-price="{{ bb_variant.price }}"
+      data-image="{{ bb_thumb }}"
+      data-title=""
+    >
+  {%- else -%}
+    <select
+      class="select bbuild-card__select"
+      aria-label="{{ 'products.product.choose_options_for' | t: title: product.title | escape }}"
+      data-bb-variant
+    >
+      {%- for v in product.variants -%}
+        {%- liquid
+          assign v_thumb = ''
+          assign v_media = v.featured_media | default: product.featured_media
+          if v_media
+            assign v_thumb = v_media | image_url: width: 160, height: 160, crop: 'center'
+          endif
+        -%}
+        <option
+          value="{{ v.id }}"
+          data-price="{{ v.price }}"
+          data-image="{{ v_thumb }}"
+          data-title="{{ v.title | escape }}"
+          {% if v.id == bb_variant.id %}
+            selected
+          {% endif %}
+          {% unless v.available %}
+            disabled
+          {% endunless %}
+        >
+          {{- v.title | escape -}}
+        </option>
+      {%- endfor -%}
+    </select>
+  {%- endif -%}
+  <button type="button" class="button button--secondary button--small button--full bbuild-card__add" data-bb-pick>
+    {%- render 'icon', icon: 'plus' -%}
+    <span>{{ 'upsells.bundle_add_item' | t }}</span>
+    <span class="visually-hidden">{{ product.title | escape }}</span>
+  </button>
+</li>

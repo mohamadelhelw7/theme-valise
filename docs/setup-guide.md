@@ -134,3 +134,22 @@ The **Colophon** footer has an email line ("News of new rooms"), your wordmark a
 - Fonts are bundled and only the ones in use load. Images are sized responsively and lazy loaded.
 - Room colors and rising bags only change while on screen, and visitors who turn on reduced motion see still rooms.
 - The index, search, drawers and the product photos work with the keyboard and screen readers.
+
+## 16. Upsells and bundles
+
+Five upsell types are included. Add the first four as blocks on the product page (**Customize → Products → Add block → Upsells**), and the Bundle builder as a section on any page.
+
+- **Pair it with**: products that go with this one, each with its own add button, so they go to the cart on their own.
+  - **Style**: rows, a spotlight box, a slider of cards, or rows with a Quick view button (best for products with many options).
+  - **Products**: related (chosen by Shopify), complementary (set in the Search & Discovery app) or picked by you.
+  - **Note under each product**: a short line, such as a real discount you set up in **Discounts**. Leave it empty if there is none.
+- **Product add-ons**: extras that go to the cart together with this product when ticked, shown as checkbox rows, tiles that show a check, or cards with a switch. **Badge on each add-on** adds a short label. Use it only for something true.
+- **Offer banner**: a small banner with an image or icon, a heading and a line of text, in a dashed, filled or outlined frame. It can link to a page. Set up the offer itself in **Discounts** first.
+- **Free shipping progress**: shows how far the cart is from free shipping, with a "You" marker on the bar, and updates when something is added. Enter **Free shipping from** in your store currency, matching **Settings → Shipping and delivery**.
+- **Bundle builder** (a section): shoppers fill a set number of slots and add the whole bundle to the cart at once.
+  - Add a **Tab** block for each collection, or pick one **Collection** for a single list.
+  - **Pieces in a bundle** sets the number of slots, from 2 to 8. **Let shoppers add the bundle before it's full** allows smaller bundles.
+  - The bundle doesn't change prices by itself. For a bundle discount, create an automatic discount in **Discounts** (for example an amount off when buying 3 items from these collections) and describe it in **Offer line**.
+  - To make a bundle page, go to **Online Store → Pages → Add page** and pick the **bundle** template.
+
+Products already in the cart are left out of the suggestions, and sold out products are not shown.

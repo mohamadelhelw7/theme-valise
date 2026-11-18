@@ -381,5 +381,32 @@
     "removed": "Removed from saved",
     "empty": "Nothing saved yet. Tap the heart on any piece to keep it here.",
     "browse": "Start browsing"
+  },
+  "upsells": {
+    "save_percent": "Save {{ percent }}%",
+    "quick_view": "Quick view",
+    "view": "View",
+    "previous": "Previous",
+    "next": "Next",
+    "addons_note": "Ticked add-ons are added to your cart with this item.",
+    "editor_pick": "Pick products in this block to show them here. Shoppers don't see this note.",
+    "editor_empty": "No suggestions yet. Set complementary products in the Search & Discovery app, or pick products in this block. Shoppers don't see this note.",
+    "shipping_left": "You're {{ amount }} away from free shipping",
+    "shipping_done": "Your order ships free",
+    "shipping_progress": "Progress toward free shipping",
+    "shipping_you": "You",
+    "shipping_free": "Free shipping",
+    "shipping_hint": "Enter the Free shipping from amount in this block to show the bar. Shoppers don't see this note.",
+    "bundle_title": "Your bundle",
+    "bundle_count": "{{ count }} of {{ size }}",
+    "bundle_left": "{{ count }} more to complete your bundle",
+    "bundle_done": "Your bundle is complete",
+    "bundle_total": "Total",
+    "bundle_add": "Add bundle to cart",
+    "bundle_add_item": "Add to bundle",
+    "bundle_empty": "Pick an item",
+    "bundle_remove": "Remove {{ title }}",
+    "bundle_show": "Show your bundle",
+    "bundle_none": "Pick a collection with products in this section, or add Tab blocks. Shoppers don't see this note."
   }
 }
